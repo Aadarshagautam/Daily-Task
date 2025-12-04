@@ -4,7 +4,7 @@ import {
     createAllNotes,
     updateAllNotes,
     deleteAllNotes,
-} from "../controllers/nodeController";
+} from "../controllers/nodeController.js";
 
 const router = express.Router();
 
