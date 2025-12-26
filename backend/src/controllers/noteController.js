@@ -1,64 +1,76 @@
 import Note from "../models/Note.js";
 
-export async function getAllNotes(req,res){
-    try{
-const notes=await Note.find().sort({createAt:-1}); //newest Firsts
-res.status(200).json(notes);
-    }
-    catch(error){
-console.error("Error in getAllNotes:",error);
-res.status(500).json({message:"Internal Server Error"});
-    }
+// GET ALL NOTES
+export async function getAllNotes(req, res) {
+  try {
+    const notes = await Note.find().sort({ createdAt: -1 });
+    res.status(200).json(notes);
+  } catch (error) {
+    console.error("Error in getAllNotes:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
-export async function getNoteById(req,res){
-    try {
-        const note= await Note.findById(req.params.id);
-        if(!note)return res.status(404).json({message:"Note not found"});
-        res.status(500).json(note);
-    } catch (error) {
-        console.error("Error in getNoteById:",error);
-        res.status(500).json({message:"Internal Server Error"});
-    }
+// GET NOTE BY ID
+export async function getNoteById(req, res) {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).json({ message: "Note not found" });
+    res.status(200).json(note);
+  } catch (error) {
+    console.error("Error in getNoteById:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
+// CREATE NOTE
 export async function createNotes(req, res) {
-try{
-const {titles,content}= req.body;
-const newNote= new Note ({titles,content});
+    console.log("Received body:", req.body);
+  try {
+    const { title, content } = req.body;
+    if (!title || !content) return res.status(400).json({ message: "Title and content required" });
+    const newNote = new Note({ title, content });
+    const savedNote = await newNote.save();
+    console.log("Saved note:", savedNote);
+    res.status(201).json(savedNote);
+  } catch (error) {
+    console.error("Error in createNotes:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
 
-const savedNote = await note.save();
-res.status(200).json({message:"Note created successfully",note:newNote});
-console.log(titles,content);
-}
-catch(error){
-    console.error("Error in createAllNotes:",error);
-    res.status(500).json(savedNote);
-}
-}
-
+// UPDATE NOTE
 export async function updatedNotes(req, res) {
+  try {
+    const { title, content } = req.body;
 
-try {
-    const{titles,content}=req.body;
-    const updatedNotes= await Note.findByIdAndUpdate(req.params.id,{titles,content},
-        {new:true},
-
+    const updatedNote = await Note.findByIdAndUpdate(
+      req.params.id,
+      { title, content },
+      { new: true }
     );
-    if(!updatedNotes) return res.status(404).json({message:"Note not found"})
-    res.status(200).json(updatedNotes)
-} catch (error) {
-    console.error("Error in updateAllNotes:",error);
-    res.status(500).json({message:"Internal server Error"});
-}
-}
-export async function deleteNotes(req, res) {
-    try {
-        const deleteNote= await Note.findByIdAndDelete(req.params.id);
-if(!deleteNote) return res.status(404).json({message:"Note not found"})
-    res.status(200).json(deleteNote)
-    } catch (error) {
-        console.error("Error in delelteNote controller",error);
-        res.status(500).json({message:"Internal server Error"});
+
+    if (!updatedNote) {
+      return res.status(404).json({ message: "Note not found" });
     }
+
+    res.status(200).json(updatedNote);
+  } catch (error) {
+    console.error("Error in updateNotes:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+// DELETE NOTE
+export async function deleteNotes(req, res) {
+  try {
+    const deletedNote = await Note.findByIdAndDelete(req.params.id);
+    if (!deletedNote) {
+      return res.status(404).json({ message: "Note not found" });
+    }
+    res.status(200).json(deletedNote);
+  } catch (error) {
+    console.error("Error in deleteNotes:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
