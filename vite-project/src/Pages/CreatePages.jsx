@@ -1,0 +1,85 @@
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeftIcon, Turtle } from "lucide-react";
+import toast from "react-hot-toast";
+import api from "./lib/axios";
+
+
+
+const CreatePages = () => {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+  // simple validation
+  if (!title.trim() || !content.trim()) {
+    toast.error("Title and Content are required");
+    return;
+  }
+  setLoading(true);
+  try {
+
+    // 👉 later you will replace this with axios API call
+    await api.post("/notes",{
+      title,
+      content
+
+    })
+    toast.success("Note created successfully");
+    navigate("/");
+    // reset form after success
+    setTitle("");
+    setContent("");
+  } catch (error) {
+    console.log("Error creating note:", error);
+    toast.error("Failed to create note");
+  } finally {
+    setLoading(false);
+  }
+  };
+  return (
+    <div className="min-h-screen bg-base-200s ">
+      <div className="container mx-auto p-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <Link to={"/"} className="btn btn-ghost mb-6">
+            <ArrowLeftIcon className="size-5 " />
+            Back to Notes
+          </Link>
+          <div className="card bg-base-100">
+            <div className="card-body">
+              <h2 className="card-title text-2xl mb-4">Create New Note</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="form-control mb-4">
+                  <label className="label">
+                    <span className="label-text">Title</span>
+                  </label>
+                  <input type="text"placeholder="Note Title" className="input input-bordered" value={title} onChange={(e) => setTitle(e.target.value)}/>
+                 </div>
+                 <div className="form-control mb-4">
+                  <label className="label">
+                    <span className="label-text">Content</span>
+                  </label>
+                  <textarea placeholder="Write your note here.." className="textarea textarea-bordered h-32" value={content} onChange={(e) => setContent(e.target.value)}/>
+                 </div>
+                 <div className="card-action justify-end">
+                  <button type="submit" className="btn btn-primary" disabled={loading || !title || !content} > 
+                    {loading ? "Creating..." : "Create Note"}
+                  </button>
+
+                 </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CreatePages;

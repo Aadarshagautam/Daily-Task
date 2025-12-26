@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 // 2. model based on off of that schema
 
 const noteshema= new mongoose.Schema({
-    titles:
+    title:
     {
         type: String,
         required:true,
