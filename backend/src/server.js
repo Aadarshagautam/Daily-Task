@@ -7,6 +7,7 @@ import { ConnectDB } from "./config/db.js";
 import raterLimiter from "./config/upstash.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import authRouter from "./routes/authRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -23,8 +24,9 @@ app.use(raterLimiter); // applying rate limit middleware
 app.use(cookieParser);
 app.use(cors({credentials:true,origin:"http://localhost:5173"}));
 
-
+// routes
 app.use("/api/notes", notesRoutes);
+app.use("/api/auth", authRouter);
 
 app.listen(PORT, () => {
   console.log("Server is running on PORT:", PORT);
