@@ -13,10 +13,8 @@ const noteshema= new mongoose.Schema({
         type:String,
         required:true,
     },
-    },
-    {timestamps:true},//CreateAt and UpdateAT
-    {
-        email: { type: String, unique: true, required: true },
+    user:{type:String, required:true},
+    email: { type: String, unique: true, required: true },
         password: { type: String, required: true },
       
         isVerified: { type: Boolean, default: false },
@@ -26,7 +24,11 @@ const noteshema= new mongoose.Schema({
       
         resetPasswordToken: String,
         resetPasswordExpires: Date,
-      } 
+},
+    {timestamps:true},//CreateAt and UpdateAT
+    
+        
+      
 );
 
 const Note= mongoose.model("Note",noteshema);
