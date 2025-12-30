@@ -21,7 +21,7 @@ app.use(
 app.use(express.json()); // this will help to parse json data
 app.use(raterLimiter); // applying rate limit middleware
 app.use(cookieParser);
-app.use(cors{credentials:true,origin:"http://localhost:5173"})
+app.use(cors({credentials:true,origin:"http://localhost:5173"}));
 
 
 app.use("/api/notes", notesRoutes);
