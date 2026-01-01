@@ -145,7 +145,7 @@ if(user.verifyOptExpireAt<Date.now()){
 
 user.isAccountVerified=true;
 user.veriftyOpt='';
-user.verifyOptExpireAt=2;
+user.verifyOptExpireAt=0;
 
 await user.save();
 return res.json({success:true,message:"Email verified successfully"});
