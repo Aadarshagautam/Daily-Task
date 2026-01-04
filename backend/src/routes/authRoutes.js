@@ -4,13 +4,16 @@ import {  register,
     logout,
     verifyEmail,
     forgotPassword,
-    resetPassword, } from "../controllers/authController.js";
+    resetPassword,
+    sendVerificationOTP, } from "../controllers/authController.js";
+import userAuth from "../middleware/userAuth.js";
 
 const authRouter = express.Router();
 authRouter.post("/register", register);
 authRouter.post("/login", login);
 authRouter.post("/logout", logout);
-authRouter.get("/verify-email", verifyEmail);
+authRouter.post("/send-verify-opt",userAuth,sendVerificationOTP);
+authRouter.get("/verify-account",userAuth,);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.post("/reset-password", resetPassword);
 
