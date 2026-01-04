@@ -13,7 +13,7 @@ authRouter.post("/register", register);
 authRouter.post("/login", login);
 authRouter.post("/logout", logout);
 authRouter.post("/send-verify-opt",userAuth,sendVerificationOTP);
-authRouter.get("/verify-account",userAuth,);
+authRouter.get("/verify-account",userAuth,verifyEmail);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.post("/reset-password", resetPassword);
 
