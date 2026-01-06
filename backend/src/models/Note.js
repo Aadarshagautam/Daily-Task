@@ -20,7 +20,7 @@ const noteshema= new mongoose.Schema({
         verifyOptExpireAt: { type: Number, default:0 },
         resetOpt: { type: String, default:'' },
         resetOptExpireAt: { type: Number, default:0 },
-        isVerified: { type: Boolean, default: false },
+        isAccountVerified: { type: Boolean, default: false },
         
       
         emailVerifyToken: String,

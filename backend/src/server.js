@@ -8,6 +8,7 @@ import raterLimiter from "./config/upstash.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRoutes.js";
+import userRouter from "./routes/userRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -27,6 +28,7 @@ app.use(cors({credentials:true,origin:"http://localhost:5173"}));
 // routes
 app.use("/api/notes", notesRoutes);
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 
 app.listen(PORT, () => {
   console.log("Server is running on PORT:", PORT);
