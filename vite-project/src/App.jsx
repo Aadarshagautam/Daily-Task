@@ -3,6 +3,9 @@ import{Routes, Route} from "react-router-dom"
 import CreatePages from './Pages/CreatePages.jsx'
 import NoteDetailPage from './Pages/NoteDetailPage.jsx'
 import HomePages from './Pages/HomePages.jsx'
+import Login from './Pages/Auth/Login.jsx'
+import EmailVerifty from './Pages/Auth/EmailVerifty.jsx'
+import ResetPassword from './Pages/Auth/ResetPassword.jsx'
 
 
 const App = () => {
@@ -14,6 +17,9 @@ const App = () => {
         <Route path="/" element={<HomePages />} />
         <Route path="/create" element={<CreatePages />} />
         <Route path="/notes/:id" element={<NoteDetailPage/>} />
+        <Route path="/login" element={<Login/>} />
+        <Route path="/email-verifty" element={<EmailVerifty/>} />
+        <Route path="/reset-password" element={<ResetPassword/>} />
       </Routes>
     </div>
   )
