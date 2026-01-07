@@ -1,20 +1,60 @@
 import React,{useState} from 'react'
-import { useNavigate } from 'react-router-dom';
+import { data, useNavigate } from 'react-router-dom';
+import { AppContext } from '../../context/AppContext';
+import axios from 'axios';
+import {toast} from 'react-toastify';
 
 
 const Login = () => {
 
   const navigate = useNavigate();
+  const {backendUrl, setIsLoggedin,getUserData}=React.useContext(AppContext);
+
+
   const [state, setState] = useState('Sign Up');
   const [name, setName]= useState('');
   const [email, setEmail]= useState('');
   const [password, setPassword]= useState('');
+
+  const handleSubmit= async(e)=>{
+    try {
+      e.preventDefault();
+
+      axios.defaults.withCredentials=true;
+
+      if(state==='Sign Up'){
+       const {data}= await axios.post(backendUrl+'/api/auth/register',{name, email, password});
+       if(data.success){
+        setIsLoggedin(true);
+        getUserData();
+        navigate('/');
+
+       }else{
+       toast.alert(data.message);
+       }
+
+      } else{
+        const {data}= await axios.post(backendUrl+'/api/auth/login',{email, password});
+       if(data.success){
+        setIsLoggedin(true);
+        getUserData();
+        navigate('/');
+
+       }else{
+       toast.alert(data.message);
+       }
+
+      }
+    } catch (error) {
+      toast.error(data.message);
+    }
+  }
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from -blue-200 to-purple-400">
       <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-indigo-300 text-sm ">
       <h2 className="text-3xl font-semibold text-white text-center mb-3">{state==='Sign Up'? 'Create Account':'Login'}</h2>
       <p className="text-center text-sm mb-6">{state==='Sign Up'? 'Create your account':'Login to your accounr!'}</p>
-      <form>
+      <form onSubmit={{handleSubmit}}>
         
         {state==='Sign Up' && (
         <div className='mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#33A5C]'>

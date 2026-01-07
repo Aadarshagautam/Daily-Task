@@ -12,6 +12,7 @@ import userRouter from "./routes/userRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+const allowedOrigins = ['http://localhost:5173'];
 ConnectDB();
 app.use(
   cors({
@@ -23,7 +24,7 @@ app.use(
 app.use(express.json()); // this will help to parse json data
 app.use(raterLimiter); // applying rate limit middleware
 app.use(cookieParser);
-app.use(cors({credentials:true,origin:"http://localhost:5173"}));
+app.use(cors({origin:allowedOrigins, credentials:true}));
 
 // routes
 app.use("/api/notes", notesRoutes);
