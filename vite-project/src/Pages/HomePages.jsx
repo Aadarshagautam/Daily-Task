@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Navbar from "../components/Navbar";
 import RateLimitedUI from "../components/RateLimitedUI";
 import { toast } from "react-hot-toast";
@@ -11,6 +11,7 @@ const HomePages = () => {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [notes, setNotes] = useState([]);
   const [loading, setloading] = useState(false);
+  const{userData}=useContext(AppContext);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -35,6 +36,9 @@ const HomePages = () => {
   }, []);
   return (
     <div className="min-h-screen">
+      <div>
+        <h1 className="flex items-center gap-2 text-xl sm:text-3xl font-medium mb-2">Hey{userData?userData.name:'Developer'}</h1>
+      </div>
       <Navbar />
       {isRateLimited && <RateLimitedUI />}
       <div className="max-w-7xl mx-auto p-4 mt-6">
