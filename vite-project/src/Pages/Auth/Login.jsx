@@ -30,7 +30,7 @@ const Login = () => {
         navigate('/');
 
        }else{
-       toast.alert(data.message);
+       toast.alert(error.message);
        }
 
       } else{
@@ -41,12 +41,12 @@ const Login = () => {
         navigate('/');
 
        }else{
-       toast.alert(data.message);
+       toast.alert(error.message);
        }
 
       }
     } catch (error) {
-      toast.error(data.message);
+      toast.error(error.message);
     }
   }
   return (
