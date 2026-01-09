@@ -10,6 +10,11 @@ const Navbar = () => {
 
   const logout=async()=>{
     try {
+    axios.defaults.withCredentials=true;
+    const {data}=await axios.post(backendUrl+"/api/logout");
+    data.success && setIsLoggedin(false);
+    data.success && setUserData(false);
+    navigate('/login');
       
     } catch (error) {
       
