@@ -8,7 +8,11 @@ const EmailVerifty = () => {
           <p className='text-center mb-6 text-indigo-300'>
 Enter the 6-digit code sent to your email address to verify your account.
           </p>
-        
+        <div className='flex justify-between mb-8'>
+          {Array(6).fill(0).map((_, index)=>{
+            <input type="text" maxLength='1' key={index} required className='w-12 h-12 bg-[#333A5C] text-white text-center text-xl rounded-md'/>
+          })}
+        </div>
 
       </form>
     </div>
