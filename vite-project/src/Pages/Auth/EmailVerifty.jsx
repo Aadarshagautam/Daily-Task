@@ -11,7 +11,16 @@ const EmailVerifty = () => {
     inputRef.current[index-1].focus()
   }
  }
- }
+ } 
+ const handlePaste=(e)=>{
+  const paste= e.clipboardData.getData('text')
+  const pasteArray= paste.split('')
+  pasteArray.forEach((char, index)=>{
+    if(inputRef.current[index]){
+      inputRef.current[index].value=char
+    }
+ })
+}
 
   const inputRef = React.useRef([])
   return (
