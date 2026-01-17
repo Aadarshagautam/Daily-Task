@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/Note.js";
 import transporter from "../config/nodemailer.js";
-
+import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } from "../config/emailTemplate.js";
 
 
 // Register Controller
@@ -111,7 +111,8 @@ export const sendVerificationOTP = async (req, res) => {
             from: process.env.SENDER_EMAIL,
             to: user.email,
             subject: "Account Verification OTP",
-            text: `Your account verification OTP is ${otp}. It is valid for 24 hours.`,
+            // text: `Your account verification OTP is ${otp}. It is valid for 24 hours.`, 
+            html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}",otp).replace("{{email}}",user.email)
 
         }
         await transporter.sendMail(mailOption);
@@ -188,7 +189,8 @@ export const sendRestopt= async(req,res)=>{
             from: process.env.SENDER_EMAIL,
             to: user.email,
             subject: "Account Verification OTP",
-            text: `Your account verification OTP is ${otp}. It is valid for 24 hours.`,
+            // text: `Your account verification OTP is ${otp}. It is valid for 24 hours.`,
+            html:PASSWORD_RESET_TEMPLATE.replace("{{otp}}",otp).replace("{{email}}",user.email)
 
         }
         await transporter.sendMail(mailOption);
