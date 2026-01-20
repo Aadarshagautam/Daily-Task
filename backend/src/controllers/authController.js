@@ -1,13 +1,13 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import UserModel from "../models/Note.js";
+import UserModel from "../models/User.js";
 import transporter from "../config/nodemailer.js";
 import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } from "../config/emailTemplate.js";
 
 
 // Register Controller
 export const register = async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password} = req.body;
 
     if (!username || !email || !password) {
         return res.json({ success: false, message: "Missing Details" });
@@ -15,12 +15,12 @@ export const register = async (req, res) => {
     }
 
     try {
-        const existingUser = await UserModel.findOne({ email })
-        if (existingUser) {
+        const exists = await UserModel.findOne({ email })
+        if (exists) {
             return res.json({ success: false, message: "User already exists" });
         }
         const hashedPassword = bcrypt.hashSync(password, 10);
-        const user = new UserModel({ name, email, password: hashedPassword });
+        const user = new UserModel({username, email, password: hashedPassword,isAccountVerified: false, });
         await user.save();
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
         res.cookie("token", token, {
@@ -29,6 +29,7 @@ export const register = async (req, res) => {
             sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
+        
         //Send welcome email
         const mailOption = {
             from: process.env.SENDER_EMAIL,
@@ -232,3 +233,38 @@ export const resetPassword=async(req, res)=>{
         
     }
 }
+
+// forgot Password
+export const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+      const user = await User.findOne({ email });
+      if (!user)
+        return res.status(404).json({ message: "User not found" });
+  
+      const resetToken = crypto.randomBytes(32).toString("hex");
+  
+      user.resetToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+  
+      user.resetTokenExpire = Date.now() + 10 * 60 * 1000;
+  
+      await user.save();
+  
+      const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  
+      await sendEmail(
+        user.email,
+        "Reset your password",
+        `Click here to reset password: ${resetUrl}`
+      );
+  
+      res.json({ message: "Reset email sent" });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  };
+  
