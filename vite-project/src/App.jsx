@@ -6,8 +6,9 @@ import HomePages from './Pages/HomePages.jsx'
 import Login from './Pages/Auth/Login.jsx'
 import EmailVerifty from './Pages/Auth/EmailVerifty.jsx'
 import ResetPassword from './Pages/Auth/ResetPassword.jsx'
-import { ToastContainer } from 'react-toastify';
-import 'react-toastfy/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 
 const App = () => {
