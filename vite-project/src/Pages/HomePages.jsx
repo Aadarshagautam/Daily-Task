@@ -1,10 +1,12 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Navbar from "../components/Navbar";
 import RateLimitedUI from "../components/RateLimitedUI";
 import { toast } from "react-hot-toast";
 import NoteCard from "../components/NoteCard";
 import api from "./lib/axios";
 import NotesNotFound from "../components/NotesNotFound";
+import { AppContext } from "../context/AppContext";
+
  
 
 const HomePages = () => {

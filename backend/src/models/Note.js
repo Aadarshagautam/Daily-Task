@@ -13,21 +13,8 @@ const noteshema= new mongoose.Schema({
         type:String,
         required:true,
     },
-    user:{type:String, required:true},
-    email: { type: String, unique: true, required: true },
-        password: { type: String, required: true },
-        veriftyOpt: { type: String, required: true },
-        verifyOptExpireAt: { type: Number, default:0 },
-        resetOpt: { type: String, default:'' },
-        resetOptExpireAt: { type: Number, default:0 },
-        isAccountVerified: { type: Boolean, default: false },
-        
-      
-        emailVerifyToken: String,
-        emailVerifyExpires: Date,
-      
-        resetPasswordToken: String,
-        resetPasswordExpires: Date,
+    user:{type:mongoose.Schema.Types.ObjectId,ref: "User", required:true},
+   
 },
     {timestamps:true},//CreateAt and UpdateAT
     

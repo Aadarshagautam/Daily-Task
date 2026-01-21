@@ -163,7 +163,7 @@ export const verifyEmail = async (req, res) => {
 // Is Authenticated Controller
 export const isAuthenticated = async(req, res)=>{
 try {
-    return res.json({success:true} );
+    return res.json({success:true, user:req.user,} );
     
 } catch (error) {
     res.json({ success: false, message: error.message });

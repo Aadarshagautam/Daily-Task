@@ -11,7 +11,7 @@ export const AppContextProvider=(props)=>{
     axios.defaults.withCredentials=true;
     const backendUrl=import.meta.env.VITE_BACKEND_URL;
     const [isLoggedin, setIsLoggedin]=useState(false);
-    const [userData, setUserData]=useState(false);
+    const [userData, setUserData]=useState(null);
 
     const getAuthState=async()=>{
         try {
@@ -22,7 +22,7 @@ export const AppContextProvider=(props)=>{
 
             }
         } catch (error) {
-            toast.error(error.message);
+            toast.error(error.response?.data?.message || "Auth check failed");
             
         }
     }
@@ -32,7 +32,7 @@ export const AppContextProvider=(props)=>{
             const {data}= await axios.get(backendUrl+'/api/user/data');
             data.success?setUserData(data.user):toast.error(data.message);
         } catch (error) {
-            toast.error(error.message);
+            toast.error(error.response?.data?.message || "User fetch failed");
         }
     }
 useEffect(()=>{
@@ -45,9 +45,10 @@ useEffect(()=>{
         getUserData
 
     }
-return 
+return( 
 
 <AppContext.Provider value={value}>
     {props.children}
 </AppContext.Provider>
-}
+);
+};
