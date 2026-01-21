@@ -7,7 +7,7 @@ import { ConnectDB } from "./config/db.js";
 import raterLimiter from "./config/upstash.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import authRouter from "./routes/authRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 
 const app = express();
@@ -16,7 +16,7 @@ const allowedOrigins = ['http://localhost:5173'];
 ConnectDB();
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   })
 ); // enabling CORS for all origins
@@ -24,12 +24,12 @@ app.use(
 // middleware
 app.use(express.json()); // this will help to parse json data
 app.use(raterLimiter); // applying rate limit middleware
-app.use(cookieParser);
-app.use(cors({origin:allowedOrigins, credentials:true}));
+app.use(cookieParser());// to parse cookies from request headers
+app.use(cors({origin:allowedOrigins, credentials:true})); // enabling CORS for all origins
 
 // routes
 app.use("/api/notes", notesRoutes);
-app.use("/api/auth", authRouter);
+app.use("/api/auth", authRoutes);
 app.use("/api/user", userRouter);
 
 app.listen(PORT, () => {
