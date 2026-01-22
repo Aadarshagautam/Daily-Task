@@ -3,27 +3,24 @@ import jwt from "jsonwebtoken";
 
 
  const userAuth=async (req,res,next)=>{
+   try{
 
-const {token}=req.cookies?.token;
-
+const token=req.cookies.token;
 if(!token){
-   return res.json({success:false,message:"Not authorized,no token"});
+
+   return res.status(401).json({success:false,message:"Unauthorized, no token"});
 
 }
-try{
-  const tokenDecode= jwt.verify(token,process.env.JWT_SECRET);
-  if(tokenDecode.id){
-   req.userId=tokenDecode.id;
 
-  }else{
-   return res.json({success:false,message:"Not authorized,token failed"});
-  }
+  const tokenDecode= jwt.verify(token,process.env.JWT_SECRET);
+  req.userId = tokenDecode.id;
+
    next();
 
 
 }catch(error){
-   return res.json({success:false,message:error.message});
-
+   console.log("Auth middleware error:", error.message);
+   return res.status(401).json({success:false,message:"Unauthorized, no token"});
 }
 
  };

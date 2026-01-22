@@ -8,12 +8,14 @@ const redis = Redis.fromEnv();
 
 const ratelimit = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(20, "60s"),
+    limiter: Ratelimit.slidingWindow(10, "20s"),
   });
   
   export default async function rateLimitMiddleware(req, res, next) {
     try {
-      const ip = req.ip ?? "anonymous";
+      const ip = req.headers["x-forwarded-for"] ||
+      req.socket.remoteAddress ||
+      "127.0.0.1";
       const { success } = await ratelimit.limit(ip);
   
       if (!success) {
@@ -24,6 +26,7 @@ const ratelimit = new Ratelimit({
   
       next();
     } catch (error) {
+      console.log("Rate limiter error:", error.message);
       next(error);
     }
   }

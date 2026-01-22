@@ -1,9 +1,9 @@
-import Note from "../models/Note.js";
+import Note from "../models/note.js";
 
 // GET ALL NOTES
-export async function getAllNotes(req, res) {
+export const getAllNotes=async(req, res) =>{
   try {
-    const notes = await Note.find({user:req.user.id}).sort({ createdAt: -1 });
+    const notes = await Note.find({user:req.userId}).sort({ createdAt: -1 });
     res.status(200).json(notes);
   } catch (error) {
     console.error("Error in getAllNotes:", error);

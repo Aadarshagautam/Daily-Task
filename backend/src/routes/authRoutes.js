@@ -9,6 +9,7 @@ import {  register,
     isAuthenticated,
     sendRestopt, } from "../controllers/authController.js";
 import userAuth from "../middleware/userAuth.js";
+import router from "./notes_routes.js";
 
 const authRouter = express.Router();
 authRouter.post("/register", register);
@@ -16,7 +17,7 @@ authRouter.post("/login", login);
 authRouter.post("/logout", logout);
 authRouter.post("/send-verify-opt",userAuth,sendVerificationOTP);
 authRouter.post("/verify-account",userAuth,verifyEmail);
-authRouter.get("/is-auth",userAuth,isAuthenticated);
+router.get("/is-auth",userAuth,isAuthenticated); // to check if user is authenticated
 authRouter.post("/send-reset-Otp",sendRestopt);
 authRouter.post("/forgot-password", forgotPassword);
 authRouter.post("/reset-password", resetPassword);

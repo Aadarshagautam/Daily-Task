@@ -22,8 +22,7 @@ export const AppContextProvider=(props)=>{
 
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Auth check failed");
-            
+            setIsLoggedin(false);            
         }
     }
 
@@ -32,8 +31,7 @@ export const AppContextProvider=(props)=>{
             const {data}= await axios.get(backendUrl+'/api/user/data');
             data.success?setUserData(data.user):toast.error(data.message);
         } catch (error) {
-            toast.error(error.response?.data?.message || "User fetch failed");
-        }
+            setIsLoggedin(false);        }
     }
 useEffect(()=>{
     getAuthState();

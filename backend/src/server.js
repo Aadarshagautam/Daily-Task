@@ -2,30 +2,33 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
-import notesRoutes from "./routes/notes_routes.js";
-import { ConnectDB } from "./config/db.js";
-import raterLimiter from "./config/upstash.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+
+import notesRoutes from "./routes/notes_routes.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 
+import { ConnectDB } from "./config/db.js";
+import raterLimiter from "./config/upstash.js";
+
+
+
 const app = express();
 const PORT = process.env.PORT || 5001;
+
 const allowedOrigins = ['http://localhost:5173'];
-ConnectDB();
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  })
-); // enabling CORS for all origins
+
+ConnectDB(); // connecting to database
+
+
+app.use( cors({ origin: allowedOrigins,credentials: true,})); // enabling CORS for all origins
 
 // middleware
 app.use(express.json()); // this will help to parse json data
-app.use(raterLimiter); // applying rate limit middleware
 app.use(cookieParser());// to parse cookies from request headers
-app.use(cors({origin:allowedOrigins, credentials:true})); // enabling CORS for all origins
+app.use(raterLimiter); // applying rate limit middleware
+
 
 // routes
 app.use("/api/notes", notesRoutes);
