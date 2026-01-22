@@ -12,12 +12,10 @@ const noteshema= new mongoose.Schema({
     content:{
         type:String,
         required:true,
-    },
-    user:{type:String, required:true},
-   
+    },   
 },
     {timestamps:true},//CreateAt and UpdateAT
 );
 
-const note= mongoose.model("Note",noteshema);
-export default note;
+const Note= mongoose.model("Note",noteshema);
+export default Note;

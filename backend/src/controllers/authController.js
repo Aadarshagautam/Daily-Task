@@ -101,25 +101,27 @@ export const sendVerificationOTP = async (req, res) => {
     try {
         const { userID } = req.body;
         const user = await UserModel.findOne({ userID });
+        if (!user) return res.status(404).json({ success: false, message: "User not found" });
         if (user.isAccountVerified) {
             return res.json({ success: false, message: "Account already verified" });
         }
-        const opt = String(Math.floor(100000 + Math.random() * 1000000));
-        user.veriftyOpt = otp;
+        const opt = String(Math.floor(100000 + Math.random() * 900000));
+        user.veriftyOpt = opt;
         user.verifyOptExpireAt = Date.now() + 24 * 60 * 60 * 1000; //24 hours
         await user.save();
-        const mailOption = {
+
+        await transporter.sendMail({
             from: process.env.SENDER_EMAIL,
             to: user.email,
             subject: "Account Verification OTP",
             // text: `Your account verification OTP is ${otp}. It is valid for 24 hours.`, 
             html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}",otp).replace("{{email}}",user.email)
 
-        }
-        await transporter.sendMail(mailOption);
+        });
         return res.json({ success: true, message: "Verification OTP sent to your email" });
 
     } catch (error) {
+        console.error("sendVerificationOTP error:", error);
         res.json({ success: false, message: error.message });
 
     }
@@ -163,11 +165,18 @@ export const verifyEmail = async (req, res) => {
 // Is Authenticated Controller
 export const isAuthenticated = async(req, res)=>{
 try {
-    return res.json({success:true, user:req.user,} );
-    
-} catch (error) {
-    res.json({ success: false, message: error.message });
-}
+    console.log("req.user:", req.user); // DEBUG
+    if (!req.user)return res.status(401).json({ success: false, message: "Unauthorized" });
+      
+    // req.user is now guaranteed by middlewares
+    const user = await UserModel.findById(req.user).select("-password");
+    if (!user)return res.status(404).json({ success: false, message: "User not found" });
+
+    return res.json({ success: true, user });
+  } catch (error) {
+    console.error("Error in isAuthenticated:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 }
 
 // send password reset OPT controller
@@ -183,7 +192,7 @@ export const sendRestopt= async(req,res)=>{
             return res.json({success:false, message:"User not found"});
         }
         const opt = String(Math.floor(100000 + Math.random() * 1000000));
-        user. resetOpt = otp;
+        user. resetOpt = opt;
         user.resetOptExpireAt = Date.now() + 15 * 60 * 1000; //15 minutes
         await user.save();
         const mailOption = {
@@ -239,7 +248,7 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
   
     try {
-      const user = await User.findOne({ email });
+      const user = await UserModel.findOne({ email });
       if (!user)
         return res.status(404).json({ message: "User not found" });
   

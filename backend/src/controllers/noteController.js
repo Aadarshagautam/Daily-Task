@@ -1,13 +1,15 @@
-import Note from "../models/note.js";
+import Note from "../models/Note.js";
 
 // GET ALL NOTES
 export const getAllNotes=async(req, res) =>{
   try {
-    const notes = await Note.find({user:req.userId}).sort({ createdAt: -1 });
+  console.log("Fetching notes...");
+    const notes = await Note.find().sort({ createdAt: -1 });
+    console.log("Notes found:", notes.length);
     res.status(200).json(notes);
   } catch (error) {
     console.error("Error in getAllNotes:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({message: error.message});
   }
 }
 
