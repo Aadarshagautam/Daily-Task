@@ -1,5 +1,6 @@
 import express from "express";
-import {  register,
+import { 
+     register,
     login,
     logout,
     verifyEmail,
@@ -11,6 +12,7 @@ import {  register,
 import userAuth from "../middleware/userAuth.js";
 
 const authRouter = express.Router();
+
 authRouter.post("/register", register);
 authRouter.post("/login", login);
 authRouter.post("/logout", logout);

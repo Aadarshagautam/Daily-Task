@@ -5,8 +5,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-import notesRoutes from "./routes/notes_routes.js";
-import authRoutes from "./routes/authRoutes.js";
+import notesRouter from "./routes/notes_routes.js";
+import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 
 import { ConnectDB } from "./config/db.js";
@@ -15,24 +15,27 @@ import raterLimiter from "./config/upstash.js";
 
 
 const app = express();
+
 const PORT = process.env.PORT || 5001;
 
-const allowedOrigins = ['http://localhost:5173'];
 
 ConnectDB(); // connecting to database
 
 
-app.use( cors({ origin: allowedOrigins,credentials: true,})); // enabling CORS for all origins
 
 // middleware
 app.use(express.json()); // this will help to parse json data
 app.use(cookieParser());// to parse cookies from request headers
 app.use(raterLimiter); // applying rate limit middleware
 
+const allowedOrigins = ['http://localhost:5173'];
+
+
+app.use( cors({ origin: allowedOrigins,credentials: true,})); // enabling CORS for all origins
 
 // routes
-app.use("/api/notes", notesRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/api/notes", notesRouter);
+app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
 app.listen(PORT, () => {
@@ -45,4 +48,3 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message || "Internal Server Error" });
 });
 
-// mongodb+srv://aadarshgautam23_db_user:PIZQfcZcVNCSrSnO@cluster0.kc9whs9.mongodb.net/?appName=Cluster0
