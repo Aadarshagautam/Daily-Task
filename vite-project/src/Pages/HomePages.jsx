@@ -13,10 +13,16 @@ const HomePages = () => {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [notes, setNotes] = useState([]);
   const [loading, setloading] = useState(false);
-  const{userData}=useContext(AppContext);
+  const { userData, isLoggedin } = useContext(AppContext); // ✅ Added isLoggedin here
+
 
   useEffect(() => {
     const fetchNotes = async () => {
+      // Only fetch notes if user is logged in
+      if (!isLoggedin) {
+        console.log("User not logged in, skipping notes fetch");
+        return;
+      }
       setloading(true);
       try {
         const res = await api.get("/notes");
@@ -24,9 +30,11 @@ const HomePages = () => {
         setNotes(res.data);
         setIsRateLimited(false);
       } catch (error) {
-        console.log("Error fetching notes");
-        if (error.response?.status == 429) {
+        console.error("Error fetching notes:", error);
+        if (error.response?.status === 429) {
           setIsRateLimited(true);
+        } else if (error.response?.status === 401) {
+          toast.error("Please log in to view notes");
         } else {
           toast.error("Failed to load notes");
         }
@@ -35,7 +43,7 @@ const HomePages = () => {
       }
     };
     fetchNotes();
-  }, []);
+  }, [isLoggedin]); //// Re-fetch when login status changes
   return (
     <div className="min-h-screen">
       <div>
@@ -47,7 +55,12 @@ const HomePages = () => {
         {loading && (
           <div className="text-center text-primary py-10"> Loading notes....</div>
         )}
-        {notes.length==0 &&!isRateLimited && <NotesNotFound />}
+        {!isLoggedin && (
+          <div className="text-center text-gray-500 py-10">
+            Please log in to view your notes
+          </div>
+        )}
+        {isLoggedin && notes.length === 0 && !isRateLimited && !loading && <NotesNotFound />}
         {notes.length > 0 && !isRateLimited && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {notes.map((note) => (

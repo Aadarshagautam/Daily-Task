@@ -15,7 +15,7 @@ export const register = async (req, res) => {
     }
 
     try {
-        const exists = await UserModel.findOne({ email })
+        const exists = await UserModel.findById({ email })
         if (exists) {
             return res.json({ success: false, message: "User already exists" });
         }
@@ -25,8 +25,10 @@ export const register = async (req, res) => {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+            secure: false, 
+            sameSite: "lax", 
+          //  secure: process.env.NODE_ENV === "production", //for https production
+          //  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", //for https production
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
         
@@ -54,7 +56,7 @@ export const login = async (req, res) => {
 
     }
     try {
-        const user = await UserModel.findOne({ email });
+        const user = await UserModel.findById({ email });
         if (!user) {
             return res.json({ success: false, message: "Invalid credentials" });
         }
@@ -70,8 +72,11 @@ export const login = async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+            secure: false, 
+            sameSite: "lax", 
+          //  secure: process.env.NODE_ENV === "production", //for https production
+          //  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", //for https production
+            
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         return res.json({ success: true });
@@ -85,8 +90,10 @@ export const logout = async (req, res) => {
     try {
         res.clearCookie("token", {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+            secure: false, 
+            sameSite: "lax", 
+          //  secure: process.env.NODE_ENV === "production", //for https production
+          //  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", //for https production
         });
         return res.json({ success: true, message: "Logged out successfully" });
 
@@ -100,14 +107,14 @@ export const logout = async (req, res) => {
 export const sendVerificationOTP = async (req, res) => {
     try {
         const { userID } = req.body;
-        const user = await UserModel.findOne({ userID });
+        const user = await UserModel.findById({ userID });
         if (!user) return res.status(404).json({ success: false, message: "User not found" });
         if (user.isAccountVerified) {
             return res.json({ success: false, message: "Account already verified" });
         }
-        const opt = String(Math.floor(100000 + Math.random() * 900000));
-        user.veriftyOpt = opt;
-        user.verifyOptExpireAt = Date.now() + 24 * 60 * 60 * 1000; //24 hours
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+        user.verifyOtp = otp;
+        user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; //24 hours
         await user.save();
 
         await transporter.sendMail({
@@ -129,27 +136,27 @@ export const sendVerificationOTP = async (req, res) => {
 
 // Verify Email Controller
 export const verifyEmail = async (req, res) => {
-    const { userID, opt } = req.body;
-    if (!userID || !opt) {
+    const { userID, otp } = req.body;
+    if (!userID || !otp) {
         return res.json({ success: false, message: "Missing Details" });
 
     }
     try {
-        const user = await UserModel.findOne({ userID });
+        const user = await UserModel.findById({ userID });
         if (!user) {
             return res.json({ success: false, message: "User not found" });
         }
-        if (user.veriftyOpt === '' || user.veriftyOpt !== opt) {
+        if (user.verifyOtp === '' || user.verifyOtp !== opt) {
             return res.json({ success: false, message: "Invalid OTP" });
         }
 
-        if (user.verifyOptExpireAt < Date.now()) {
+        if (user.verifyOtpExpireAt < Date.now()) {
             return res.json({ success: false, message: "OTP Expired" });
         }
 
         user.isAccountVerified = true;
-        user.veriftyOpt = '';
-        user.verifyOptExpireAt = 0;
+        user.verifyOtp = '';
+        user.verifyOtpExpireAt = 0;
 
         await user.save();
         return res.json({ success: true, message: "Email verified successfully" });
@@ -165,14 +172,13 @@ export const verifyEmail = async (req, res) => {
 // Is Authenticated Controller
 export const isAuthenticated = async(req, res)=>{
 try {
-    console.log("req.user:", req.user); // DEBUG
     if (!req.user)return res.status(401).json({ success: false, message: "Unauthorized" });
       
     // req.user is now guaranteed by middlewares
     const user = await UserModel.findById(req.user).select("-password");
-    if (!user)return res.status(404).json({ success: false, message: "User not found" });
+    if (!user){return res.status(404).json({ success: false, message: "User not found" });}
 
-    return res.json({ success: true, user });
+     res.json({ success: true, user });
   } catch (error) {
     console.error("Error in isAuthenticated:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -187,13 +193,13 @@ export const sendRestopt= async(req,res)=>{
     }
     try {
 
-        const user =await UserModel.findOne({email});
+        const user =await UserModel.findById({email});
         if(!user){
             return res.json({success:false, message:"User not found"});
         }
-        const opt = String(Math.floor(100000 + Math.random() * 1000000));
-        user. resetOpt = opt;
-        user.resetOptExpireAt = Date.now() + 15 * 60 * 1000; //15 minutes
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+        user.resetOtp = otp;
+        user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000; //15 minutes
         await user.save();
         const mailOption = {
             from: process.env.SENDER_EMAIL,
@@ -214,27 +220,28 @@ export const sendRestopt= async(req,res)=>{
 
 // reset password controller
 export const resetPassword=async(req, res)=>{
-    const{email,opt,newPassword}=req.body;
-    if(!email || !opt || !newPassword){
+    const{email,otp,newPassword}=req.body;
+    if(!email || !otp || !newPassword){
         return res.json({success:false, message:"Email, OTP, and new password are requied"});
     }
 
     try {
-        const user = await UserModel.findOne({email});
+        const user = await UserModel.findById({email});
         if(!user){
             return res.json({success:false, message:"User not found"});
 
         }
-        if(user.resetOpt===""|| user.resetOpt !==opt){
+        if(user.resetOtp===""|| user.resetOpt !==otp){
             return res.json({success:false, message:"Invalid OTP"});
         }
-        if(user.resetOptExpireAt< Date.now()){
+        if(user.resetOtpExpireAt< Date.now()){
             return res.json({success:false, message:"OTP Expired"});
         }
+        const otp = String(Math.floor(100000 + Math.random() * 1000000));
         const hashedPassword= bcrypt.hashSync(newPassword,10);
         user.password= hashedPassword;
-        user.resetOpt= '';
-        user.resetOptExpireAt=0;
+        user.resetOtp= otp;
+        user.resetOtpExpireAt=0;
         await user.save();
         return res.json({success:true, message:"Password reset successfully"});
     } catch (error) {
@@ -248,7 +255,7 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
   
     try {
-      const user = await UserModel.findOne({ email });
+      const user = await UserModel.findById({ email });
       if (!user)
         return res.status(404).json({ message: "User not found" });
   

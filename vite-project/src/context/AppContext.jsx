@@ -18,20 +18,28 @@ export const AppContextProvider=(props)=>{
             const {data}= await axios.get(backendUrl+'/api/auth/is-auth',{withCredentials:true});
             if(data.success){
                 setIsLoggedin(true);
-                getUserData(data.user); // Fetch user data if authenticated
+                getUserData(); // Fetch user data if authenticated
 
             }
         } catch (error) {
-            setIsLoggedin(false);            
+            console.error("Auth check failed:", error);
+            setIsLoggedin(false);
+            setUserData(null);          
         }
     }
 
     const getUserData= async()=>{
         try {
-            const {data}= await axios.get(backendUrl+'/api/user/data');
-            data.success?setUserData(data.user):toast.error(data.message);
-        } catch (error) {
-            setIsLoggedin(false);        }
+            const {data}= await axios.get(backendUrl+'/api/user/data',{ withCredentials: true });
+            if (data.success) {
+                setUserData(data.user);
+            } else {
+                toast.error(data.message);
+            }
+                } catch (error) {
+                    console.error("Failed to fetch user data:", error);
+                    toast.error("Failed to fetch user data");
+                      }
     }
 useEffect(()=>{
     getAuthState();
@@ -40,7 +48,7 @@ useEffect(()=>{
         backendUrl,
         isLoggedin,setIsLoggedin,
         userData,setUserData,
-        getUserData
+        getUserData,getAuthState
 
     }
 return( 
