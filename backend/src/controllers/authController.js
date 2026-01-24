@@ -11,11 +11,10 @@ export const register = async (req, res) => {
 
     if (!username || !email || !password) {
         return res.json({ success: false, message: "Missing Details" });
-
     }
 
     try {
-        const exists = await UserModel.findById({ email })
+        const exists = await UserModel.findOne({ email })
         if (exists) {
             return res.json({ success: false, message: "User already exists" });
         }
@@ -45,6 +44,7 @@ export const register = async (req, res) => {
 
 
     } catch (error) {
+        console.error("Register error:", error); // ✅ Added console.error for debugging
         res.json({ success: false, message: error.message });
     }
 }
@@ -56,7 +56,7 @@ export const login = async (req, res) => {
 
     }
     try {
-        const user = await UserModel.findById({ email });
+        const user = await UserModel.findOne({ email });
         if (!user) {
             return res.json({ success: false, message: "Invalid credentials" });
         }
@@ -81,6 +81,7 @@ export const login = async (req, res) => {
         });
         return res.json({ success: true });
     } catch (error) {
+        console.error("Login error:", error); // ✅ Added console.error for debugging
         res.json({ success: false, message: error.message });
     }
 };
@@ -107,7 +108,7 @@ export const logout = async (req, res) => {
 export const sendVerificationOTP = async (req, res) => {
     try {
         const { userID } = req.body;
-        const user = await UserModel.findById({ userID });
+        const user = await UserModel.findOne({ userID });
         if (!user) return res.status(404).json({ success: false, message: "User not found" });
         if (user.isAccountVerified) {
             return res.json({ success: false, message: "Account already verified" });
@@ -142,7 +143,7 @@ export const verifyEmail = async (req, res) => {
 
     }
     try {
-        const user = await UserModel.findById({ userID });
+        const user = await UserModel.findOne({ userID });
         if (!user) {
             return res.json({ success: false, message: "User not found" });
         }
@@ -193,7 +194,7 @@ export const sendRestopt= async(req,res)=>{
     }
     try {
 
-        const user =await UserModel.findById({email});
+        const user =await UserModel.findOne({email});
         if(!user){
             return res.json({success:false, message:"User not found"});
         }
@@ -226,7 +227,7 @@ export const resetPassword=async(req, res)=>{
     }
 
     try {
-        const user = await UserModel.findById({email});
+        const user = await UserModel.findOne({email});
         if(!user){
             return res.json({success:false, message:"User not found"});
 
@@ -255,7 +256,7 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
   
     try {
-      const user = await UserModel.findById({ email });
+      const user = await UserModel.findOne({ email });
       if (!user)
         return res.status(404).json({ message: "User not found" });
   

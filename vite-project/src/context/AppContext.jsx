@@ -22,9 +22,12 @@ export const AppContextProvider=(props)=>{
 
             }
         } catch (error) {
+            // Don't log 401 as an error - it just means user is not logged in
+        if (error.response?.status !== 401) {
             console.error("Auth check failed:", error);
-            setIsLoggedin(false);
-            setUserData(null);          
+        }
+        setIsLoggedin(false);
+        setUserData(null);         
         }
     }
 
