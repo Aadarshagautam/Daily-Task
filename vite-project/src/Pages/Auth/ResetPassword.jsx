@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { data, useNavigate } from 'react-router-dom'
-import { AppContext } from '../../Context/AppContext';
+import { AppContext } from "../../context/AppContext";
 import toast from 'react-hot-toast';
 
 const ResetPassword = () => {
