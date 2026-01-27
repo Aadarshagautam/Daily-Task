@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { PlusIcon, User, LogOut, Mail } from 'lucide-react'
+import { Plus, Search, User, LogOut, Mail, Menu } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import axios from 'axios'
@@ -10,8 +10,11 @@ const Navbar = () => {
   const location = useLocation();
   const { userData, backendUrl, setUserData, setIsLoggedin, isLoggedin } = useContext(AppContext);
 
-  // Don't show navbar on login/signup pages
-  const hideNavbar = ['/login', '/register'].includes(location.pathname);
+  // Don't show navbar on login/signup/auth pages
+  const hideNavbar = ['/login', '/register', '/email-verifty', '/reset-password'].includes(location.pathname);
+  
+  // Show minimal navbar on note create/edit pages
+  const isEditorPage = location.pathname.includes('/create') || location.pathname.includes('/notes/');
   
   if (hideNavbar) return null;
 
@@ -45,61 +48,81 @@ const Navbar = () => {
     }
   }
 
-  console.log("Navbar - isLoggedin:", isLoggedin, "userData:", userData); // Debug log
+  // Minimal navbar for editor pages (hidden by default, but available if needed)
+  if (isEditorPage) {
+    return null; // Editor pages have their own top bar
+  }
 
   return (
-    <header className="bg-gradient-to-r from-slate-900 to-slate-800 border-b border-indigo-500/20 shadow-lg">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="flex items-center justify-between h-14">
           
           {/* Logo/Brand */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">T</span>
+          <Link to="/" className="flex items-center space-x-2 group">
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+              <span className="text-white font-bold text-base">T</span>
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent font-mono tracking-tight">
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
               ThinkBoard
             </h1>
           </Link>
+
+          {/* Center - Search (optional, for future) */}
+          {/* <div className="flex-1 max-w-md mx-8">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search notes..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+          </div> */}
 
           {/* Right side - User actions */}
           <div className="flex items-center gap-3">
             {isLoggedin ? (
               <>
-                {/* New Note Button - Always show when logged in */}
+                {/* New Note Button */}
                 <Link 
                   to="/create" 
-                  className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-sm"
                 >
-                  <PlusIcon className="w-5 h-5" />
-                  <span>New Note</span>
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">New Note</span>
                 </Link>
 
                 {/* User Menu */}
-<div className="relative group">
-  <button className="w-10 h-10 flex justify-center items-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold text-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
-    {userData?.name?.[0]?.toUpperCase() || userData?.username?.[0]?.toUpperCase() || <User className="w-5 h-5" />}
-  </button>
-  
-  {/* Dropdown Menu */}
-  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-    {/* User Info */}
-    <div className="px-4 py-3 border-b border-gray-200">
-      <p className="text-sm font-semibold text-gray-900">{userData?.name || userData?.username || 'User'}</p>
-      <p className="text-xs text-gray-500 truncate">{userData?.email || 'user@example.com'}</p>
-      {userData && !userData.isAccountVerified && (
-        <span className="inline-block mt-1 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-          Not Verified
-        </span>
-      )}
-    </div>
+                <div className="relative group">
+                  <button className="w-8 h-8 flex justify-center items-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold text-sm hover:scale-110 transition-transform">
+                    {userData?.username?.[0]?.toUpperCase() || userData?.name?.[0]?.toUpperCase() || <User className="w-4 h-4" />}
+                  </button>
+                  
+                  {/* Dropdown Menu */}
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    {/* User Info */}
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {userData?.username || userData?.name || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate mt-0.5">
+                        {userData?.email || 'user@example.com'}
+                      </p>
+                      {userData && !userData.isAccountVerified && (
+                        <div className="mt-2 inline-flex items-center gap-1.5 px-2 py-1 text-xs bg-amber-50 text-amber-700 rounded-full border border-amber-200">
+                          <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                          Email not verified
+                        </div>
+                      )}
+                    </div>
 
                     {/* Menu Items */}
                     <div className="py-1">
                       {userData && !userData.isAccountVerified && (
                         <button
                           onClick={sendVerificationOtp}
-                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         >
                           <Mail className="w-4 h-4" />
                           Verify Email
@@ -107,7 +130,7 @@ const Navbar = () => {
                       )}
                       <button
                         onClick={logout}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         Logout
@@ -117,10 +140,10 @@ const Navbar = () => {
                 </div>
               </>
             ) : (
-              /* Login Button for non-authenticated users */
+              /* Login Button */
               <button
                 onClick={() => navigate('/login')}
-                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-indigo-400/30 rounded-lg px-6 py-2 text-indigo-300 hover:text-white transition-all duration-200"
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium"
               >
                 <User className="w-4 h-4" />
                 <span>Login</span>

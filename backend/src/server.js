@@ -8,6 +8,9 @@ import cookieParser from "cookie-parser";
 import notesRouter from "./routes/notes_routes.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
+import todoRouter from "./routes/todoRoutes.js";
+import transactionRouter from "./routes/transactionRoutes.js";
+import inventoryRouter from "./routes/inventoryRoutes.js";
 
 import { ConnectDB } from "./config/db.js";
 import raterLimiter from "./config/upstash.js";
@@ -39,6 +42,10 @@ app.use(raterLimiter); // applying rate limit middleware
 app.use("/api/notes", notesRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/todos", todoRouter);
+app.use("/api/transactions", transactionRouter);
+app.use("/api/inventory", inventoryRouter);
+
 
 // Global error handler
 app.use((err, req, res, next) => {
