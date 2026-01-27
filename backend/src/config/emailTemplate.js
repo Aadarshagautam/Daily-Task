@@ -1,449 +1,229 @@
-export const EMAIL_VERIFY_TEMPLATE=`
+export const EMAIL_VERIFY_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title></title>
-  <!--[if !mso]><!-- -->
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <!--<![endif]-->
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <style type="text/css">
-    #outlook a {
-      padding: 0;
-    }
-
-    .ReadMsgBody {
-      width: 100%;
-    }
-
-    .ExternalClass {
-      width: 100%;
-    }
-
-    .ExternalClass * {
-      line-height: 100%;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
-    }
-
-    table,
-    td {
-      border-collapse: collapse;
-      mso-table-lspace: 0pt;
-      mso-table-rspace: 0pt;
-    }
-
-    img {
-      border: 0;
-      height: auto;
-      line-height: 100%;
-      outline: none;
-      text-decoration: none;
-      -ms-interpolation-mode: bicubic;
-    }
-
-    p {
-      display: block;
-      margin: 13px 0;
-    }
-  </style>
-  <!--[if !mso]><!-->
-  <style type="text/css">
-    @media only screen and (max-width:480px) {
-      @-ms-viewport {
-        width: 320px;
-      }
-
-      @viewport {
-        width: 320px;
-      }
-    }
-  </style>
-  <!--<![endif]-->
-  <!--[if mso]>
-<xml>
-  <o:OfficeDocumentSettings>
-    <o:AllowPNG/>
-    <o:PixelsPerInch>96</o:PixelsPerInch>
-  </o:OfficeDocumentSettings>
-</xml>
-<![endif]-->
-  <!--[if lte mso 11]>
-<style type="text/css">
-  .outlook-group-fix {
-    width:100% !important;
-  }
-</style>
-<![endif]-->
-
-  <!--[if !mso]><!-->
-  <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700" rel="stylesheet" type="text/css">
-  <style type="text/css">
-    @import url(https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700);
-  </style>
-  <!--<![endif]-->
-  <style type="text/css">
-    @media only screen and (min-width:480px) {
-
-      .mj-column-per-100,
-      * [aria-labelledby="mj-column-per-100"] {
-        width: 100% !important;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - ThinkBoard</title>
 </head>
-
-<body style="background: #F9F9F9;">
-  <div style="background-color:#F9F9F9;">
-    <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="640" align="center" style="width:640px;">
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
         <tr>
-          <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
-      <![endif]-->
-    <style type="text/css">
-      html,
-      body,
-      * {
-        -webkit-text-size-adjust: none;
-        text-size-adjust: none;
-      }
-
-      a {
-        color: #1EB0F4;
-        text-decoration: none;
-      }
-
-      a:hover {
-        text-decoration: underline;
-      }
-    </style>
-    <div style="margin:0px auto;max-width:640px;background:transparent;">
-      <table role="presentation" cellpadding="0" cellspacing="0" style="font-size:0px;width:100%;background:transparent;" align="center" border="0">
-        <tbody>
-          <tr>
-            <td style="text-align:center;vertical-align:top;direction:ltr;font-size:0px;padding:40px 0px;">
-              <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:640px;">
-      <![endif]-->
-              <div aria-labelledby="mj-column-per-100" class="mj-column-per-100 outlook-group-fix" style="vertical-align:top;display:inline-block;direction:ltr;font-size:13px;text-align:left;width:100%;">
-                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                  <tbody>
+            <td align="center" style="padding: 40px 0;">
+                <!-- Main Container -->
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                    
+                    <!-- Header with Gradient -->
                     <tr>
-                      <td style="word-break:break-word;font-size:0px;padding:0px;" align="center">
-                        <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0px;" align="center" border="0">
-                          <tbody>
-                            <tr>
-                              <td style="width:138px;"><a href="https://discordapp.com/" target="_blank"><img alt="" title="" height="38px" src="https://cdn.discordapp.com/email_assets/2ec94ed90b8e95d764f2a1c96f33139e.png" style="border:none;border-radius:;display:block;outline:none;text-decoration:none;width:100%;height:38px;" width="138"></a></td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-    <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="640" align="center" style="width:640px;">
-        <tr>
-          <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
-      <![endif]-->
-    <div style="max-width:640px;margin:0 auto;box-shadow:0px 1px 5px rgba(0,0,0,0.1);border-radius:4px;overflow:hidden">
-      <div style="margin:0px auto;max-width:640px;background:#7289DA url(https://cdn.discordapp.com/email_assets/f0a4cc6d7aaa7bdf2a3c15a193c6d224.png) top center / cover no-repeat;">
-        <!--[if mso | IE]>
-      <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:640px;">
-        <v:fill origin="0.5, 0" position="0.5,0" type="tile" src="https://cdn.discordapp.com/email_assets/f0a4cc6d7aaa7bdf2a3c15a193c6d224.png" />
-        <v:textbox style="mso-fit-shape-to-text:true" inset="0,0,0,0">
-      <![endif]-->
-        <table role="presentation" cellpadding="0" cellspacing="0" style="font-size:0px;width:100%;background:#7289DA url(https://cdn.discordapp.com/email_assets/f0a4cc6d7aaa7bdf2a3c15a193c6d224.png) top center / cover no-repeat;" align="center" border="0" background="https://cdn.discordapp.com/email_assets/f0a4cc6d7aaa7bdf2a3c15a193c6d224.png">
-          <tbody>
-            <tr>
-              <td style="text-align:center;vertical-align:top;direction:ltr;font-size:0px;padding:57px;">
-                <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:undefined;width:640px;">
-      <![endif]-->
-                <div style="cursor:auto;color:white;font-family:Whitney, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif;font-size:36px;font-weight:600;line-height:36px;text-align:center;">Email Verify!</div>
-                <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <!--[if mso | IE]>
-        </v:textbox>
-      </v:rect>
-      <![endif]-->
-      </div>
-      <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-      <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="640" align="center" style="width:640px;">
-        <tr>
-          <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
-      <![endif]-->
-      <div style="margin:0px auto;max-width:640px;background:#ffffff;">
-        <table role="presentation" cellpadding="0" cellspacing="0" style="font-size:0px;width:100%;background:#ffffff;" align="center" border="0">
-          <tbody>
-            <tr>
-              <td style="text-align:center;vertical-align:top;direction:ltr;font-size:0px;padding:40px 70px;">
-                <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:640px;">
-      <![endif]-->
-                <div aria-labelledby="mj-column-per-100" class="mj-column-per-100 outlook-group-fix" style="vertical-align:top;display:inline-block;direction:ltr;font-size:13px;text-align:left;width:100%;">
-                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                    <tbody>
-                      <tr>
-                        <td style="word-break:break-word;font-size:0px;padding:0px 0px 20px;" align="left">
-                          <div style="cursor:auto;color:#737F8D;font-family:Whitney, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif;font-size:16px;line-height:24px;text-align:left;">
-                            <p><img src="https://cdn.discordapp.com/email_assets/127c95bbea39cd4bc1ad87d1500ae27d.png" alt="Party Wumpus" title="None" width="500" style="height: auto;"></p>
-
-                            <h2 style="font-family: Whitney, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif;font-weight: 500;font-size: 20px;color: #4F545C;letter-spacing: 0.27px;">Hey SmilesDavis,</h2>
-                            <p>Wowwee! Thanks for registering an account with Discord! You're the coolest person in all the land (and I've met a lot of really cool people).</p>
-                            <p>Before we get started, we'll need to verify your email.</p>
-
-                          </div>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700;">ThinkBoard</h1>
+                            <p style="margin: 10px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">Organize Your Thoughts</p>
                         </td>
-                      </tr>
-                      <tr>
-                        <td style="word-break:break-word;font-size:0px;padding:10px 25px;" align="center">
-                          <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:separate;" align="center" border="0">
-                            <tbody>
-                              <tr>
-                                <td style="border:none;border-radius:3px;color:white;cursor:auto;padding:15px 19px;" align="center" valign="middle" bgcolor="#7289DA"><a href="#" style="text-decoration:none;line-height:100%;background:#7289DA;color:white;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:15px;font-weight:normal;text-transform:none;margin:0px;" target="_blank">{{email}
-                                    Verify Email
-                                  </a></td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-      <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="640" align="center" style="width:640px;">
-        <tr>
-          <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
-      <![endif]-->
-    </div>
-    <div style="margin:0px auto;max-width:640px;background:transparent;">
-      <table role="presentation" cellpadding="0" cellspacing="0" style="font-size:0px;width:100%;background:transparent;" align="center" border="0">
-        <tbody>
-          <tr>
-            <td style="text-align:center;vertical-align:top;direction:ltr;font-size:0px;padding:0px;">
-              <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:640px;">
-      <![endif]-->
-              <div aria-labelledby="mj-column-per-100" class="mj-column-per-100 outlook-group-fix" style="vertical-align:top;display:inline-block;direction:ltr;font-size:13px;text-align:left;width:100%;">
-                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                  <tbody>
-                    <tr>
-                      <td style="word-break:break-word;font-size:0px;">
-                        <div style="font-size:1px;line-height:12px;">&nbsp;</div>
-                      </td>
                     </tr>
-                  </tbody>
-                </table>
-              </div>
-              <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-    <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="640" align="center" style="width:640px;">
-        <tr>
-          <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
-      <![endif]-->
-    <div style="margin:0 auto;max-width:640px;background:#ffffff;box-shadow:0px 1px 5px rgba(0,0,0,0.1);border-radius:4px;overflow:hidden;">
-      <table cellpadding="0" cellspacing="0" style="font-size:0px;width:100%;background:#ffffff;" align="center" border="0">
-        <tbody>
-          <tr>
-            <td style="text-align:center;vertical-align:top;font-size:0px;padding:0px;">
-              <!--[if mso | IE]>
-      <table border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:640px;">
-      <![endif]-->
-              <div aria-labelledby="mj-column-per-100" class="mj-column-per-100 outlook-group-fix" style="vertical-align:top;display:inline-block;direction:ltr;font-size:13px;text-align:left;width:100%;">
-                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                  <tbody>
+                    
+                    <!-- Content -->
                     <tr>
-                      <td style="word-break:break-word;font-size:0px;padding:30px 70px 0px 70px;" align="center">
-                        <div style="cursor:auto;color:#43B581;font-family:Whitney, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif;font-size:18px;font-weight:bold;line-height:16px;text-align:center; class="button">OTP {{otp}}</div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="word-break:break-word;font-size:0px;padding:14px 70px 30px 70px;" align="center">
-                        <div style="cursor:auto;color:#737F8D;font-family:Whitney, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif;font-size:16px;line-height:22px;text-align:center;">
-                          In Hearthstone, using the Hunter card Animal Companion against Kel'Thuzad will summon his cat Mr. Bigglesworth rather than the usual beasts.
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-    <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="640" align="center" style="width:640px;">
-        <tr>
-          <td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
-      <![endif]-->
-    <div style="margin:0px auto;max-width:640px;background:transparent;">
-      <table role="presentation" cellpadding="0" cellspacing="0" style="font-size:0px;width:100%;background:transparent;" align="center" border="0">
-        <tbody>
-          <tr>
-            <td style="text-align:center;vertical-align:top;direction:ltr;font-size:0px;padding:20px 0px;">
-              <!--[if mso | IE]>
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:640px;">
-      <![endif]-->
-              <div aria-labelledby="mj-column-per-100" class="mj-column-per-100 outlook-group-fix" style="vertical-align:top;display:inline-block;direction:ltr;font-size:13px;text-align:left;width:100%;">
-                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                  <tbody>
-                    <tr>
-                      <td style="word-break:break-word;font-size:0px;padding:0px;" align="center">
-                        <div style="cursor:auto;color:#99AAB5;font-family:Whitney, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif;font-size:12px;line-height:24px;text-align:center;">
-                          Sent by Discord • <a href="https://blog.discordapp.com/" style="color:#1EB0F4;text-decoration:none;" target="_blank">check our blog</a> • <a href="https://twitter.com/discordapp" style="color:#1EB0F4;text-decoration:none;" target="_blank">@discordapp</a>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style="word-break:break-word;font-size:0px;padding:0px;" align="center">
-                        <div style="cursor:auto;color:#99AAB5;font-family:Whitney, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif;font-size:12px;line-height:24px;text-align:center;">
-                          444 De Haro Street, Suite 200, San Francisco, CA 94107
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <!--[if mso | IE]>
-      </td></tr></table>
-      <![endif]-->
-  </div>
-
-</body>`
-
-export const PASSWORD_RESET_TEMPLATE=`
-
-<html lang="en-US">
-
-<head>
-    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>Reset Password Email Template</title>
-    <meta name="description" content="Reset Password Email Template.">
-    <style type="text/css">
-        a:hover {text-decoration: underline !important;}
-    </style>
-</head>
-
-<body marginheight="0" topmargin="0" marginwidth="0" style="margin: 0px; background-color: #f2f3f8;" leftmargin="0">
-    <!--100% body table-->
-    <table cellspacing="0" border="0" cellpadding="0" width="100%" bgcolor="#f2f3f8"
-        style="@import url(https://fonts.googleapis.com/css?family=Rubik:300,400,500,700|Open+Sans:300,400,600,700); font-family: 'Open Sans', sans-serif;">
-        <tr>
-            <td>
-                <table style="background-color: #f2f3f8; max-width:670px;  margin:0 auto;" width="100%" border="0"
-                    align="center" cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td style="height:80px;">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td style="height:20px;">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <table width="95%" border="0" align="center" cellpadding="0" cellspacing="0"
-                                style="max-width:670px;background:#fff; border-radius:3px; text-align:center;-webkit-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);-moz-box-shadow:0 6px 18px 0 rgba(0,0,0,.06);box-shadow:0 6px 18px 0 rgba(0,0,0,.06);">
+                        <td style="padding: 40px 30px;">
+                            <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">Verify Your Email Address</h2>
+                            <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                                Hi there! 👋
+                            </p>
+                            <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                                Thanks for signing up for ThinkBoard! To complete your registration and start organizing your notes, please verify your email address by entering the verification code below:
+                            </p>
+                            
+                            <!-- OTP Box -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                                 <tr>
-                                    <td style="height:40px;">&nbsp;</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:0 35px;">
-                                        <h1 style="color:#1e1e2d; font-weight:500; margin:0;font-size:32px;font-family:'Rubik',sans-serif;">You have
-                                            requested to reset your password</h1>
-                                        <span
-                                            style="display:inline-block; vertical-align:middle; margin:29px 0 26px; border-bottom:1px solid #cecece; width:100px;"> {{email}}</span>
-                                        <p style="color:#455056; font-size:15px;line-height:24px; margin:0;">
-                                            We cannot simply send you your old password. A unique link to reset your
-                                            password has been generated for you. To reset your password, click the
-                                            following link and follow the instructions.
-                                        </p>
-                                        <a href="javascript:void(0);"
-                                            style="background:#20e277;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Reset
-                                            Password</a>
+                                    <td align="center" style="padding: 30px 0;">
+                                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px 40px; display: inline-block;">
+                                            <span style="color: #ffffff; font-size: 36px; font-weight: 700; letter-spacing: 8px; font-family: 'Courier New', monospace;">{{otp}}</span>
+                                        </div>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td style="height:40px;" className="button">&nbsp; {{otp}}</td>
-                                </tr>
                             </table>
+                            
+                            <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                                This code will expire in <strong>24 hours</strong>.
+                            </p>
+                            <p style="margin: 0 0 20px; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                                If you didn't create an account with ThinkBoard, you can safely ignore this email.
+                            </p>
                         </td>
-                    <tr>
-                        <td style="height:20px;">&nbsp;</td>
                     </tr>
+                    
+                    <!-- Footer -->
                     <tr>
-                        <td style="text-align:center;">
-                            <p style="font-size:14px; color:rgba(69, 80, 86, 0.7411764705882353); line-height:18px; margin:0 0 0;">&copy; </p>
+                        <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px;">
+                                Need help? Contact us at <a href="mailto:support@thinkboard.com" style="color: #667eea; text-decoration: none;">support@thinkboard.com</a>
+                            </p>
+                            <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                                © 2026 ThinkBoard. All rights reserved.
+                            </p>
                         </td>
-                    </tr>
-                    <tr>
-                        <td style="height:80px;">&nbsp;</td>
                     </tr>
                 </table>
             </td>
         </tr>
     </table>
-    <!--/100% body table-->
 </body>
+</html>
+`;
 
-</html>`
+export const PASSWORD_RESET_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Your Password - ThinkBoard</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <!-- Main Container -->
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                    
+                    <!-- Header with Gradient -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700;">ThinkBoard</h1>
+                            <p style="margin: 10px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">Password Reset Request</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px; font-weight: 600;">Reset Your Password</h2>
+                            <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                                Hi there! 🔐
+                            </p>
+                            <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                                We received a request to reset your password for your ThinkBoard account (<strong>{{email}}</strong>). Use the verification code below to reset your password:
+                            </p>
+                            
+                            <!-- OTP Box -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td align="center" style="padding: 30px 0;">
+                                        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 20px 40px; display: inline-block;">
+                                            <span style="color: #ffffff; font-size: 36px; font-weight: 700; letter-spacing: 8px; font-family: 'Courier New', monospace;">{{otp}}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                                This code will expire in <strong>15 minutes</strong>.
+                            </p>
+                            <p style="margin: 0 0 20px; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                                If you didn't request a password reset, please ignore this email or contact support if you have concerns.
+                            </p>
+                            
+                            <!-- Security Note -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 8px;">
+                                        <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+                                            <strong>Security Tip:</strong> Never share your verification code with anyone. ThinkBoard will never ask for your code via email or phone.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px;">
+                                Need help? Contact us at <a href="mailto:support@thinkboard.com" style="color: #f5576c; text-decoration: none;">support@thinkboard.com</a>
+                            </p>
+                            <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                                © 2026 ThinkBoard. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+`;
 
+export const WELCOME_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to ThinkBoard!</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <!-- Main Container -->
+                <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                    
+                    <!-- Header with Gradient -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 50px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 36px; font-weight: 700;">Welcome to ThinkBoard! 🎉</h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <p style="margin: 0 0 20px; color: #4b5563; font-size: 18px; line-height: 1.6;">
+                                Hi <strong>{{username}}</strong>! 👋
+                            </p>
+                            <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                                We're thrilled to have you join ThinkBoard! Your account has been successfully created and you're all set to start organizing your thoughts and ideas.
+                            </p>
+                            
+                            <!-- Features -->
+                            <h3 style="margin: 30px 0 15px; color: #1f2937; font-size: 20px; font-weight: 600;">What you can do with ThinkBoard:</h3>
+                            <ul style="margin: 0 0 20px; padding-left: 20px; color: #4b5563; font-size: 16px; line-height: 1.8;">
+                                <li>Create and organize unlimited notes</li>
+                                <li>Access your notes from anywhere</li>
+                                <li>Keep your important information secure</li>
+                                <li>Search and find notes quickly</li>
+                            </ul>
+                            
+                            <!-- CTA Button -->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td align="center" style="padding: 30px 0;">
+                                        <a href="{{appUrl}}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; display: inline-block;">
+                                            Get Started →
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px;">
+                                Questions? Contact us at <a href="mailto:support@thinkboard.com" style="color: #667eea; text-decoration: none;">support@thinkboard.com</a>
+                            </p>
+                            <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                                © 2026 ThinkBoard. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+`;
