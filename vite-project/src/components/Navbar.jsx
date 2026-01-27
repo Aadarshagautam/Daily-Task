@@ -76,25 +76,23 @@ const Navbar = () => {
                 </Link>
 
                 {/* User Menu */}
-                <div className="relative group">
-                  <button className="w-10 h-10 flex justify-center items-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold text-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
-                    {userData?.name?.[0]?.toUpperCase() || <User className="w-5 h-5" />}
-                  </button>
-                  
-                  {/* Dropdown Menu */}
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    {/* User Info */}
-                    {userData && (
-                      <div className="px-4 py-3 border-b border-gray-200">
-                        <p className="text-sm font-semibold text-gray-900">{userData.name || 'User'}</p>
-                        <p className="text-xs text-gray-500 truncate">{userData.email || ''}</p>
-                        {!userData.isAccountVerified && (
-                          <span className="inline-block mt-1 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
-                            Not Verified
-                          </span>
-                        )}
-                      </div>
-                    )}
+<div className="relative group">
+  <button className="w-10 h-10 flex justify-center items-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold text-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
+    {userData?.name?.[0]?.toUpperCase() || userData?.username?.[0]?.toUpperCase() || <User className="w-5 h-5" />}
+  </button>
+  
+  {/* Dropdown Menu */}
+  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+    {/* User Info */}
+    <div className="px-4 py-3 border-b border-gray-200">
+      <p className="text-sm font-semibold text-gray-900">{userData?.name || userData?.username || 'User'}</p>
+      <p className="text-xs text-gray-500 truncate">{userData?.email || 'user@example.com'}</p>
+      {userData && !userData.isAccountVerified && (
+        <span className="inline-block mt-1 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
+          Not Verified
+        </span>
+      )}
+    </div>
 
                     {/* Menu Items */}
                     <div className="py-1">

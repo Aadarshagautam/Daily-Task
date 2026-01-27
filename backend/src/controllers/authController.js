@@ -107,47 +107,60 @@ export const logout = async (req, res) => {
 //sendVerificationOTP Controller
 export const sendVerificationOTP = async (req, res) => {
     try {
-        const { userID } = req.body;
-        const user = await UserModel.findOne({ userID });
-        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+        const userID = req.user;
+        const user = await UserModel.findOne({ _id: userID });
+        
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        
         if (user.isAccountVerified) {
             return res.json({ success: false, message: "Account already verified" });
         }
+        
         const otp = String(Math.floor(100000 + Math.random() * 900000));
         user.verifyOtp = otp;
         user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; //24 hours
         await user.save();
 
+        console.log("========================================");
+        console.log("📧 VERIFICATION OTP FOR:", user.email);
+        console.log("🔢 OTP CODE:", otp);
+        console.log("⏰ Expires at:", new Date(user.verifyOtpExpireAt));
+        console.log("========================================");
+
         await transporter.sendMail({
             from: process.env.SENDER_EMAIL,
             to: user.email,
             subject: "Account Verification OTP",
-            // text: `Your account verification OTP is ${otp}. It is valid for 24 hours.`, 
-            html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}",otp).replace("{{email}}",user.email)
-
+            html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}", otp).replace("{{email}}", user.email)
         });
+        
         return res.json({ success: true, message: "Verification OTP sent to your email" });
 
     } catch (error) {
         console.error("sendVerificationOTP error:", error);
         res.json({ success: false, message: error.message });
-
     }
 };
 
 // Verify Email Controller
 export const verifyEmail = async (req, res) => {
-    const { userID, otp } = req.body;
+    const { otp } = req.body;
+    const userID = req.user; // ✅ Get from req.user, not req.body
+    
     if (!userID || !otp) {
         return res.json({ success: false, message: "Missing Details" });
-
     }
+    
     try {
-        const user = await UserModel.findOne({ userID });
+        const user = await UserModel.findById(userID); // ✅ Changed from findById({userID})
+        
         if (!user) {
             return res.json({ success: false, message: "User not found" });
         }
-        if (user.verifyOtp === '' || user.verifyOtp !== opt) {
+        
+        if (user.verifyOtp === '' || user.verifyOtp !== otp) { // ✅ Fixed typo: opt to otp
             return res.json({ success: false, message: "Invalid OTP" });
         }
 
@@ -165,11 +178,7 @@ export const verifyEmail = async (req, res) => {
     } catch (error) {
         return res.json({ success: false, message: error.message });
     }
-
-
-
 }
-
 // Is Authenticated Controller
 export const isAuthenticated = async(req, res)=>{
 try {
