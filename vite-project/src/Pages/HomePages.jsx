@@ -13,37 +13,34 @@ const HomePages = () => {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [notes, setNotes] = useState([]);
   const [loading, setloading] = useState(false);
-  const { userData, isLoggedin } = useContext(AppContext); // ✅ Added isLoggedin here
+  const { userData, isLoggedin,authChecked } = useContext(AppContext); // ✅ Added isLoggedin here
 
 
   useEffect(() => {
+    if (!authChecked) return; // ⛔ wait
+  
+    if (!isLoggedin) {
+      console.log("User not logged in, skipping notes fetch");
+      return;
+    }
+  
     const fetchNotes = async () => {
-      // Only fetch notes if user is logged in
-      if (!isLoggedin) {
-        console.log("User not logged in, skipping notes fetch");
-        return;
-      }
       setloading(true);
       try {
         const res = await api.get("/notes");
-        console.log(res.data);
         setNotes(res.data);
         setIsRateLimited(false);
       } catch (error) {
-        console.error("Error fetching notes:", error);
         if (error.response?.status === 429) {
           setIsRateLimited(true);
-        } else if (error.response?.status === 401) {
-          toast.error("Please log in to view notes");
-        } else {
-          toast.error("Failed to load notes");
         }
       } finally {
         setloading(false);
       }
     };
+  
     fetchNotes();
-  }, [isLoggedin]); //// Re-fetch when login status changes
+  }, [authChecked, isLoggedin]);
   return (
     <div className="min-h-screen">
       <Navbar />

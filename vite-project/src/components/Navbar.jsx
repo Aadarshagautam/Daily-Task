@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Plus, Search, User, LogOut, Mail, Menu } from 'lucide-react'
+import { Plus, User, LogOut, Mail } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import axios from 'axios'
@@ -14,9 +14,9 @@ const Navbar = () => {
   const hideNavbar = ['/login', '/register', '/email-verifty', '/reset-password'].includes(location.pathname);
   
   // Show minimal navbar on note create/edit pages
-  const isEditorPage = location.pathname.includes('/create') || location.pathname.includes('/notes/');
+  const isEditorPage = location.pathname.includes('/create') || (location.pathname.includes('/notes/') && location.pathname !== '/notes');
   
-  if (hideNavbar) return null;
+  if (hideNavbar || isEditorPage) return null;
 
   const sendVerificationOtp = async () => {
     try {
@@ -48,18 +48,13 @@ const Navbar = () => {
     }
   }
 
-  // Minimal navbar for editor pages (hidden by default, but available if needed)
-  if (isEditorPage) {
-    return null; // Editor pages have their own top bar
-  }
-
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
-      <div className="mx-auto max-w-7xl px-6">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <div className="mx-auto px-6 ml-64"> {/* Added ml-64 for sidebar space */}
         <div className="flex items-center justify-between h-14">
           
           {/* Logo/Brand */}
-          <Link to="/" className="flex items-center space-x-2 group">
+          <Link to="/dashboard" className="flex items-center space-x-2 group">
             <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
               <span className="text-white font-bold text-base">T</span>
             </div>
@@ -67,18 +62,6 @@ const Navbar = () => {
               ThinkBoard
             </h1>
           </Link>
-
-          {/* Center - Search (optional, for future) */}
-          {/* <div className="flex-1 max-w-md mx-8">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search notes..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              />
-            </div>
-          </div> */}
 
           {/* Right side - User actions */}
           <div className="flex items-center gap-3">

@@ -51,19 +51,24 @@ export const register = async (req, res) => {
 // Login Controller
 export const login = async (req, res) => {
     const { email, password } = req.body;
+    
     if (!email || !password) {
-        return res.json({ success: false, message: " email and password are required" });
-
+        return res.json({ success: false, message: "Email and password are required" });
     }
+    
     try {
-        const user = await UserModel.findOne({ email });
+        const user = await UserModel.findOne({ email }); // ✅ Changed findById to findOne
+        
         if (!user) {
             return res.json({ success: false, message: "Invalid credentials" });
         }
+        
         const isMatch = bcrypt.compareSync(password, user.password);
+        
         if (!isMatch) {
             return res.json({ success: false, message: "Invalid credentials" });
         }
+        
         const token = jwt.sign(
             { id: user._id },
             process.env.JWT_SECRET,
@@ -72,20 +77,17 @@ export const login = async (req, res) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, 
-            sameSite: "lax", 
-          //  secure: process.env.NODE_ENV === "production", //for https production
-          //  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", //for https production
-            
+            secure: false,
+            sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
+        
         return res.json({ success: true });
     } catch (error) {
-        console.error("Login error:", error); // ✅ Added console.error for debugging
+        console.error("Login error:", error);
         res.json({ success: false, message: error.message });
     }
 };
-
 // Logout Controller
 export const logout = async (req, res) => {
     try {

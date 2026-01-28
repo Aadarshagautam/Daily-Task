@@ -9,29 +9,30 @@ export const AppContextProvider = (props) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const [isLoggedin, setIsLoggedin] = useState(false);
     const [userData, setUserData] = useState(null);
+    const [authChecked, setAuthChecked] = useState(false);
 
     const getAuthState = async () => {
         try {
-            const { data } = await axios.get(backendUrl + '/api/auth/is-auth', { withCredentials: true });
-            console.log("Auth response:", data); // Debug log
-            if (data.success) {
-                setIsLoggedin(true);
-                // Set user data directly from auth response if available
-                if (data.user) {
-                    setUserData(data.user);
-                } else {
-                    getUserData(); // Fetch user data separately if not in auth response
-                }
-            }
-        } catch (error) {
-            // Don't log 401 as an error - it just means user is not logged in
-            if (error.response?.status !== 401) {
-                console.error("Auth check failed:", error);
-            }
+          const { data } = await axios.get(
+            backendUrl + "/api/auth/is-auth",
+            { withCredentials: true }
+          );
+      
+          if (data.success) {
+            setIsLoggedin(true);
+            setUserData(data.user || null);
+          } else {
             setIsLoggedin(false);
             setUserData(null);
+          }
+        } catch (error) {
+          setIsLoggedin(false);
+          setUserData(null);
+        } finally {
+          setAuthChecked(true); // ⭐ VERY IMPORTANT
         }
-    }
+      };
+      
 
     const getUserData = async () => {
         try {
@@ -60,11 +61,8 @@ export const AppContextProvider = (props) => {
     const value = {
         backendUrl,
         isLoggedin,
-        setIsLoggedin,
         userData,
-        setUserData,
-        getUserData,
-        getAuthState
+        authChecked,
     }
 
     return (
