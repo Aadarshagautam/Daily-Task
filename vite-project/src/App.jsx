@@ -9,6 +9,8 @@ import ResetPassword from './Pages/Auth/ResetPassword.jsx'
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Dashboard from './components/Dashboard.jsx'
+import Sidebar from './components/Sidebar.jsx'
+import TodoPage from './components/TodoPage.jsx'
 
 
 
@@ -25,6 +27,8 @@ const App = () => {
         <Route path="/email-verifty" element={<EmailVerifty/>} />
         <Route path="/reset-password" element={<ResetPassword/>} />
         <Route path="/dashboard" element={<Dashboard/>} />
+        <Route path="/sidebar" element={<Sidebar/>} />
+        <Route path="/todos" element={<TodoPage/>} />
       </Routes>
     </div>
   )

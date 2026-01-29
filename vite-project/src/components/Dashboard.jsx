@@ -10,7 +10,7 @@ import {
   ArrowUpRight
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import api from '../Pages/lib/axios'
+import api from "../Pages/lib/axios"
 import toast from 'react-hot-toast'
 
 const Dashboard = () => {
@@ -40,7 +40,7 @@ const Dashboard = () => {
         api.get('/todos'),
         api.get('/transactions/summary'),
         api.get('/inventory/low-stock'),
-        api.get('/transactions?limit=5'),
+        api.get('/transactions'),
       ])
 
       const todos = todosRes.data
@@ -91,7 +91,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen ml-64">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading dashboard...</p>
@@ -101,7 +101,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="ml-64 p-8 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>

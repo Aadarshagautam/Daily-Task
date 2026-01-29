@@ -13,7 +13,7 @@ import transactionRouter from "./routes/transactionRoutes.js";
 import inventoryRouter from "./routes/inventoryRoutes.js";
 
 import { ConnectDB } from "./config/db.js";
-import raterLimiter from "./config/upstash.js";
+//import raterLimiter from "./config/upstash.js";
 
 
 
@@ -31,7 +31,7 @@ app.use( cors({ origin: allowedOrigins,credentials: true,})); // enabling CORS f
 // middleware
 app.use(express.json()); // this will help to parse json data
 app.use(cookieParser());// to parse cookies from request headers
-app.use(raterLimiter); // applying rate limit middleware
+//app.use(raterLimiter); // applying rate limit middleware
 
 
 
