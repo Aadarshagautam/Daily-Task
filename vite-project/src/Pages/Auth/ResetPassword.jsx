@@ -118,7 +118,7 @@ const ResetPassword = () => {
                             <input
                                 type="email"
                                 placeholder='Enter your email'
-                                className='w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+                                className='w-full pl-11 pr-4 py-3 focus:ring-indigo-500 border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 required

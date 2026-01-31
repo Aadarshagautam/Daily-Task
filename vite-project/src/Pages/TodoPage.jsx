@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Plus, Trash2, Check, Clock, Flag, Calendar, Filter } from 'lucide-react'
-import api from '../Pages/lib/axios'
+import api from './lib/axios'
 import toast from 'react-hot-toast'
 
 const TodoPage = () => {

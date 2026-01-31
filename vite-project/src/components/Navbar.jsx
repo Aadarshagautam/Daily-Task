@@ -68,13 +68,13 @@ const Navbar = () => {
             {isLoggedin ? (
               <>
                 {/* New Note Button */}
-                <Link 
+                {/* <Link 
                   to="/create" 
                   className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   <span className="hidden sm:inline">New Note</span>
-                </Link>
+                </Link> */}
 
                 {/* User Menu */}
                 <div className="relative group">

@@ -10,7 +10,7 @@ import {
   ArrowUpRight
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import api from "../Pages/lib/axios"
+import api from "./lib/axios"
 import toast from 'react-hot-toast'
 
 const Dashboard = () => {
