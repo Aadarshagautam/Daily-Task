@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import Navbar from "../components/Navbar";
 import RateLimitedUI from "../components/RateLimitedUI";
 import { toast } from "react-hot-toast";
-import NoteCard from "../components/NoteCard";
+import NoteCard from "./NoteCard";
 import api from "./lib/axios";
 import NotesNotFound from "../components/NotesNotFound";
 import { AppContext } from "../context/AppContext";
@@ -42,7 +41,7 @@ const HomePages = () => {
     fetchNotes();
   }, [authChecked, isLoggedin]);
   return (
-    <div className="min-h-screen">
+    <div className="ml-65 flex items-center justify-center h-screen">
       {isRateLimited && <RateLimitedUI />}
       <div className="max-w-7xl mx-auto p-4 mt-6">
         {loading && (
@@ -55,7 +54,7 @@ const HomePages = () => {
         )}
         {isLoggedin && notes.length === 0 && !isRateLimited && !loading && <NotesNotFound />}
         {notes.length > 0 && !isRateLimited && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {notes.map((note) => (
               <NoteCard key={note._id} note={note} setNotes={setNotes} />
             ))}

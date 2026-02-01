@@ -203,7 +203,7 @@ const ResetPassword = () => {
                             <input
                                 type="password"
                                 placeholder='Enter new password'
-                                className='w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+                                className='w-full pl-11 pr-4 py-3 text-gray-900  bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
                                 value={newPassword}
                                 onChange={e => setNewPassword(e.target.value)}
                                 required
