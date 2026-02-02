@@ -15,7 +15,7 @@ import TodoPage from './Pages/TodoPage.jsx'
 import AccountingPage from './Pages/AccountingPage.jsx'
 import InventoryPage from './Pages/InventoryPage.jsx'
 import ReportsPage from './Pages/ReportsPage.jsx'
-import ProtectedRoute from './components/ProtectedRoute.jsx'
+// import ProtectedRoute from './components/ProtectedRoute.jsx'
 import { Toaster } from 'react-hot-toast'
 
 
@@ -35,11 +35,11 @@ const App = () => {
         <Route path="/login" element={<Login/>} />
         <Route path="/email-verifty" element={<EmailVerifty/>} />
         <Route path="/reset-password" element={<ResetPassword/>} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/todos" element={ <ProtectedRoute><TodoPage/></ProtectedRoute>} />
-        <Route path="/accounting" element={<ProtectedRoute><AccountingPage/></ProtectedRoute>} />
-        <Route path="/inventory" element={<ProtectedRoute><InventoryPage/></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute><ReportsPage/></ProtectedRoute>} />
+        <Route path="/dashboard" element={<Dashboard />} />
+         <Route path="/todos" element={ <TodoPage/>} />
+        <Route path="/accounting" element={<AccountingPage/>} />
+        <Route path="/inventory" element={<InventoryPage/>} />
+        <Route path="/reports" element={<ReportsPage/>} />
       </Routes>
     </div>
   )

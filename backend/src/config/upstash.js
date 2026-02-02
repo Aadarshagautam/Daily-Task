@@ -8,8 +8,8 @@ const redis = Redis.fromEnv();
 
 const ratelimit = new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(10, "20s"),
-  });
+    limiter: Ratelimit.slidingWindow(200, "20s"),
+  }); // 200 requests per 20 seconds
   
   export default async function rateLimitMiddleware(req, res, next) {
     try {

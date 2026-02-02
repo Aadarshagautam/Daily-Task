@@ -18,13 +18,12 @@ import { ConnectDB } from "./config/db.js";
 
 
 const app = express();
-
 const PORT = process.env.PORT || 5001;
 
 
 ConnectDB(); // connecting to database
-const allowedOrigins = ['http://localhost:5173'];
-app.use( cors({ origin: allowedOrigins,credentials: true,})); // enabling CORS for all origins
+
+app.use(cors({ origin:"http://localhost:5173",credentials:true,})); // enabling CORS for all origins
 
 
 

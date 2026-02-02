@@ -231,36 +231,50 @@ export const sendRestopt= async(req,res)=>{
 }
 
 // reset password controller
-export const resetPassword=async(req, res)=>{
-    const{email,otp,newPassword}=req.body;
-    if(!email || !otp || !newPassword){
-        return res.json({success:false, message:"Email, OTP, and new password are requied"});
+export const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+        return res.json({
+            success: false,
+            message: "Email, OTP, and new password are required",
+        });
     }
 
     try {
-        const user = await UserModel.findOne({email});
-        if(!user){
-            return res.json({success:false, message:"User not found"});
+        const user = await UserModel.findOne({ email });
 
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
         }
-        if(user.resetOtp===""|| user.resetOpt !==otp){
-            return res.json({success:false, message:"Invalid OTP"});
+
+        // ✅ Check OTP correctly
+        if (user.resetOtp === "" || user.resetOtp !== otp) {
+            return res.json({ success: false, message: "Invalid OTP" });
         }
-        if(user.resetOtpExpireAt< Date.now()){
-            return res.json({success:false, message:"OTP Expired"});
+
+        // ✅ Check expiry
+        if (user.resetOtpExpireAt < Date.now()) {
+            return res.json({ success: false, message: "OTP Expired" });
         }
-        const otp = String(Math.floor(100000 + Math.random() * 1000000));
-        const hashedPassword= bcrypt.hashSync(newPassword,10);
-        user.password= hashedPassword;
-        user.resetOtp= otp;
-        user.resetOtpExpireAt=0;
+
+        // ✅ Hash new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+
+        // ✅ Clear OTP after use
+        user.resetOtp = "";
+        user.resetOtpExpireAt = 0;
+
         await user.save();
-        return res.json({success:true, message:"Password reset successfully"});
+
+        return res.json({ success: true, message: "Password reset successfully" });
+
     } catch (error) {
         res.json({ success: false, message: error.message });
-        
     }
-}
+};
+
 
 // forgot Password
 export const forgotPassword = async (req, res) => {
