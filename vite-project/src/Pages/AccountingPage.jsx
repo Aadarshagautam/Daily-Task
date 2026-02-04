@@ -6,11 +6,12 @@ import {
   DollarSign, 
   Calendar,
   Edit2,
-  Trash2,
   X,
   Save,
   ArrowUpCircle,
   ArrowDownCircle,
+  ChevronDown,
+  ChevronUp,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
@@ -34,6 +35,7 @@ const AccountingPage = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [selectedMonth, setSelectedMonth] = useState('all')
   const [availableYears, setAvailableYears] = useState([])
+  const [showDatePicker, setShowDatePicker] = useState(false)
   
   const [formData, setFormData] = useState({
     type: 'income',
@@ -45,7 +47,7 @@ const AccountingPage = () => {
   })
 
   const months = [
-    { value: 'all', label: 'All Months' },
+    { value: 'all', label: 'All Year' },
     { value: '01', label: 'January' },
     { value: '02', label: 'February' },
     { value: '03', label: 'March' },
@@ -134,12 +136,10 @@ const AccountingPage = () => {
   const getFilteredSummaries = () => {
     let filtered = monthlySummaries
 
-    // Filter by year
     if (selectedYear !== 'all') {
       filtered = filtered.filter(m => m.monthYear.startsWith(selectedYear.toString()))
     }
 
-    // Filter by month
     if (selectedMonth !== 'all') {
       filtered = filtered.filter(m => m.monthYear.endsWith(`-${selectedMonth}`))
     }
@@ -147,7 +147,6 @@ const AccountingPage = () => {
     return filtered
   }
 
-  // Calculate filtered summary totals
   const getFilteredSummary = () => {
     const filtered = getFilteredSummaries()
     const totals = {
@@ -216,19 +215,6 @@ const AccountingPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this?')) return
-
-    try {
-      await api.delete(`/transactions/${id}`)
-      toast.success('🗑️ Deleted successfully')
-      fetchData()
-    } catch (error) {
-      console.error('Error:', error)
-      toast.error('Failed to delete')
-    }
-  }
-
   const resetForm = () => {
     setEditingId(null)
     setShowAddForm(false)
@@ -275,7 +261,7 @@ const AccountingPage = () => {
 
   return (
     <div className="lg:ml-64 min-h-screen bg-gray-50">
-      {/* Simple Header */}
+      {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
@@ -298,132 +284,129 @@ const AccountingPage = () => {
       </div>
 
       <div className="max-w-6xl mx-auto p-6 space-y-6">
-        {/* Year and Month Selector Bar */}
-        <div className="bg-white rounded-xl border-2 border-indigo-200 p-6 shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-900">📅 Select Time Period</h3>
-            <button
-              onClick={() => {
-                setSelectedYear(new Date().getFullYear())
-                setSelectedMonth('all')
-              }}
-              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-            >
-              Reset to Current Year
-            </button>
-          </div>
-
-          {/* Year Selector */}
-          <div className="mb-4">
-            <label className="block text-sm font-bold text-gray-700 mb-3">Choose Year:</label>
+        {/* Collapsible Date Selector */}
+        <div className="bg-white rounded-xl border-2 border-indigo-200 overflow-hidden shadow-lg">
+          <button
+            onClick={() => setShowDatePicker(!showDatePicker)}
+            className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors"
+          >
             <div className="flex items-center gap-3">
-              <button
-                onClick={previousYear}
-                disabled={selectedYear <= Math.min(...availableYears)}
-                className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
+              <Calendar className="w-6 h-6 text-indigo-600" />
+              <div className="text-left">
+                <h3 className="text-lg font-bold text-gray-900">Time Period</h3>
+                <p className="text-sm text-gray-600">
+                  Currently viewing: {selectedMonth === 'all' 
+                    ? `All of ${selectedYear}` 
+                    : `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`}
+                </p>
+              </div>
+            </div>
+            {showDatePicker ? (
+              <ChevronUp className="w-6 h-6 text-gray-400" />
+            ) : (
+              <ChevronDown className="w-6 h-6 text-gray-400" />
+            )}
+          </button>
 
-              <div className="flex-1 grid grid-cols-4 gap-2">
-                {availableYears.map(year => (
+          {showDatePicker && (
+            <div className="border-t border-gray-200 p-5 bg-gray-50">
+              {/* Year Selector */}
+              <div className="mb-5">
+                <label className="block text-sm font-bold text-gray-700 mb-3">Year:</label>
+                <div className="flex items-center gap-3">
                   <button
-                    key={year}
-                    onClick={() => {
-                      setSelectedYear(year)
-                      setSelectedMonth('all')
-                    }}
-                    className={`py-3 px-4 rounded-lg font-bold text-lg transition-all ${
-                      selectedYear === year
-                        ? 'bg-indigo-600 text-white shadow-lg scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    onClick={previousYear}
+                    disabled={selectedYear <= Math.min(...availableYears)}
+                    className="p-2 bg-white border-2 border-gray-300 hover:bg-gray-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
-                    {year}
+                    <ChevronLeft className="w-6 h-6" />
                   </button>
-                ))}
+
+                  <div className="flex-1 grid grid-cols-4 gap-2">
+                    {availableYears.map(year => (
+                      <button
+                        key={year}
+                        onClick={() => {
+                          setSelectedYear(year)
+                          setSelectedMonth('all')
+                        }}
+                        className={`py-3 px-4 rounded-lg font-bold text-lg transition-all ${
+                          selectedYear === year
+                            ? 'bg-indigo-600 text-white shadow-lg'
+                            : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-indigo-300'
+                        }`}
+                      >
+                        {year}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={nextYear}
+                    disabled={selectedYear >= Math.max(...availableYears)}
+                    className="p-2 bg-white border-2 border-gray-300 hover:bg-gray-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </div>
               </div>
 
-              <button
-                onClick={nextYear}
-                disabled={selectedYear >= Math.max(...availableYears)}
-                className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
+              {/* Month Selector */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-3">Month:</label>
+                <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
+                  {months.map(month => (
+                    <button
+                      key={month.value}
+                      onClick={() => setSelectedMonth(month.value)}
+                      className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all ${
+                        selectedMonth === month.value
+                          ? 'bg-emerald-600 text-white shadow-md'
+                          : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-emerald-300'
+                      } ${month.value === 'all' ? 'md:col-span-1 font-bold' : ''}`}
+                    >
+                      {month.value === 'all' ? month.label : month.label.slice(0, 3)}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-
-          {/* Month Selector */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-3">Choose Month:</label>
-            <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
-              {months.map(month => (
-                <button
-                  key={month.value}
-                  onClick={() => setSelectedMonth(month.value)}
-                  className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all ${
-                    selectedMonth === month.value
-                      ? 'bg-emerald-600 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  } ${month.value === 'all' ? 'md:col-span-1 font-bold' : ''}`}
-                >
-                  {month.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Current Selection Display */}
-          <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-            <p className="text-center text-lg">
-              <span className="font-bold text-indigo-900">Viewing: </span>
-              <span className="text-indigo-700">
-                {selectedMonth === 'all' 
-                  ? `All of ${selectedYear}` 
-                  : `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`
-                }
-              </span>
-            </p>
-          </div>
+          )}
         </div>
 
-        {/* Summary Cards - Shows filtered totals */}
+        {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Total Money In */}
           <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                 <ArrowDownCircle className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-sm font-medium text-green-800">Money In (Income)</p>
+                <p className="text-sm font-medium text-green-800">Money In</p>
                 <p className="text-3xl font-bold text-green-700">₹{filteredTotals.income.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
-          {/* Total Money Out */}
           <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-6 border-2 border-red-200">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
                 <ArrowUpCircle className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-sm font-medium text-red-800">Money Out (Expense)</p>
+                <p className="text-sm font-medium text-red-800">Money Out</p>
                 <p className="text-3xl font-bold text-red-700">₹{filteredTotals.expense.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
-          {/* Balance */}
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-indigo-200">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center">
                 <DollarSign className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-sm font-medium text-indigo-800">Your Balance</p>
+                <p className="text-sm font-medium text-indigo-800">Balance</p>
                 <p className={`text-3xl font-bold ${filteredTotals.balance >= 0 ? 'text-indigo-700' : 'text-red-700'}`}>
                   ₹{filteredTotals.balance.toLocaleString()}
                 </p>
@@ -448,7 +431,7 @@ const AccountingPage = () => {
               {/* Type Selection */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-3">
-                  Is this Money In or Money Out? *
+                  Type *
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <button
@@ -461,7 +444,7 @@ const AccountingPage = () => {
                     }`}
                   >
                     <ArrowDownCircle className={`w-8 h-8 mx-auto mb-2 ${formData.type === 'income' ? 'text-green-500' : 'text-gray-400'}`} />
-                    Money In (Income)
+                    Money In
                   </button>
                   <button
                     type="button"
@@ -473,19 +456,18 @@ const AccountingPage = () => {
                     }`}
                   >
                     <ArrowUpCircle className={`w-8 h-8 mx-auto mb-2 ${formData.type === 'expense' ? 'text-red-500' : 'text-gray-400'}`} />
-                    Money Out (Expense)
+                    Money Out
                   </button>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* Category */}
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">Category *</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                     required
                   >
                     <option value="">-- Choose --</option>
@@ -495,48 +477,44 @@ const AccountingPage = () => {
                   </select>
                 </div>
 
-                {/* Amount */}
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">Amount (₹) *</label>
                   <input
                     type="number"
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base"
-                    placeholder="Enter amount"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    placeholder="0.00"
                     step="0.01"
                     required
                   />
                 </div>
 
-                {/* Description */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">What was it for? *</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Description *</label>
                   <input
                     type="text"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base"
-                    placeholder="e.g., Sold products, Paid rent"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    placeholder="What was it for?"
                     required
                   />
                 </div>
 
-                {/* Date */}
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">Date *</label>
                   <input
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-base"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                     required
                   />
                 </div>
 
-                {/* Payment Method */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-gray-700 mb-2">How did you pay/receive?</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Payment Method</label>
                   <div className="grid grid-cols-4 gap-3">
                     {['cash', 'card', 'bank_transfer', 'other'].map(method => (
                       <button
@@ -556,7 +534,6 @@ const AccountingPage = () => {
                 </div>
               </div>
 
-              {/* Submit Buttons */}
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
@@ -584,7 +561,7 @@ const AccountingPage = () => {
             className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
               filter === 'all' 
                 ? 'bg-indigo-600 text-white shadow-md' 
-                : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-indigo-300'
+                : 'bg-white text-gray-700 border-2 border-gray-300'
             }`}
           >
             Show All
@@ -594,39 +571,29 @@ const AccountingPage = () => {
             className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
               filter === 'income' 
                 ? 'bg-green-600 text-white shadow-md' 
-                : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-green-300'
+                : 'bg-white text-gray-700 border-2 border-gray-300'
             }`}
           >
-            Money In Only
+            Money In
           </button>
           <button
             onClick={() => setFilter('expense')}
             className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
               filter === 'expense' 
                 ? 'bg-red-600 text-white shadow-md' 
-                : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-red-300'
+                : 'bg-white text-gray-700 border-2 border-gray-300'
             }`}
           >
-            Money Out Only
+            Money Out
           </button>
         </div>
 
         {/* Monthly Records */}
         {filteredSummaries.length === 0 ? (
           <div className="bg-white rounded-xl p-16 text-center border-2 border-dashed border-gray-300">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <DollarSign className="w-10 h-10 text-gray-400" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              No records for {selectedMonth === 'all' ? selectedYear : `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`}
-            </h3>
-            <p className="text-gray-600 mb-6">Try selecting a different time period or add your first transaction</p>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold transition-colors"
-            >
-              Add Transaction
-            </button>
+            <DollarSign className="w-20 h-20 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No records for this period</h3>
+            <p className="text-gray-600 mb-6">Try selecting a different time period</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -646,17 +613,17 @@ const AccountingPage = () => {
                         <Calendar className="w-8 h-8" />
                         <div>
                           <h3 className="text-2xl font-bold">{getMonthName(monthly.monthYear)}</h3>
-                          <p className="text-indigo-100">{monthly.transactions.length} total transactions</p>
+                          <p className="text-indigo-100">{monthly.transactions.length} transactions</p>
                         </div>
                       </div>
 
                       <div className="flex gap-8">
                         <div className="text-right">
-                          <p className="text-sm text-indigo-100">Money In</p>
+                          <p className="text-sm text-indigo-100">In</p>
                           <p className="text-2xl font-bold">₹{monthly.income.toLocaleString()}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-indigo-100">Money Out</p>
+                          <p className="text-sm text-indigo-100">Out</p>
                           <p className="text-2xl font-bold">₹{monthly.expense.toLocaleString()}</p>
                         </div>
                         <div className="text-right bg-white/20 px-4 py-2 rounded-lg">
@@ -672,10 +639,9 @@ const AccountingPage = () => {
                   {/* Transactions */}
                   <div className="divide-y divide-gray-200">
                     {filteredTransactions.map((transaction) => (
-                      <div key={transaction._id} className={`p-5 hover:bg-gray-50 transition-colors ${editingId === transaction._id ? 'bg-indigo-50' : ''}`}>
+                      <div key={transaction._id} className={`p-5 hover:bg-gray-50 ${editingId === transaction._id ? 'bg-indigo-50' : ''}`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4 flex-1">
-                            {/* Type Indicator */}
                             <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
                               transaction.type === 'income' ? 'bg-green-100' : 'bg-red-100'
                             }`}>
@@ -686,7 +652,6 @@ const AccountingPage = () => {
                               )}
                             </div>
 
-                            {/* Details */}
                             <div className="flex-1">
                               <p className="text-lg font-bold text-gray-900">{transaction.description}</p>
                               <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
@@ -698,30 +663,20 @@ const AccountingPage = () => {
                               </div>
                             </div>
 
-                            {/* Amount */}
                             <div className="text-right mr-4">
                               <p className={`text-2xl font-bold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
                                 {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
                               </p>
                             </div>
 
-                            {/* Actions */}
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => startEdit(transaction)}
-                                className="p-3 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                                title="Edit"
-                              >
-                                <Edit2 className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(transaction._id)}
-                                className="p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Delete"
-                              >
-                                <Trash2 className="w-5 h-5" />
-                              </button>
-                            </div>
+                            {/* Edit Button Only */}
+                            <button
+                              onClick={() => startEdit(transaction)}
+                              className="p-3 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                              title="Edit"
+                            >
+                              <Edit2 className="w-5 h-5" />
+                            </button>
                           </div>
                         </div>
                       </div>

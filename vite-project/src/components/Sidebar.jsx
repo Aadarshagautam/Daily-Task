@@ -9,7 +9,8 @@ import {
   TrendingUp,
   HelpCircle,
   ChevronRight,
-  Zap
+  Zap,
+  ShoppingCart
 } from 'lucide-react'
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -58,6 +59,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       path: '/reports',
       gradient: 'from-pink-500 to-rose-500'
     },
+    // Add to menuItems array:
+{ 
+  icon: ShoppingCart, 
+  label: 'Purchases', 
+  path: '/purchases',
+  color: 'text-blue-500'
+},
   ]
 
   const isActive = (path) => {

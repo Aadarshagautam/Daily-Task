@@ -15,6 +15,7 @@ import TodoPage from './Pages/TodoPage.jsx'
 import AccountingPage from './Pages/AccountingPage.jsx'
 import InventoryPage from './Pages/InventoryPage.jsx'
 import ReportsPage from './Pages/ReportsPage.jsx'
+import PurchasePage from './Pages/PurchasePage.jsx'
 // import ProtectedRoute from './components/ProtectedRoute.jsx'
 import { Toaster } from 'react-hot-toast'
 
@@ -40,6 +41,7 @@ const App = () => {
         <Route path="/accounting" element={<AccountingPage/>} />
         <Route path="/inventory" element={<InventoryPage/>} />
         <Route path="/reports" element={<ReportsPage/>} />
+        <Route path="/purchases" element={<PurchasePage />} />
       </Routes>
     </div>
   )
