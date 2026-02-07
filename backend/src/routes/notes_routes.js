@@ -1,20 +1,24 @@
 import express from "express";
-import {
-    getAllNotes,
-    createNotes,
-    updatedNotes,
-    deleteNotes,
-    getNoteById,
-} from "../controllers/noteController.js";
 import userAuth from "../middleware/userAuth.js";
+import { 
+  addNote, 
+  getAllNotes, 
+  updateNote, 
+  deleteNote 
+} from "../controllers/notesController.js";
 
 const router = express.Router();
 
-router.get("/",userAuth, getAllNotes);
-router.get("/:id",userAuth, getNoteById);
-router.post("/",userAuth, createNotes);
-router.put("/:id",userAuth, updatedNotes);
-router.delete("/:id",userAuth, deleteNotes);
+// Get all notes
+router.get("/", userAuth, getAllNotes);
 
+// Add new note
+router.post("/", userAuth, addNote);
+
+// Update note
+router.put("/:id", userAuth, updateNote);
+
+// Delete note
+router.delete("/:id", userAuth, deleteNote);
 
 export default router;

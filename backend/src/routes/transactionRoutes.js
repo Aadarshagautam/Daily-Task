@@ -1,19 +1,19 @@
 import express from "express";
 import userAuth from "../middleware/userAuth.js";
 import {
-    getTransactions,
-    createTransaction,
-    updateTransaction,
-    deleteTransaction,
-    getSummary
+  getTransactions,
+  getSummary,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
 } from "../controllers/transactionController.js";
 
-const transactionRouter = express.Router();
+const router = express.Router();
 
-transactionRouter.get("/", userAuth, getTransactions);
-transactionRouter.get("/summary", userAuth, getSummary);
-transactionRouter.post("/", userAuth, createTransaction);
-transactionRouter.put("/:id", userAuth, updateTransaction);
-transactionRouter.delete("/:id", userAuth, deleteTransaction);
+router.get("/", userAuth, getTransactions);
+router.get("/summary", userAuth, getSummary);
+router.post("/", userAuth, createTransaction);
+router.put("/:id", userAuth, updateTransaction);
+router.delete("/:id", userAuth, deleteTransaction);
 
-export default transactionRouter;
+export default router;

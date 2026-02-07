@@ -1,19 +1,19 @@
 import express from "express";
 import userAuth from "../middleware/userAuth.js";
 import {
-    getInventory,
-    createInventoryItem,
-    updateInventoryItem,
-    deleteInventoryItem,
-    getLowStock
+  getInventory,
+  getLowStock,
+  createInventoryItem,
+  updateInventoryItem,
+  deleteInventoryItem,
 } from "../controllers/inventoryController.js";
 
-const inventoryRouter = express.Router();
+const router = express.Router();
 
-inventoryRouter.get("/", userAuth, getInventory);
-inventoryRouter.get("/low-stock", userAuth, getLowStock);
-inventoryRouter.post("/", userAuth, createInventoryItem);
-inventoryRouter.put("/:id", userAuth, updateInventoryItem);
-inventoryRouter.delete("/:id", userAuth, deleteInventoryItem);
+router.get("/", userAuth, getInventory);
+router.get("/low-stock", userAuth, getLowStock);
+router.post("/", userAuth, createInventoryItem);
+router.put("/:id", userAuth, updateInventoryItem);
+router.delete("/:id", userAuth, deleteInventoryItem);
 
-export default inventoryRouter;
+export default router;

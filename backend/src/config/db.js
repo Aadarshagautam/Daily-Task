@@ -1,15 +1,27 @@
 import mongoose from "mongoose";
 
- export const ConnectDB= async()=>{
-    try{
-        console.log("Trying to connect to MongoDB URI:", process.env.MONGO_URI ? "OK" : "MONGO_URI MISSING");
-       await mongoose.connect(process.env.MONGO_URI);
-console.log("Database connected successfully");
+export const ConnectDB = async () => {
+  mongoose.connection.on("connected", () => {
+    console.log("✅ Database connected successfully");
+  });
 
+  mongoose.connection.on("error", (err) => {
+    console.error("❌ Database connection error:", err);
+  });
+
+  try {
+    const mongoURI = process.env.MONGODB_URI;
+    
+    if (!mongoURI) {
+      throw new Error("MONGODB_URI is not defined in .env file");
     }
-    catch(err){
-        console.log("Database connection failed",err);
-        process.exit(1); //with failure
-        
-    }
-}
+
+    await mongoose.connect(mongoURI, {
+      dbName: process.env.DB_NAME || "thinkboard",
+    });
+  } catch (error) {
+    console.error("❌ Database connection failed:", error.message);
+    console.log("💡 Make sure MONGODB_URI is set in your .env file");
+    process.exit(1);
+  }
+};
