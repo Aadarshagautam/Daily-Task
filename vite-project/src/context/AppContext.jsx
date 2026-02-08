@@ -5,11 +5,14 @@ import toast from "react-hot-toast";
 export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
-    axios.defaults.withCredentials = true;
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";;
     const [isLoggedin, setIsLoggedin] = useState(false);
     const [userData, setUserData] = useState(null);
     const [authChecked, setAuthChecked] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    axios.defaults.withCredentials = true;
+
 
     const getAuthState = async () => {
         try {
@@ -20,7 +23,7 @@ export const AppContextProvider = (props) => {
       
           if (data.success) {
             setIsLoggedin(true);
-            setUserData(data.user || null);
+            await getUserData();
           } else {
             setIsLoggedin(false);
             setUserData(null);
@@ -29,30 +32,34 @@ export const AppContextProvider = (props) => {
           setIsLoggedin(false);
           setUserData(null);
         } finally {
-          setAuthChecked(true); // ⭐ VERY IMPORTANT
-        }
+          setLoading(false);        }
       };
       
 
     const getUserData = async () => {
-        try {
-            console.log("Fetching user data..."); // Debug log
-            const { data } = await axios.get(backendUrl + '/api/user/data', { withCredentials: true });
-            console.log("User data response:", data); // Debug log
-            if (data.success) {
-                setUserData(data.user);
-            } else {
-                toast.error(data.message);
-            }
-        } catch (error) {
-            console.error("Failed to fetch user data:", error);
-            console.error("Error response:", error.response?.data); // Debug log
-            // Don't show toast if it's just a 401 (not logged in)
-            if (error.response?.status !== 401) {
-                toast.error("Failed to fetch user data");
-            }
+      try {
+        console.log('Getting user data...')
+        const { data } = await axios.get(backendUrl + "/api/user/data");
+        
+        console.log('User data response:', data)
+        
+        if (data.success) {
+          setUserData(data.user);
+          setIsLoggedin(true);
+          console.log('User data set successfully')
+        } else {
+          console.log('Get user data failed:', data.message)
+          setIsLoggedin(false);
+          setUserData(null);
         }
+      } catch (error) {
+        console.error("Error getting user data:", error);
+        setIsLoggedin(false);
+        setUserData(null);
+      }
     }
+
+    
 
     useEffect(() => {
         getAuthState();
@@ -65,6 +72,8 @@ export const AppContextProvider = (props) => {
         authChecked,
         setIsLoggedin,
         getUserData,
+        setUserData,
+        loading,
         
     }
 

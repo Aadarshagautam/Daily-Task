@@ -3,7 +3,7 @@ import Transaction from "../models/Transaction.js";
 // Get all transactions
 export const getTransactions = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { type, startDate, endDate } = req.query;
 
         let query = { userId };
@@ -24,7 +24,7 @@ export const getTransactions = async (req, res) => {
 // Create transaction
 export const createTransaction = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { type, category, amount, description, date, paymentMethod } = req.body;
 
         if (!type || !category || !amount || !description) {
@@ -51,7 +51,7 @@ export const createTransaction = async (req, res) => {
 // Update transaction
 export const updateTransaction = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { id } = req.params;
         const updates = req.body;
 
@@ -71,7 +71,7 @@ export const updateTransaction = async (req, res) => {
 // Delete transaction
 export const deleteTransaction = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { id } = req.params;
 
         const transaction = await Transaction.findOneAndDelete({ _id: id, userId });
@@ -88,7 +88,7 @@ export const deleteTransaction = async (req, res) => {
 // Get summary
 export const getSummary = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { startDate, endDate } = req.query;
 
         let query = { userId };

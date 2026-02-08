@@ -1,100 +1,154 @@
-import React,{useState,useContext} from 'react'
-import {useNavigate } from 'react-router-dom';
-import { AppContext } from "../../context/AppContext";
-import axios from 'axios';
-import {toast} from 'react-hot-toast';
-
+import React, { useContext, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { AppContext } from '../../context/AppContext'
+import axios from 'axios'
+import { toast } from 'react-hot-toast'
 
 const Login = () => {
+  const { backendUrl, setIsLoggedin, getUserData } = useContext(AppContext)
+  const navigate = useNavigate()
+  
+  const [state, setState] = useState('Login')
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
+  const [loading, setLoading] = useState(false)
 
-  const navigate = useNavigate();
-  const {backendUrl, setIsLoggedin,getUserData}=React.useContext(AppContext);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
 
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!formData.email || !formData.password) {
+      toast.error('Please fill all fields')
+      return
+    }
 
-  const [state, setState] = useState('Sign Up');
-  const [username, setUsername]= useState('');
-  const [email, setEmail]= useState('');
-  const [password, setPassword]= useState('');
+    setLoading(true)
 
-  const handleSubmit= async(e)=>{
     try {
-      e.preventDefault();
-
-      axios.defaults.withCredentials=true;
-
-      if(state==='Sign Up'){
-        // Check if all fields are filled for Sign Up
-        if (!username || !email || !password) {
-          toast.error("Please fill in all fields");
-          return;
+      console.log('Attempting login...')
+      
+      const { data } = await axios.post(
+        backendUrl + '/api/auth/login',
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+        {
+          withCredentials: true, // Important for cookies
         }
-        console.log("Sending data:", { username, email, password }); // ✅ ADD THIS LINE
-       const {data}= await axios.post(backendUrl+'/api/auth/register',{username, email, password});
-       console.log("Response:", data); // ✅ ADD THIS LINE
-       if(data.success){
-        setIsLoggedin(true);
-        getUserData();
-        navigate('/');
-        toast.success('Account created successfully!'); // ✅ Added success message
+      )
 
-       }else{
-        toast.error(data.message); // ✅ Fixed: was toast.alert(error.message)
-      }
+      console.log('Login response:', data)
 
-      } else{
-         // Login - only send email and password
-         if (!email || !password) {
-          toast.error("Please fill in all fields");
-          return;
-        }
-        console.log("Sending login data:", { email, password }); // ✅ Only email and password
-        const {data}= await axios.post(backendUrl+'/api/auth/login',{email, password});
-        console.log("Response:", data);
-       if(data.success){
-        setIsLoggedin(true);
-        getUserData();
-        navigate('/');
-        toast.success('Logged in successfully!'); // ✅ Added success message
-       }else{
-        toast.error(data.message); // ✅ Fixed: was toast.alert(error.message)
-      }
-
+      if (data.success) {
+        // Set logged in state
+        setIsLoggedin(true)
+        
+        // Get user data
+        await getUserData()
+        
+        toast.success('Login successful!')
+        
+        // Navigate to dashboard
+        navigate('/dashboard')
+      } else {
+        toast.error(data.message || 'Login failed')
+        setIsLoggedin(false)
       }
     } catch (error) {
-      console.error("Error:", error);
-      toast.error(error.response?.data?.message || error.message);    }
+      console.error('Login error:', error)
+      toast.error(error.response?.data?.message || 'Login failed')
+      setIsLoggedin(false)
+    } finally {
+      setLoading(false)
+    }
   }
-  return (
-    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
-      <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-indigo-300 text-sm ">
-      <h2 className="text-3xl font-semibold text-white text-center mb-3">{state==='Sign Up'? 'Create Account':'Login'}</h2>
-      <p className="text-center text-sm mb-6">{state==='Sign Up'? 'Create your account':'Login to your accounr!'}</p>
-      <form onSubmit={handleSubmit}>
-        
-        {state==='Sign Up' && (
-        <div className='mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]'>
-          <input onChange={e => setUsername(e.target.value)} value={username} className="bg-transparent outline-none w-full text-white" type="text" placeholder="Full Name" required />
-        </div>
-      )}
-        <div className='mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#33A5C]'>
-          <input onChange={e => setEmail(e.target.value)} value={email} className="bg-transparent outline-none w-full text-white" type="email" placeholder="Email id" autoComplete="username"  required />
-        </div>
-        <div className='mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#33A5C]'>
-          <input onChange={e => setPassword(e.target.value)} value={password} className="bg-transparent outline-none w-full text-white" type="password" placeholder="Password" autoComplete="current-password" required />
-        </div>
-        <p onClick={()=>navigate("/reset-password")} className='mb-4 text-indigo-500 cursor-pointer'>Foreget password?</p>
-        <button className='w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900'>{state}</button>
-      </form>
-       {/* Toggle between Sign Up and Login */}
-      {state ==='Sign Up'?(<p className='text-gray-400 text-center text-xs mt-4'>Already have an account?{''}
-        <span onClick={()=>setState('Login')} className='text-blue-400 cursor-pointer underline'>Login here</span>
-      </p>):(<p className='text-gray-400 text-center text-xs mt-4'>Don't have an account?{''}
-        <span onClick={()=>setState('Sign Up')} className='text-blue-400 cursor-pointer underline'>Sign Up</span>
-      </p>)}
-      
-      
-      </div>
 
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {state === 'Login' ? 'Welcome Back!' : 'Create Account'}
+          </h1>
+          <p className="text-gray-600">
+            {state === 'Login' 
+              ? 'Sign in to your ThinkBoard account' 
+              : 'Join ThinkBoard today'}
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="your@email.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          {state === 'Login' && (
+            <div className="text-right">
+              <Link
+                to="/reset-password"
+                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-bold transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Please wait...' : state === 'Login' ? 'Sign In' : 'Sign Up'}
+          </button>
+        </form>
+
+        {/* Toggle */}
+        <div className="mt-6 text-center">
+          <p className="text-gray-600">
+            {state === 'Login' ? "Don't have an account? " : "Already have an account? "}
+            <button
+              onClick={() => setState(state === 'Login' ? 'Sign Up' : 'Login')}
+              className="text-indigo-600 hover:text-indigo-700 font-medium"
+            >
+              {state === 'Login' ? 'Sign Up' : 'Login'}
+            </button>
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

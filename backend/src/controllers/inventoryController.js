@@ -3,7 +3,7 @@ import Inventory from "../models/Inventory.js";
 // Get all inventory items
 export const getInventory = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const inventory = await Inventory.find({ userId }).sort({ createdAt: -1 });
         res.json(inventory);
     } catch (error) {
@@ -14,7 +14,7 @@ export const getInventory = async (req, res) => {
 // Create inventory item
 export const createInventoryItem = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { productName, quantity, costPrice, sellingPrice, category, supplier, lowStockAlert } = req.body;
 
         if (!productName || quantity === undefined || !costPrice || !sellingPrice) {
@@ -42,7 +42,7 @@ export const createInventoryItem = async (req, res) => {
 // Update inventory item
 export const updateInventoryItem = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { id } = req.params;
         const updates = req.body;
 
@@ -62,7 +62,7 @@ export const updateInventoryItem = async (req, res) => {
 // Delete inventory item
 export const deleteInventoryItem = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware  
         const { id } = req.params;
 
         const item = await Inventory.findOneAndDelete({ _id: id, userId });
@@ -79,7 +79,7 @@ export const deleteInventoryItem = async (req, res) => {
 // Get low stock items
 export const getLowStock = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const items = await Inventory.find({ userId });
         
         const lowStock = items.filter(item => item.quantity <= item.lowStockAlert);

@@ -5,6 +5,8 @@ import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import "./index.css";
 import { AppContextProvider } from "./context/AppContext.jsx";
+import axios from 'axios'
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -15,4 +17,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </AppContextProvider>
     </BrowserRouter>
   </React.StrictMode>
+  // Set default config for axios
 );

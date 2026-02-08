@@ -2,7 +2,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/User.js";
 import transporter from "../config/nodemailer.js";
-import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } from "../config/emailTemplate.js";
+import crypto from "crypto";
+import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE,WELCOME_EMAIL_TEMPLATE } from "../config/emailTemplate.js";
+
 
 
 // Register Controller
@@ -36,7 +38,8 @@ export const register = async (req, res) => {
             from: process.env.SENDER_EMAIL,
             to: email,
             subject: "Welcome to Our App!",
-            text: `Welcome to Our App, ${username}! We're glad to have you on board. Your account has been successfully created with email: ${email}.`,
+            // text: `Welcome to Our App, ${username}! We're glad to have you on board. Your account has been successfully created with email: ${email}.`,
+            html:WELCOME_EMAIL_TEMPLATE.replace("{{username}}",username).replace("{{email}}",email)
 
         }
         await transporter.sendMail(mailOption);
@@ -51,42 +54,50 @@ export const register = async (req, res) => {
 // Login Controller
 export const login = async (req, res) => {
     const { email, password } = req.body;
-    
-    if (!email || !password) {
-        return res.json({ success: false, message: "Email and password are required" });
-    }
-    
-    try {
-        const user = await UserModel.findOne({ email }); // ✅ Changed findById to findOne
-        
-        if (!user) {
-            return res.json({ success: false, message: "Invalid credentials" });
-        }
-        
-        const isMatch = bcrypt.compareSync(password, user.password);
-        
-        if (!isMatch) {
-            return res.json({ success: false, message: "Invalid credentials" });
-        }
-        
-        const token = jwt.sign(
-            { id: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: "7d" }
-        );
 
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-        
-        return res.json({ success: true });
-    } catch (error) {
-        console.error("Login error:", error);
-        res.json({ success: false, message: error.message });
+  if (!email || !password) {
+    return res.json({ success: false, message: "All fields required" });
+  }
+
+  try {
+    const user = await UserModel.findOne({ email }).select('+password');
+
+    if (!user) {
+      return res.json({ success: false, message: "Invalid credentials" });
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Generate token
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRE || "7d" }
+    );
+
+    // Set cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/'
+    });
+
+    console.log('Login successful for:', email);
+
+    return res.json({ 
+      success: true,
+      message: "Login successful"
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.json({ success: false, message: "Server error" });
+  }
 };
 // Logout Controller
 export const logout = async (req, res) => {
@@ -109,42 +120,41 @@ export const logout = async (req, res) => {
 //sendVerificationOTP Controller
 export const sendVerificationOTP = async (req, res) => {
     try {
-        const userID = req.user;
-        const user = await UserModel.findOne({ _id: userID });
-        
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
-        }
-        
-        if (user.isAccountVerified) {
-            return res.json({ success: false, message: "Account already verified" });
-        }
-        
-        const otp = String(Math.floor(100000 + Math.random() * 900000));
-        user.verifyOtp = otp;
-        user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; //24 hours
-        await user.save();
+      const userId = req.userId;
+      const user = await UserModel.findById(userId);
+  
+      if (!user) {
+        return res.json({ success: false, message: "User not found" });
+      }
+  
+      if (user.isAccountVerified) {
+        return res.json({ success: false, message: "Account already verified" });
+      }
+  
+      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      user.verifyOtp = otp;
+      user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+      await user.save();
 
-        console.log("========================================");
-        console.log("📧 VERIFICATION OTP FOR:", user.email);
-        console.log("🔢 OTP CODE:", otp);
-        console.log("⏰ Expires at:", new Date(user.verifyOtpExpireAt));
-        console.log("========================================");
+  
+      // TODO: Send email with OTP
+await transporter.sendMail({
+  from: process.env.EMAIL,
+  to: user.email,
+  subject: "Verify Your Email",
+  html: EMAIL_VERIFY_TEMPLATE(otp),
+});
 
-        await transporter.sendMail({
-            from: process.env.SENDER_EMAIL,
-            to: user.email,
-            subject: "Account Verification OTP",
-            html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}", otp).replace("{{email}}", user.email)
-        });
-        
-        return res.json({ success: true, message: "Verification OTP sent to your email" });
-
+return res.json({ 
+  success: true, 
+  message: "Verification OTP sent to email"
+});      
+      
     } catch (error) {
-        console.error("sendVerificationOTP error:", error);
-        res.json({ success: false, message: error.message });
+      console.error("Send verification OTP error:", error);
+      return res.json({ success: false, message: "Failed to send OTP" });
     }
-};
+  };
 
 // Verify Email Controller
 export const verifyEmail = async (req, res) => {
@@ -183,19 +193,40 @@ export const verifyEmail = async (req, res) => {
 }
 // Is Authenticated Controller
 export const isAuthenticated = async(req, res)=>{
-try {
-    if (!req.user)return res.status(401).json({ success: false, message: "Unauthorized" });
-      
-    // req.user is now guaranteed by middlewares
-    const user = await UserModel.findById(req.user).select("-password");
-    if (!user){return res.status(404).json({ success: false, message: "User not found" });}
-
-     res.json({ success: true, user });
-  } catch (error) {
-    console.error("Error in isAuthenticated:", error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-}
+    try {
+        const { token } = req.cookies;
+    
+        if (!token) {
+          return res.json({ success: false, message: "Not authenticated" });
+        }
+    
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+        if (!decoded || !decoded.id) {
+          return res.json({ success: false, message: "Invalid token" });
+        }
+    
+        // Get user data
+        const user = await UserModel.findById(decoded.id).select('-password');
+    
+        if (!user) {
+          return res.json({ success: false, message: "User not found" });
+        }
+    
+        return res.json({ 
+          success: true, 
+          user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            isAccountVerified: user.isAccountVerified
+          }
+        });
+      } catch (error) {
+        console.error("Auth check error:", error);
+        return res.json({ success: false, message: "Authentication failed" });
+      }
+    };
 
 // send password reset OPT controller
 export const sendRestopt= async(req,res)=>{

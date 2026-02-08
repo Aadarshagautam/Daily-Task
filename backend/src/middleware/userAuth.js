@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 const userAuth = async (req, res, next) => {
   try {
-    const { token } = req.cookies;
+    const { token } = req.cookies.token;
 
     if (!token) {
       return res.status(401).json({ 
@@ -22,7 +22,7 @@ const userAuth = async (req, res, next) => {
     }
 
     // Add user ID to request
-    req.userId = decoded.id;
+    req.userId = decoded;
     
     // Add timestamp check (optional - prevent old tokens)
     const tokenAge = Date.now() - (decoded.iat * 1000);

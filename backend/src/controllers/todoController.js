@@ -3,7 +3,7 @@ import Todo from "../models/Todo.js";
 // Get all todos for user
 export const getTodos = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const todos = await Todo.find({ userId }).sort({ createdAt: -1 });
         res.json(todos);
     } catch (error) {
@@ -14,7 +14,7 @@ export const getTodos = async (req, res) => {
 // Create todo
 export const createTodo = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { title, description, priority, dueDate, category } = req.body;
 
         if (!title) {
@@ -40,7 +40,7 @@ export const createTodo = async (req, res) => {
 // Update todo
 export const updateTodo = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { id } = req.params;
         const updates = req.body;
 
@@ -60,7 +60,7 @@ export const updateTodo = async (req, res) => {
 // Delete todo
 export const deleteTodo = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middlewareId
         const { id } = req.params;
 
         const todo = await Todo.findOneAndDelete({ _id: id, userId });
@@ -77,7 +77,7 @@ export const deleteTodo = async (req, res) => {
 // Toggle todo completion
 export const toggleTodo = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.userId; // From userAuth middleware
         const { id } = req.params;
 
         const todo = await Todo.findOne({ _id: id, userId });
