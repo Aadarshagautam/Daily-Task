@@ -10,7 +10,9 @@ import {
   HelpCircle,
   ChevronRight,
   Zap,
-  ShoppingCart
+  ShoppingCart,
+  Users,
+  FileText
 } from 'lucide-react'
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -59,13 +61,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       path: '/reports',
       gradient: 'from-pink-500 to-rose-500'
     },
-    // Add to menuItems array:
-{ 
-  icon: ShoppingCart, 
-  label: 'Purchases', 
-  path: '/purchases',
-  color: 'text-blue-500'
-},
+    {
+      icon: ShoppingCart,
+      label: 'Purchases',
+      path: '/purchases',
+      gradient: 'from-blue-500 to-indigo-500'
+    },
+    {
+      icon: Users,
+      label: 'Customers',
+      path: '/customers',
+      gradient: 'from-indigo-500 to-violet-500',
+      section: 'CRM'
+    },
+    {
+      icon: FileText,
+      label: 'Invoices',
+      path: '/invoices',
+      gradient: 'from-teal-500 to-cyan-500'
+    },
   ]
 
   const isActive = (path) => {
@@ -109,10 +123,15 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           {menuItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item.path)
-            
+
             return (
+              <React.Fragment key={item.path}>
+                {item.section && (
+                  <div className="pt-4 pb-2 px-4">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{item.section}</p>
+                  </div>
+                )}
               <Link
-                key={item.path}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
                 className={`
@@ -149,6 +168,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   <ChevronRight className="w-4 h-4 text-indigo-600 animate-pulse" />
                 )}
               </Link>
+              </React.Fragment>
             )
           })}
         </nav>

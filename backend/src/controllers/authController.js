@@ -15,6 +15,15 @@ export const register = async (req, res) => {
         return res.json({ success: false, message: "Missing Details" });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.json({ success: false, message: "Invalid email format" });
+    }
+
+    if (password.length < 8) {
+        return res.json({ success: false, message: "Password must be at least 8 characters" });
+    }
+
     try {
         const exists = await UserModel.findOne({ email })
         if (exists) {
@@ -26,10 +35,8 @@ export const register = async (req, res) => {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, 
-            sameSite: "lax", 
-          //  secure: process.env.NODE_ENV === "production", //for https production
-          //  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", //for https production
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
         });
         
@@ -47,8 +54,8 @@ export const register = async (req, res) => {
 
 
     } catch (error) {
-        console.error("Register error:", error); // ✅ Added console.error for debugging
-        res.json({ success: false, message: error.message });
+        console.error("Register error:", error);
+        res.json({ success: false, message: "Registration failed" });
     }
 }
 // Login Controller
@@ -104,10 +111,8 @@ export const logout = async (req, res) => {
     try {
         res.clearCookie("token", {
             httpOnly: true,
-            secure: false, 
-            sameSite: "lax", 
-          //  secure: process.env.NODE_ENV === "production", //for https production
-          //  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", //for https production
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
         });
         return res.json({ success: true, message: "Logged out successfully" });
 
@@ -131,7 +136,7 @@ export const sendVerificationOTP = async (req, res) => {
         return res.json({ success: false, message: "Account already verified" });
       }
   
-      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      const otp = String(crypto.randomInt(100000, 999999));
       user.verifyOtp = otp;
       user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
       await user.save();
@@ -159,7 +164,7 @@ return res.json({
 // Verify Email Controller
 export const verifyEmail = async (req, res) => {
     const { otp } = req.body;
-    const userID = req.user; // ✅ Get from req.user, not req.body
+    const userID = req.userId;
     
     if (!userID || !otp) {
         return res.json({ success: false, message: "Missing Details" });
@@ -188,7 +193,8 @@ export const verifyEmail = async (req, res) => {
         return res.json({ success: true, message: "Email verified successfully" });
 
     } catch (error) {
-        return res.json({ success: false, message: error.message });
+        console.error("Verify email error:", error);
+        return res.json({ success: false, message: "Verification failed" });
     }
 }
 // Is Authenticated Controller
@@ -240,7 +246,7 @@ export const sendRestopt= async(req,res)=>{
         if(!user){
             return res.json({success:false, message:"User not found"});
         }
-        const otp = String(Math.floor(100000 + Math.random() * 900000));
+        const otp = String(crypto.randomInt(100000, 999999));
         user.resetOtp = otp;
         user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000; //15 minutes
         await user.save();
@@ -257,7 +263,8 @@ export const sendRestopt= async(req,res)=>{
 
         
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        console.error("Send reset OTP error:", error);
+        res.json({ success: false, message: "Failed to send reset OTP" });
     }
 }
 
@@ -302,7 +309,8 @@ export const resetPassword = async (req, res) => {
         return res.json({ success: true, message: "Password reset successfully" });
 
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        console.error("Reset password error:", error);
+        res.json({ success: false, message: "Password reset failed" });
     }
 };
 
@@ -310,34 +318,34 @@ export const resetPassword = async (req, res) => {
 // forgot Password
 export const forgotPassword = async (req, res) => {
     const { email } = req.body;
-  
+
+    if (!email) {
+      return res.json({ success: false, message: "Email is required" });
+    }
+
     try {
       const user = await UserModel.findOne({ email });
-      if (!user)
-        return res.status(404).json({ message: "User not found" });
-  
-      const resetToken = crypto.randomBytes(32).toString("hex");
-  
-      user.resetToken = crypto
-        .createHash("sha256")
-        .update(resetToken)
-        .digest("hex");
-  
-      user.resetTokenExpire = Date.now() + 10 * 60 * 1000;
-  
+      if (!user) {
+        return res.json({ success: false, message: "User not found" });
+      }
+
+      const otp = String(crypto.randomInt(100000, 999999));
+      user.resetOtp = otp;
+      user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000; // 15 minutes
+
       await user.save();
-  
-      const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-  
-      await sendEmail(
-        user.email,
-        "Reset your password",
-        `Click here to reset password: ${resetUrl}`
-      );
-  
-      res.json({ message: "Reset email sent" });
-    } catch (err) {
-      res.status(500).json({ message: err.message });
+
+      await transporter.sendMail({
+        from: process.env.SENDER_EMAIL,
+        to: user.email,
+        subject: "Reset your password",
+        html: PASSWORD_RESET_TEMPLATE.replace("{{otp}}", otp).replace("{{email}}", user.email),
+      });
+
+      res.json({ success: true, message: "Password reset OTP sent to your email" });
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.json({ success: false, message: "Failed to process request" });
     }
   };
   

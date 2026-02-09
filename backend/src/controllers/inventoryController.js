@@ -7,7 +7,8 @@ export const getInventory = async (req, res) => {
         const inventory = await Inventory.find({ userId }).sort({ createdAt: -1 });
         res.json(inventory);
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -15,7 +16,7 @@ export const getInventory = async (req, res) => {
 export const createInventoryItem = async (req, res) => {
     try {
         const userId = req.userId; // From userAuth middleware
-        const { productName, quantity, costPrice, sellingPrice, category, supplier, lowStockAlert } = req.body;
+        const { productName, quantity, costPrice, sellingPrice, category, supplier, lowStockAlert, vatRate, sku } = req.body;
 
         if (!productName || quantity === undefined || !costPrice || !sellingPrice) {
             return res.json({ success: false, message: "Required fields missing" });
@@ -29,13 +30,16 @@ export const createInventoryItem = async (req, res) => {
             category,
             supplier,
             lowStockAlert,
+            vatRate,
+            sku,
             userId,
         });
 
         await item.save();
         res.json({ success: true, item });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -55,7 +59,8 @@ export const updateInventoryItem = async (req, res) => {
         await item.save();
         res.json({ success: true, item });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -72,7 +77,8 @@ export const deleteInventoryItem = async (req, res) => {
 
         res.json({ success: true, message: "Item deleted" });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -85,6 +91,7 @@ export const getLowStock = async (req, res) => {
         const lowStock = items.filter(item => item.quantity <= item.lowStockAlert);
         res.json(lowStock);
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };

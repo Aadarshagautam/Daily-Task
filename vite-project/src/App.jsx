@@ -6,8 +6,6 @@ import HomePages from './Pages/HomePages.jsx'
 import Login from './Pages/Auth/Login.jsx'
 import EmailVerifty from './Pages/Auth/EmailVerifty.jsx'
 import ResetPassword from './Pages/Auth/ResetPassword.jsx'
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Dashboard from './Pages/Dashboard.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import Navbar from './components/Navbar.jsx'
@@ -16,7 +14,7 @@ import AccountingPage from './Pages/AccountingPage.jsx'
 import InventoryPage from './Pages/InventoryPage.jsx'
 import ReportsPage from './Pages/ReportsPage.jsx'
 import PurchasePage from './Pages/PurchasePage.jsx'
-// import ProtectedRoute from './components/ProtectedRoute.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 import { Toaster } from 'react-hot-toast'
 
 
@@ -24,24 +22,23 @@ import { Toaster } from 'react-hot-toast'
 const App = () => {
   return (
     <div className="relative h-full w-full">
-      <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radious-gradient(125%_125%_at_50%_10%,#000_60% , #00FF9D40_100%)] " />
+      <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_60%,#00FF9D40_100%)] " />
       <Toaster position="top-right" />
-      <ToastContainer />
       <Navbar />
       <Sidebar />
       <Routes>
-        <Route path="/" element={<HomePages />} />
-        <Route path="/create" element={<CreatePages />} />
-        <Route path="/notes/:id" element={<NoteDetailPage/>} />
+        <Route path="/" element={<ProtectedRoute><HomePages /></ProtectedRoute>} />
+        <Route path="/create" element={<ProtectedRoute><CreatePages /></ProtectedRoute>} />
+        <Route path="/notes/:id" element={<ProtectedRoute><NoteDetailPage/></ProtectedRoute>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/email-verifty" element={<EmailVerifty/>} />
         <Route path="/reset-password" element={<ResetPassword/>} />
-        <Route path="/dashboard" element={<Dashboard />} />
-         <Route path="/todos" element={ <TodoPage/>} />
-        <Route path="/accounting" element={<AccountingPage/>} />
-        <Route path="/inventory" element={<InventoryPage/>} />
-        <Route path="/reports" element={<ReportsPage/>} />
-        <Route path="/purchases" element={<PurchasePage />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/todos" element={<ProtectedRoute><TodoPage/></ProtectedRoute>} />
+        <Route path="/accounting" element={<ProtectedRoute><AccountingPage/></ProtectedRoute>} />
+        <Route path="/inventory" element={<ProtectedRoute><InventoryPage/></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><ReportsPage/></ProtectedRoute>} />
+        <Route path="/purchases" element={<ProtectedRoute><PurchasePage /></ProtectedRoute>} />
       </Routes>
     </div>
   )

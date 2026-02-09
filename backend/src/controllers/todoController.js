@@ -7,7 +7,8 @@ export const getTodos = async (req, res) => {
         const todos = await Todo.find({ userId }).sort({ createdAt: -1 });
         res.json(todos);
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -33,7 +34,8 @@ export const createTodo = async (req, res) => {
         await todo.save();
         res.json({ success: true, todo });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -53,7 +55,8 @@ export const updateTodo = async (req, res) => {
         await todo.save();
         res.json({ success: true, todo });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -70,7 +73,8 @@ export const deleteTodo = async (req, res) => {
 
         res.json({ success: true, message: "Todo deleted" });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -89,6 +93,7 @@ export const toggleTodo = async (req, res) => {
         await todo.save();
         res.json({ success: true, todo });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };

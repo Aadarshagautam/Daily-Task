@@ -36,6 +36,17 @@ const inventorySchema = new mongoose.Schema(
       type: Number,
       default: 10,
     },
+    vatRate: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+    sku: {
+      type: String,
+      default: "",
+      trim: true,
+    },
   },
   { timestamps: true }
 );

@@ -25,7 +25,9 @@ const InventoryPage = () => {
     sellingPrice: '',
     category: '',
     supplier: '',
-    lowStockAlert: '10'
+    lowStockAlert: '10',
+    vatRate: '0',
+    sku: ''
   })
 
   useEffect(() => {
@@ -59,7 +61,9 @@ const InventoryPage = () => {
         quantity: parseInt(newItem.quantity),
         costPrice: parseFloat(newItem.costPrice),
         sellingPrice: parseFloat(newItem.sellingPrice),
-        lowStockAlert: parseInt(newItem.lowStockAlert)
+        lowStockAlert: parseInt(newItem.lowStockAlert),
+        vatRate: parseFloat(newItem.vatRate) || 0,
+        sku: newItem.sku
       })
 
       if (res.data.success) {
@@ -71,7 +75,9 @@ const InventoryPage = () => {
           sellingPrice: '',
           category: '',
           supplier: '',
-          lowStockAlert: '10'
+          lowStockAlert: '10',
+          vatRate: '0',
+          sku: ''
         })
         setShowAddForm(false)
         toast.success('Product added!')
@@ -331,6 +337,37 @@ const InventoryPage = () => {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">VAT Rate (%)</label>
+                <input
+                  type="number"
+                  value={editingItem ? editingItem.vatRate : newItem.vatRate}
+                  onChange={(e) => editingItem
+                    ? setEditingItem({ ...editingItem, vatRate: e.target.value })
+                    : setNewItem({ ...newItem, vatRate: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="0"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">SKU</label>
+                <input
+                  type="text"
+                  value={editingItem ? editingItem.sku : newItem.sku}
+                  onChange={(e) => editingItem
+                    ? setEditingItem({ ...editingItem, sku: e.target.value })
+                    : setNewItem({ ...newItem, sku: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="e.g., SKU-001"
+                />
+              </div>
+
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
                 <input
@@ -397,6 +434,8 @@ const InventoryPage = () => {
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Cost Price</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Selling Price</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Profit/Unit</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">VAT%</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supplier</th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
@@ -434,6 +473,8 @@ const InventoryPage = () => {
                           ₹{profit.toLocaleString()}
                         </span>
                       </td>
+                      <td className="px-6 py-4 text-center text-sm text-gray-600">{item.vatRate || 0}%</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{item.sku || '-'}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{item.supplier || '-'}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center gap-2">

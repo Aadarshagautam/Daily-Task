@@ -8,24 +8,24 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(20, "60 s"),
 });
 
-const raterLimiter = async (req, res, next) => {
+const rateLimiter = async (req, res, next) => {
   try {
     const ip =
       req.headers["x-forwarded-for"] ||
       req.socket.remoteAddress ||
       "127.0.0.1";
-    const { success } = await raterLimiter.limit(ip);
+    const { success } = await ratelimit.limit(ip);
     if (!success) {
       return res
         .status(429)
-        .json({ message: "Too many requests, please try again later." });
+        .json({ success: false, message: "Too many requests, please try again later." });
     }
 
     next();
   } catch (error) {
     console.error("Rate Limiter Error:", error);
-    res.status(500).json({ message: "Rate limiter failed" });
+    next();
   }
 };
 
-export default raterLimiter;
+export default rateLimiter;

@@ -17,7 +17,8 @@ export const getTransactions = async (req, res) => {
         const transactions = await Transaction.find(query).sort({ date: -1 });
         res.json(transactions);
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -44,7 +45,8 @@ export const createTransaction = async (req, res) => {
         await transaction.save();
         res.json({ success: true, transaction });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -64,7 +66,8 @@ export const updateTransaction = async (req, res) => {
         await transaction.save();
         res.json({ success: true, transaction });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -81,7 +84,8 @@ export const deleteTransaction = async (req, res) => {
 
         res.json({ success: true, message: "Transaction deleted" });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -122,6 +126,7 @@ export const getSummary = async (req, res) => {
 
         res.json(summary);
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };

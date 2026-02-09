@@ -11,8 +11,11 @@ import userRouter from "./routes/userRoutes.js";
 import todoRouter from "./routes/todoRoutes.js";
 import transactionRouter from "./routes/transactionRoutes.js";
 import inventoryRouter from "./routes/inventoryRoutes.js";
+import customerRouter from "./routes/customerRoutes.js";
+import invoiceRouter from "./routes/invoiceRoutes.js";
 
 import { ConnectDB } from "./config/db.js";
+import { securityMiddleware } from "./config/security.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -52,6 +55,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
+// Security middleware (Helmet, XSS, NoSQL injection, HPP)
+securityMiddleware(app);
+
 // ============================================
 // Routes
 // ============================================
@@ -61,6 +67,8 @@ app.use("/api/user", userRouter);
 app.use("/api/todos", todoRouter);
 app.use("/api/transactions", transactionRouter);
 app.use("/api/inventory", inventoryRouter);
+app.use("/api/customers", customerRouter);
+app.use("/api/invoices", invoiceRouter);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -78,9 +86,10 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(err.status || 500).json({ 
-    message: err.message || 'Internal Server Error'
-  });
+  const message = process.env.NODE_ENV === 'production'
+    ? 'Internal Server Error'
+    : err.message || 'Internal Server Error';
+  res.status(err.status || 500).json({ success: false, message });
 });
 
 // Start server

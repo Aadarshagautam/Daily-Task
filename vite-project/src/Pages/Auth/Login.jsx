@@ -30,8 +30,6 @@ const Login = () => {
     setLoading(true)
 
     try {
-      console.log('Attempting login...')
-      
       const { data } = await axios.post(
         backendUrl + '/api/auth/login',
         {
@@ -42,8 +40,6 @@ const Login = () => {
           withCredentials: true, // Important for cookies
         }
       )
-
-      console.log('Login response:', data)
 
       if (data.success) {
         // Set logged in state
@@ -61,7 +57,6 @@ const Login = () => {
         setIsLoggedin(false)
       }
     } catch (error) {
-      console.error('Login error:', error)
       toast.error(error.response?.data?.message || 'Login failed')
       setIsLoggedin(false)
     } finally {
