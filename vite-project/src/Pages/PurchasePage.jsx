@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { 
   Plus, 
   ShoppingCart,
@@ -276,7 +276,7 @@ const PurchasePage = () => {
               </div>
               <div>
                 <p className="text-xs text-gray-600">Total Amount</p>
-                <p className="text-xl font-bold text-gray-900">₹{stats.totalAmount.toLocaleString()}</p>
+                <p className="text-xl font-bold text-gray-900">{'\u20B9'}{stats.totalAmount.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -417,7 +417,7 @@ const PurchasePage = () => {
 
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Unit Price (₹) *
+                      Unit Price (\u20B9) *
                     </label>
                     <input
                       type="number"
@@ -433,7 +433,7 @@ const PurchasePage = () => {
 
                 <div className="mt-4 p-4 bg-white rounded-lg border-2 border-purple-300">
                   <p className="text-sm text-gray-600">Total Amount:</p>
-                  <p className="text-3xl font-bold text-purple-600">₹{formData.totalAmount || '0.00'}</p>
+                  <p className="text-3xl font-bold text-purple-600">{'\u20B9'}{formData.totalAmount || '0.00'}</p>
                 </div>
               </div>
 
@@ -629,8 +629,8 @@ const PurchasePage = () => {
 
                       <div className="text-right mr-4">
                         <p className="text-xs text-gray-600 mb-1">Total Amount</p>
-                        <p className="text-2xl font-bold text-blue-600">₹{parseFloat(purchase.totalAmount).toLocaleString()}</p>
-                        <p className="text-xs text-gray-500">₹{purchase.unitPrice}/unit</p>
+                        <p className="text-2xl font-bold text-blue-600">{'\u20B9'}{parseFloat(purchase.totalAmount).toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">{'\u20B9'}{purchase.unitPrice}/unit</p>
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -660,7 +660,7 @@ const PurchasePage = () => {
 
                       <div className="bg-white p-4 rounded-lg border border-gray-200">
                         <p className="text-xs text-gray-600 mb-1">Unit Price</p>
-                        <p className="font-medium text-gray-900">₹{purchase.unitPrice} × {purchase.quantity} = ₹{purchase.totalAmount}</p>
+                        <p className="font-medium text-gray-900">{'\u20B9'}{purchase.unitPrice} × {purchase.quantity} = {'\u20B9'}{purchase.totalAmount}</p>
                       </div>
                     </div>
 
@@ -705,3 +705,4 @@ const PurchasePage = () => {
 }
 
 export default PurchasePage
+

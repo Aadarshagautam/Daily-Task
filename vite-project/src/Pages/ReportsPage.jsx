@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -68,15 +68,15 @@ const ReportsPage = () => {
     // Add Summary Section
     csvContent += "FINANCIAL SUMMARY\n"
     csvContent += `Report Period:,${dateRange.startDate} to ${dateRange.endDate}\n\n`
-    csvContent += `Total Income:,₹${reportData.summary.totalIncome}\n`
-    csvContent += `Total Expense:,₹${reportData.summary.totalExpense}\n`
-    csvContent += `Net Balance:,₹${reportData.summary.balance}\n\n`
+    csvContent += `Total Income:,\u20B9${reportData.summary.totalIncome}\n`
+    csvContent += `Total Expense:,\u20B9${reportData.summary.totalExpense}\n`
+    csvContent += `Net Balance:,\u20B9${reportData.summary.balance}\n\n`
 
     // Add Income by Category
     csvContent += "INCOME BY CATEGORY\n"
     csvContent += "Category,Amount\n"
     Object.entries(reportData.summary.incomeByCategory || {}).forEach(([category, amount]) => {
-      csvContent += `${category},₹${amount}\n`
+      csvContent += `${category},\u20B9${amount}\n`
     })
     csvContent += "\n"
 
@@ -84,7 +84,7 @@ const ReportsPage = () => {
     csvContent += "EXPENSE BY CATEGORY\n"
     csvContent += "Category,Amount\n"
     Object.entries(reportData.summary.expenseByCategory || {}).forEach(([category, amount]) => {
-      csvContent += `${category},₹${amount}\n`
+      csvContent += `${category},\u20B9${amount}\n`
     })
     csvContent += "\n"
 
@@ -92,7 +92,7 @@ const ReportsPage = () => {
     csvContent += "ALL TRANSACTIONS\n"
     csvContent += "Date,Type,Category,Description,Amount,Payment Method\n"
     reportData.transactions.forEach(t => {
-      csvContent += `${new Date(t.date).toLocaleDateString()},${t.type},${t.category},${t.description},₹${t.amount},${t.paymentMethod}\n`
+      csvContent += `${new Date(t.date).toLocaleDateString()},${t.type},${t.category},${t.description},\u20B9${t.amount},${t.paymentMethod}\n`
     })
 
     // Download
@@ -141,7 +141,7 @@ const ReportsPage = () => {
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm font-medium text-gray-700">{category}</span>
                     <span className={`text-sm font-semibold ${type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                      ₹{amount.toLocaleString()}
+                      {'\u20B9'}{amount.toLocaleString()}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -240,21 +240,21 @@ const ReportsPage = () => {
           <StatCard
             icon={TrendingUp}
             label="Total Income"
-            value={`₹${reportData.summary.totalIncome.toLocaleString()}`}
+            value={`\u20B9${reportData.summary.totalIncome.toLocaleString()}`}
             color="text-green-600"
             bgColor="bg-green-100"
           />
           <StatCard
             icon={TrendingDown}
             label="Total Expenses"
-            value={`₹${reportData.summary.totalExpense.toLocaleString()}`}
+            value={`\u20B9${reportData.summary.totalExpense.toLocaleString()}`}
             color="text-red-600"
             bgColor="bg-red-100"
           />
           <StatCard
             icon={DollarSign}
             label="Net Profit/Loss"
-            value={`₹${reportData.summary.balance.toLocaleString()}`}
+            value={`\u20B9${reportData.summary.balance.toLocaleString()}`}
             subValue={`${reportData.summary.balance >= 0 ? 'Profit' : 'Loss'}`}
             color={reportData.summary.balance >= 0 ? 'text-indigo-600' : 'text-red-600'}
             bgColor={reportData.summary.balance >= 0 ? 'bg-indigo-100' : 'bg-red-100'}
@@ -293,14 +293,14 @@ const ReportsPage = () => {
           <StatCard
             icon={DollarSign}
             label="Inventory Value"
-            value={`₹${inventoryStats.totalValue.toLocaleString()}`}
+            value={`\u20B9${inventoryStats.totalValue.toLocaleString()}`}
             color="text-green-600"
             bgColor="bg-green-100"
           />
           <StatCard
             icon={ShoppingCart}
             label="Total Investment"
-            value={`₹${inventoryStats.totalCost.toLocaleString()}`}
+            value={`\u20B9${inventoryStats.totalCost.toLocaleString()}`}
             color="text-purple-600"
             bgColor="bg-purple-100"
           />
@@ -391,7 +391,7 @@ const ReportsPage = () => {
                       <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold text-right ${
                         transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
+                        {transaction.type === 'income' ? '+' : '-'}{'\u20B9'}{transaction.amount.toLocaleString()}
                       </td>
                     </tr>
                   ))}

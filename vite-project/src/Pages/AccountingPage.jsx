@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { 
   Plus, 
-  TrendingUp, 
-  TrendingDown, 
   DollarSign, 
   Calendar,
-  Edit2,
   X,
   Save,
   ArrowUpCircle,
@@ -13,7 +10,13 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Layers,
+  BookOpen,
+  ShieldCheck,
+  BarChart3,
+  FileText,
+  Receipt
 } from 'lucide-react'
 import api from './lib/axios'
 import toast from 'react-hot-toast'
@@ -30,6 +33,8 @@ const AccountingPage = () => {
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [activeTab, setActiveTab] = useState('overview')
+  const [dayView, setDayView] = useState('all')
   
   // Date filtering
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
@@ -78,7 +83,6 @@ const AccountingPage = () => {
       setTransactions(allTransactions)
       setSummary(summaryRes.data)
       
-      // Get available years
       const years = [...new Set(allTransactions.map(t => new Date(t.date).getFullYear()))]
       setAvailableYears(years.sort((a, b) => b - a))
       
@@ -132,7 +136,6 @@ const AccountingPage = () => {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
   }
 
-  // Filter summaries based on selected year and month
   const getFilteredSummaries = () => {
     let filtered = monthlySummaries
 
@@ -180,7 +183,7 @@ const AccountingPage = () => {
         })
 
         if (res.data.success) {
-          toast.success('✅ Updated successfully!')
+          toast.success('Updated successfully')
         }
       } else {
         const res = await api.post('/transactions', {
@@ -189,7 +192,7 @@ const AccountingPage = () => {
         })
 
         if (res.data.success) {
-          toast.success('✅ Added successfully!')
+          toast.success('Added successfully')
         }
       }
 
@@ -258,169 +261,219 @@ const AccountingPage = () => {
 
   const filteredSummaries = getFilteredSummaries()
   const filteredTotals = getFilteredSummary()
+  const allFilteredTransactions = filteredSummaries.flatMap(m => m.transactions)
+  const journalTransactions = filter === 'all'
+    ? allFilteredTransactions
+    : allFilteredTransactions.filter(t => t.type === filter)
 
-  return (
-    <div className="lg:ml-64 min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-6">
+  const dailyTotals = journalTransactions.reduce((acc, t) => {
+    const dayKey = new Date(t.date).toISOString().split('T')[0]
+    if (!acc[dayKey]) {
+      acc[dayKey] = { income: 0, expense: 0, transactions: [] }
+    }
+    acc[dayKey].transactions.push(t)
+    if (t.type === 'income') acc[dayKey].income += t.amount
+    else acc[dayKey].expense += t.amount
+    return acc
+  }, {})
+
+  const dailySummaries = Object.keys(dailyTotals)
+    .sort((a, b) => b.localeCompare(a))
+    .map(key => ({
+      day: key,
+      ...dailyTotals[key],
+      balance: dailyTotals[key].income - dailyTotals[key].expense
+    }))
+
+  const dayOptions = [
+    { value: 'all', label: 'All Days' },
+    ...dailySummaries.map(d => ({ value: d.day, label: d.day }))
+  ]
+
+  const categoryTotals = journalTransactions.reduce((acc, t) => {
+    const key = t.category || 'Uncategorized'
+    acc[key] = (acc[key] || 0) + t.amount
+    return acc
+  }, {})
+
+  const sortedCategories = Object.entries(categoryTotals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+
+  const renderJournals = () => {
+    const income = journalTransactions.filter(t => t.type === 'income')
+    const expense = journalTransactions.filter(t => t.type === 'expense')
+
+    return (
+      <div className="space-y-5">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">💰 Money Manager</h1>
-              <p className="text-sm text-gray-600 mt-1">Track all your income and expenses</p>
+              <h3 className="text-lg font-semibold text-slate-900">Journals</h3>
+              <p className="text-sm text-slate-500">Entry batches by type</p>
             </div>
-            <button
-              onClick={() => {
-                setShowAddForm(!showAddForm)
-                if (editingId) resetForm()
-              }}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-lg font-medium transition-colors shadow-md"
-            >
-              <Plus className="w-5 h-5" />
-              Add Money In/Out
-            </button>
+            <div className="flex items-center gap-3 text-sm">
+              <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">{income.length} income</span>
+              <span className="px-3 py-1 rounded-full bg-rose-50 text-rose-700">{expense.length} expense</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            { title: 'Sales Journal', rows: income.slice(0, 5) },
+            { title: 'Purchases Journal', rows: expense.slice(0, 5) },
+          ].map((box) => (
+            <div key={box.title} className="bg-white rounded-xl border border-slate-200 shadow-sm">
+              <div className="px-4 py-3 border-b border-slate-200 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-slate-600" />
+                <p className="text-sm font-semibold text-slate-900">{box.title}</p>
+              </div>
+              <div className="divide-y divide-slate-200">
+                {box.rows.length === 0 ? (
+                  <div className="p-4 text-sm text-slate-500">No entries yet</div>
+                ) : (
+                  box.rows.map((t) => (
+                    <div key={t._id} className="px-4 py-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">{t.description}</p>
+                        <p className="text-xs text-slate-500">{t.category}</p>
+                      </div>
+                      <p className={`text-sm font-semibold ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                        {t.type === 'income' ? '+' : '-'}{'\u20B9'}{t.amount.toLocaleString()}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const renderReconcile = () => {
+    const candidates = journalTransactions
+      .filter(t => t.paymentMethod !== 'cash')
+      .slice(0, 8)
+
+    return (
+      <div className="space-y-5">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <h3 className="text-lg font-semibold text-slate-900">Reconciliation</h3>
+          <p className="text-sm text-slate-500">Match bank and card lines with entries.</p>
+        </div>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-5 py-3 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-400 grid grid-cols-12">
+            <div className="col-span-4">Description</div>
+            <div className="col-span-2">Category</div>
+            <div className="col-span-2">Method</div>
+            <div className="col-span-2">Date</div>
+            <div className="col-span-2 text-right">Amount</div>
+          </div>
+          {candidates.length === 0 ? (
+            <div className="p-5 text-sm text-slate-500">No items to reconcile.</div>
+          ) : (
+            candidates.map((t) => (
+              <div key={t._id} className="px-5 py-3 grid grid-cols-12 items-center border-b border-slate-200 last:border-b-0">
+                <div className="col-span-4 text-sm font-semibold text-slate-900">{t.description}</div>
+                <div className="col-span-2 text-sm text-slate-600">{t.category}</div>
+                <div className="col-span-2 text-sm text-slate-600 capitalize">{t.paymentMethod.replace('_', ' ')}</div>
+                <div className="col-span-2 text-sm text-slate-600">
+                  {new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </div>
+                <div className={`col-span-2 text-right text-sm font-semibold ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                  {t.type === 'income' ? '+' : '-'}{'\u20B9'}{t.amount.toLocaleString()}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  const renderReports = () => {
+    return (
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+            <div className="flex items-center gap-3">
+              <Receipt className="w-5 h-5 text-slate-600" />
+              <div>
+                <p className="text-xs text-slate-500">Profit and Loss</p>
+                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.balance.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+            <div className="flex items-center gap-3">
+              <FileText className="w-5 h-5 text-slate-600" />
+              <div>
+                <p className="text-xs text-slate-500">Total Income</p>
+                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.income.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+            <div className="flex items-center gap-3">
+              <FileText className="w-5 h-5 text-slate-600" />
+              <div>
+                <p className="text-xs text-slate-500">Total Expense</p>
+                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.expense.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div className="px-5 py-3 border-b border-slate-200">
+            <h3 className="text-sm font-semibold text-slate-900">Top Categories</h3>
+          </div>
+          <div className="divide-y divide-slate-200">
+            {sortedCategories.length === 0 ? (
+              <div className="p-5 text-sm text-slate-500">No category data.</div>
+            ) : (
+              sortedCategories.map(([category, total]) => (
+                <div key={category} className="px-5 py-3 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-slate-900">{category}</p>
+                  <p className="text-sm text-slate-700">{'\u20B9'}{total.toLocaleString()}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
+    )
+  }
 
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        {/* Collapsible Date Selector */}
-        <div className="bg-white rounded-xl border-2 border-indigo-200 overflow-hidden shadow-lg">
-          <button
-            onClick={() => setShowDatePicker(!showDatePicker)}
-            className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <Calendar className="w-6 h-6 text-indigo-600" />
-              <div className="text-left">
-                <h3 className="text-lg font-bold text-gray-900">Time Period</h3>
-                <p className="text-sm text-gray-600">
-                  Currently viewing: {selectedMonth === 'all' 
-                    ? `All of ${selectedYear}` 
-                    : `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`}
-                </p>
-              </div>
-            </div>
-            {showDatePicker ? (
-              <ChevronUp className="w-6 h-6 text-gray-400" />
-            ) : (
-              <ChevronDown className="w-6 h-6 text-gray-400" />
-            )}
-          </button>
-
-          {showDatePicker && (
-            <div className="border-t border-gray-200 p-5 bg-gray-50">
-              {/* Year Selector */}
-              <div className="mb-5">
-                <label className="block text-sm font-bold text-gray-700 mb-3">Year:</label>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={previousYear}
-                    disabled={selectedYear <= Math.min(...availableYears)}
-                    className="p-2 bg-white border-2 border-gray-300 hover:bg-gray-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <ChevronLeft className="w-6 h-6" />
-                  </button>
-
-                  <div className="flex-1 grid grid-cols-4 gap-2">
-                    {availableYears.map(year => (
-                      <button
-                        key={year}
-                        onClick={() => {
-                          setSelectedYear(year)
-                          setSelectedMonth('all')
-                        }}
-                        className={`py-3 px-4 rounded-lg font-bold text-lg transition-all ${
-                          selectedYear === year
-                            ? 'bg-indigo-600 text-white shadow-lg'
-                            : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-indigo-300'
-                        }`}
-                      >
-                        {year}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={nextYear}
-                    disabled={selectedYear >= Math.max(...availableYears)}
-                    className="p-2 bg-white border-2 border-gray-300 hover:bg-gray-100 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <ChevronRight className="w-6 h-6" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Month Selector */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-3">Month:</label>
-                <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
-                  {months.map(month => (
-                    <button
-                      key={month.value}
-                      onClick={() => setSelectedMonth(month.value)}
-                      className={`py-2.5 px-3 rounded-lg font-medium text-sm transition-all ${
-                        selectedMonth === month.value
-                          ? 'bg-emerald-600 text-white shadow-md'
-                          : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-emerald-300'
-                      } ${month.value === 'all' ? 'md:col-span-1 font-bold' : ''}`}
-                    >
-                      {month.value === 'all' ? month.label : month.label.slice(0, 3)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                <ArrowDownCircle className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-green-800">Money In</p>
-                <p className="text-3xl font-bold text-green-700">₹{filteredTotals.income.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-6 border-2 border-red-200">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
-                <ArrowUpCircle className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-red-800">Money Out</p>
-                <p className="text-3xl font-bold text-red-700">₹{filteredTotals.expense.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-indigo-200">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-indigo-500 rounded-full flex items-center justify-center">
-                <DollarSign className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-indigo-800">Balance</p>
-                <p className={`text-3xl font-bold ${filteredTotals.balance >= 0 ? 'text-indigo-700' : 'text-red-700'}`}>
-                  ₹{filteredTotals.balance.toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </div>
+  const renderOverview = () => {
+    return (
+      <>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-wrap items-center gap-3">
+          <p className="text-xs text-slate-500">Daily accounting:</p>
+          {dayOptions.slice(0, 8).map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setDayView(opt.value)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                dayView === opt.value
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {opt.value === 'all' ? 'All Days' : opt.label}
+            </button>
+          ))}
         </div>
 
         {/* Add/Edit Form */}
         {(showAddForm || editingId) && (
-          <div className="bg-white rounded-xl p-6 border-2 border-indigo-200 shadow-lg">
+          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900">
-                {editingId ? '✏️ Edit Transaction' : '➕ Add New Transaction'}
+                {editingId ? 'Edit Transaction' : 'New Transaction'}
               </h3>
               <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
                 <X className="w-6 h-6" />
@@ -428,34 +481,33 @@ const AccountingPage = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Type Selection */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-3">
                   Type *
                 </label>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, type: 'income', category: '' })}
-                    className={`p-4 rounded-lg border-2 font-medium transition-all ${
+                    className={`p-4 rounded-lg border text-sm font-semibold transition-all ${
                       formData.type === 'income'
-                        ? 'border-green-500 bg-green-50 text-green-700'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-green-300'
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                        : 'border-slate-300 bg-white text-slate-700 hover:border-emerald-300'
                     }`}
                   >
-                    <ArrowDownCircle className={`w-8 h-8 mx-auto mb-2 ${formData.type === 'income' ? 'text-green-500' : 'text-gray-400'}`} />
+                    <ArrowDownCircle className={`w-7 h-7 mx-auto mb-2 ${formData.type === 'income' ? 'text-emerald-500' : 'text-slate-400'}`} />
                     Money In
                   </button>
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, type: 'expense', category: '' })}
-                    className={`p-4 rounded-lg border-2 font-medium transition-all ${
+                    className={`p-4 rounded-lg border text-sm font-semibold transition-all ${
                       formData.type === 'expense'
-                        ? 'border-red-500 bg-red-50 text-red-700'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-red-300'
+                        ? 'border-rose-500 bg-rose-50 text-rose-700'
+                        : 'border-slate-300 bg-white text-slate-700 hover:border-rose-300'
                     }`}
                   >
-                    <ArrowUpCircle className={`w-8 h-8 mx-auto mb-2 ${formData.type === 'expense' ? 'text-red-500' : 'text-gray-400'}`} />
+                    <ArrowUpCircle className={`w-7 h-7 mx-auto mb-2 ${formData.type === 'expense' ? 'text-rose-500' : 'text-slate-400'}`} />
                     Money Out
                   </button>
                 </div>
@@ -467,7 +519,7 @@ const AccountingPage = () => {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                     required
                   >
                     <option value="">-- Choose --</option>
@@ -478,12 +530,12 @@ const AccountingPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Amount (₹) *</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Amount (\u20B9) *</label>
                   <input
                     type="number"
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                     placeholder="0.00"
                     step="0.01"
                     required
@@ -496,7 +548,7 @@ const AccountingPage = () => {
                     type="text"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                     placeholder="What was it for?"
                     required
                   />
@@ -508,7 +560,7 @@ const AccountingPage = () => {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                     required
                   />
                 </div>
@@ -521,10 +573,10 @@ const AccountingPage = () => {
                         key={method}
                         type="button"
                         onClick={() => setFormData({ ...formData, paymentMethod: method })}
-                        className={`py-3 px-4 rounded-lg border-2 font-medium capitalize transition-all ${
+                        className={`py-3 px-4 rounded-lg border text-sm font-semibold capitalize transition-all ${
                           formData.paymentMethod === method
-                            ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                            : 'border-gray-300 bg-white text-gray-700 hover:border-indigo-300'
+                            ? 'border-slate-900 bg-slate-50 text-slate-900'
+                            : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
                         }`}
                       >
                         {method === 'bank_transfer' ? 'Bank' : method}
@@ -537,7 +589,7 @@ const AccountingPage = () => {
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   <Save className="w-5 h-5" />
                   {editingId ? 'Update' : 'Save'}
@@ -545,7 +597,7 @@ const AccountingPage = () => {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-bold transition-colors"
+                  className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition-colors"
                 >
                   Cancel
                 </button>
@@ -554,49 +606,85 @@ const AccountingPage = () => {
           </div>
         )}
 
-        {/* Filter Buttons */}
-        <div className="flex gap-3">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-              filter === 'all' 
-                ? 'bg-indigo-600 text-white shadow-md' 
-                : 'bg-white text-gray-700 border-2 border-gray-300'
-            }`}
-          >
-            Show All
-          </button>
-          <button
-            onClick={() => setFilter('income')}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-              filter === 'income' 
-                ? 'bg-green-600 text-white shadow-md' 
-                : 'bg-white text-gray-700 border-2 border-gray-300'
-            }`}
-          >
-            Money In
-          </button>
-          <button
-            onClick={() => setFilter('expense')}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-              filter === 'expense' 
-                ? 'bg-red-600 text-white shadow-md' 
-                : 'bg-white text-gray-700 border-2 border-gray-300'
-            }`}
-          >
-            Money Out
-          </button>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-emerald-600">Money In</p>
+                <p className="text-2xl font-semibold text-slate-900 mt-1">{'\u20B9'}{filteredTotals.income.toLocaleString()}</p>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <ArrowDownCircle className="w-5 h-5 text-emerald-700" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-rose-600">Money Out</p>
+                <p className="text-2xl font-semibold text-slate-900 mt-1">{'\u20B9'}{filteredTotals.expense.toLocaleString()}</p>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center">
+                <ArrowUpCircle className="w-5 h-5 text-rose-700" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-slate-500">Balance</p>
+                <p className={`text-2xl font-semibold mt-1 ${filteredTotals.balance >= 0 ? 'text-slate-900' : 'text-rose-700'}`}>
+                  {'\u20B9'}{filteredTotals.balance.toLocaleString()}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                <DollarSign className="w-5 h-5 text-slate-700" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Monthly Records */}
         {filteredSummaries.length === 0 ? (
-          <div className="bg-white rounded-xl p-16 text-center border-2 border-dashed border-gray-300">
-            <DollarSign className="w-20 h-20 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No records for this period</h3>
-            <p className="text-gray-600 mb-6">Try selecting a different time period</p>
+          <div className="bg-white rounded-xl p-12 text-center border border-dashed border-slate-300">
+            <DollarSign className="w-14 h-14 text-slate-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-1">No records for this period</h3>
+            <p className="text-slate-500 text-sm">Try selecting a different time period</p>
           </div>
         ) : (
           <div className="space-y-6">
+            {dayView !== 'all' && (
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-900">Daily Ledger</h3>
+                    <p className="text-xs text-slate-500">{dayView}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-slate-400">Balance</p>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {'\u20B9'}{(dailyTotals[dayView]?.income || 0) - (dailyTotals[dayView]?.expense || 0)}
+                    </p>
+                  </div>
+                </div>
+                <div className="divide-y divide-slate-200">
+                  {(dailyTotals[dayView]?.transactions || []).map(t => (
+                    <div key={t._id} className="px-5 py-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">{t.description}</p>
+                        <p className="text-xs text-slate-500">{t.category} • {t.paymentMethod.replace('_', ' ')}</p>
+                      </div>
+                      <p className={`text-sm font-semibold ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                        {t.type === 'income' ? '+' : '-'}{'\u20B9'}{t.amount.toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {filteredSummaries.map((monthly) => {
               const filteredTransactions = filter === 'all' 
                 ? monthly.transactions 
@@ -605,77 +693,82 @@ const AccountingPage = () => {
               if (filteredTransactions.length === 0) return null
 
               return (
-                <div key={monthly.monthYear} className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
-                  {/* Month Header */}
-                  <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-5">
-                    <div className="flex items-center justify-between text-white">
+                <div key={monthly.monthYear} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                  <div className="px-5 py-4 border-b border-slate-200 bg-slate-50">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Calendar className="w-8 h-8" />
+                        <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-slate-700" />
+                        </div>
                         <div>
-                          <h3 className="text-2xl font-bold">{getMonthName(monthly.monthYear)}</h3>
-                          <p className="text-indigo-100">{monthly.transactions.length} transactions</p>
+                          <h3 className="text-lg font-semibold text-slate-900">{getMonthName(monthly.monthYear)}</h3>
+                          <p className="text-xs text-slate-500">{monthly.transactions.length} transactions</p>
                         </div>
                       </div>
 
-                      <div className="flex gap-8">
-                        <div className="text-right">
-                          <p className="text-sm text-indigo-100">In</p>
-                          <p className="text-2xl font-bold">₹{monthly.income.toLocaleString()}</p>
+                      <div className="flex gap-6 text-right">
+                        <div>
+                          <p className="text-xs text-slate-400">In</p>
+                          <p className="text-lg font-semibold text-emerald-700">{'\u20B9'}{monthly.income.toLocaleString()}</p>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-indigo-100">Out</p>
-                          <p className="text-2xl font-bold">₹{monthly.expense.toLocaleString()}</p>
+                        <div>
+                          <p className="text-xs text-slate-400">Out</p>
+                          <p className="text-lg font-semibold text-rose-700">{'\u20B9'}{monthly.expense.toLocaleString()}</p>
                         </div>
-                        <div className="text-right bg-white/20 px-4 py-2 rounded-lg">
-                          <p className="text-sm text-indigo-100">Balance</p>
-                          <p className={`text-2xl font-bold ${monthly.balance >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                            ₹{monthly.balance.toLocaleString()}
+                        <div>
+                          <p className="text-xs text-slate-400">Balance</p>
+                          <p className={`text-lg font-semibold ${monthly.balance >= 0 ? 'text-slate-900' : 'text-rose-700'}`}>
+                            {'\u20B9'}{monthly.balance.toLocaleString()}
                           </p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Transactions */}
-                  <div className="divide-y divide-gray-200">
+                  <div className="divide-y divide-slate-200">
+                    <div className="px-5 py-2 text-xs uppercase tracking-wider text-slate-400 grid grid-cols-12">
+                      <div className="col-span-4">Description</div>
+                      <div className="col-span-2">Category</div>
+                      <div className="col-span-2">Date</div>
+                      <div className="col-span-2">Method</div>
+                      <div className="col-span-2 text-right">Amount</div>
+                    </div>
                     {filteredTransactions.map((transaction) => (
-                      <div key={transaction._id} className={`p-5 hover:bg-gray-50 ${editingId === transaction._id ? 'bg-indigo-50' : ''}`}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4 flex-1">
-                            <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-                              transaction.type === 'income' ? 'bg-green-100' : 'bg-red-100'
+                      <div key={transaction._id} className={`px-5 py-4 hover:bg-slate-50 ${editingId === transaction._id ? 'bg-slate-50' : ''}`}>
+                        <div className="grid grid-cols-12 items-center gap-2">
+                          <div className="col-span-4 flex items-center gap-3">
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                              transaction.type === 'income' ? 'bg-emerald-100' : 'bg-rose-100'
                             }`}>
                               {transaction.type === 'income' ? (
-                                <ArrowDownCircle className="w-7 h-7 text-green-600" />
+                                <ArrowDownCircle className="w-5 h-5 text-emerald-600" />
                               ) : (
-                                <ArrowUpCircle className="w-7 h-7 text-red-600" />
+                                <ArrowUpCircle className="w-5 h-5 text-rose-600" />
                               )}
                             </div>
-
-                            <div className="flex-1">
-                              <p className="text-lg font-bold text-gray-900">{transaction.description}</p>
-                              <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
-                                <span className="font-medium">{transaction.category}</span>
-                                <span>•</span>
-                                <span>{new Date(transaction.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                                <span>•</span>
-                                <span className="capitalize">{transaction.paymentMethod.replace('_', ' ')}</span>
-                              </div>
+                            <div>
+                              <p className="text-sm font-semibold text-slate-900">{transaction.description}</p>
+                              <p className="text-xs text-slate-500">{transaction.type === 'income' ? 'Income' : 'Expense'}</p>
                             </div>
-
-                            <div className="text-right mr-4">
-                              <p className={`text-2xl font-bold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                                {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
-                              </p>
-                            </div>
-
-                            {/* Edit Button Only */}
+                          </div>
+                          <div className="col-span-2 text-sm text-slate-600">{transaction.category}</div>
+                          <div className="col-span-2 text-sm text-slate-600">
+                            {new Date(transaction.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </div>
+                          <div className="col-span-2 text-sm text-slate-600 capitalize">
+                            {transaction.paymentMethod.replace('_', ' ')}
+                          </div>
+                          <div className="col-span-2 text-right">
+                            <p className={`text-sm font-semibold ${transaction.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                              {transaction.type === 'income' ? '+' : '-'}{'\u20B9'}{transaction.amount.toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="col-span-12 flex justify-end">
                             <button
                               onClick={() => startEdit(transaction)}
-                              className="p-3 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                              title="Edit"
+                              className="text-slate-500 hover:text-slate-900 text-xs font-semibold"
                             >
-                              <Edit2 className="w-5 h-5" />
+                              Edit
                             </button>
                           </div>
                         </div>
@@ -687,6 +780,223 @@ const AccountingPage = () => {
             })}
           </div>
         )}
+      </>
+    )
+  }
+
+  const renderMainContent = () => {
+    if (activeTab === 'journals') return renderJournals()
+    if (activeTab === 'reconcile') return renderReconcile()
+    if (activeTab === 'reports') return renderReports()
+
+    return renderOverview()
+  }
+
+  return (
+    <div className="lg:ml-64 min-h-screen bg-gradient-to-b from-slate-50 via-slate-50 to-slate-100">
+      {/* Header */}
+      <div className="bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-slate-400">Accounting</p>
+              <h1 className="text-2xl font-semibold text-slate-900">Accounting</h1>
+              <p className="text-sm text-slate-500 mt-1">Odoo-style journals and reports</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  setShowAddForm(!showAddForm)
+                  if (editingId) resetForm()
+                }}
+                className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+                New Entry
+              </button>
+            </div>
+          </div>
+
+          {/* Top Tabs */}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[
+              { key: 'overview', label: 'Overview', icon: Layers },
+              { key: 'journals', label: 'Journals', icon: BookOpen },
+              { key: 'reconcile', label: 'Reconciliation', icon: ShieldCheck },
+              { key: 'reports', label: 'Reports', icon: BarChart3 },
+            ].map(tab => {
+              const Icon = tab.icon
+              const active = activeTab === tab.key
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    active
+                      ? 'bg-slate-900 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+          {/* Left Filters */}
+          <aside className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 h-fit sticky top-28">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-slate-900">Filters</h3>
+              <button
+                onClick={() => {
+                  setSelectedMonth('all')
+                  setSelectedYear(new Date().getFullYear())
+                  setFilter('all')
+                }}
+                className="text-xs text-slate-500 hover:text-slate-900"
+              >
+                Reset
+              </button>
+            </div>
+
+            <div className="mt-4 bg-slate-50 rounded-lg border border-slate-200">
+              <button
+                onClick={() => setShowDatePicker(!showDatePicker)}
+                className="w-full flex items-center justify-between p-3"
+              >
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-slate-600" />
+                  <div className="text-left">
+                    <p className="text-xs text-slate-500">Period</p>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {selectedMonth === 'all' 
+                        ? `All of ${selectedYear}` 
+                        : `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`}
+                    </p>
+                  </div>
+                </div>
+                {showDatePicker ? (
+                  <ChevronUp className="w-4 h-4 text-slate-400" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                )}
+              </button>
+
+              {showDatePicker && (
+                <div className="border-t border-slate-200 p-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <button
+                      onClick={previousYear}
+                      disabled={selectedYear <= Math.min(...availableYears)}
+                      className="p-1 bg-white border border-slate-300 rounded disabled:opacity-30"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <p className="text-sm font-semibold text-slate-900">{selectedYear}</p>
+                    <button
+                      onClick={nextYear}
+                      disabled={selectedYear >= Math.max(...availableYears)}
+                      className="p-1 bg-white border border-slate-300 rounded disabled:opacity-30"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {months.map(month => (
+                      <button
+                        key={month.value}
+                        onClick={() => setSelectedMonth(month.value)}
+                        className={`py-2 rounded text-xs font-semibold ${
+                          selectedMonth === month.value
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-white border border-slate-300 text-slate-600 hover:border-emerald-300'
+                        }`}
+                      >
+                        {month.value === 'all' ? 'All' : month.label.slice(0, 3)}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-xs text-slate-500 mb-2">Day</p>
+                    <div className="space-y-2">
+                      <input
+                        type="date"
+                        value={dayView === 'all' ? '' : dayView}
+                        onChange={(e) => setDayView(e.target.value || 'all')}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-700 focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        {dayOptions.slice(0, 6).map(opt => (
+                          <button
+                            key={opt.value}
+                            onClick={() => setDayView(opt.value)}
+                            className={`py-2 rounded text-xs font-semibold ${
+                              dayView === opt.value
+                                ? 'bg-slate-900 text-white'
+                                : 'bg-white border border-slate-300 text-slate-600 hover:border-slate-400'
+                            }`}
+                          >
+                            {opt.value === 'all' ? 'All Days' : opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <p className="text-xs text-slate-500 mb-2">Journal</p>
+              <div className="flex flex-col gap-2">
+                {[
+                  { key: 'all', label: 'All' },
+                  { key: 'income', label: 'Money In' },
+                  { key: 'expense', label: 'Money Out' },
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setFilter(tab.key)}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold text-left ${
+                      filter === tab.key
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-white border border-slate-300 text-slate-600 hover:border-slate-400'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-3">
+              <div className="bg-white border border-slate-200 rounded-lg p-3">
+                <p className="text-xs text-emerald-600">Money In</p>
+                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.income.toLocaleString()}</p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-lg p-3">
+                <p className="text-xs text-rose-600">Money Out</p>
+                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.expense.toLocaleString()}</p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-lg p-3">
+                <p className="text-xs text-slate-500">Balance</p>
+                <p className={`text-lg font-semibold ${filteredTotals.balance >= 0 ? 'text-slate-900' : 'text-rose-700'}`}>
+                  {'\u20B9'}{filteredTotals.balance.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <section className="space-y-6">
+            {renderMainContent()}
+          </section>
+        </div>
       </div>
     </div>
   )

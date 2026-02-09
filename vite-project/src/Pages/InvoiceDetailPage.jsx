@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   FileText, Download, ArrowLeft, Send, CheckCircle,
@@ -18,16 +18,24 @@ const InvoiceDetailPage = () => {
     fetchInvoice()
   }, [id])
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-'
+    const date = new Date(dateStr)
+    if (Number.isNaN(date.getTime())) return '-'
+    return date.toLocaleDateString('en-IN')
+  }
+
   const fetchInvoice = async () => {
     try {
       setLoading(true)
       const res = await api.get(`/invoices/${id}`)
-      if (res.data.success) {
-        setInvoice(res.data.invoice)
-      } else {
-        toast.error('Invoice not found')
-        navigate('/invoices')
+      const data = res.data?.invoice || res.data
+      if (data) {
+        setInvoice(data)
+        return
       }
+      toast.error('Invoice not found')
+      navigate('/invoices')
     } catch (error) {
       toast.error('Failed to load invoice')
       navigate('/invoices')
@@ -100,6 +108,13 @@ const InvoiceDetailPage = () => {
   if (!invoice) return null
 
   const StatusIcon = statusConfig[invoice.status]?.icon || Clock
+  const vatDiscountModeLabels = {
+    after_vat_no_prorate: 'Overall discount after VAT (no prorate)',
+    after_vat_prorate: 'Overall discount after VAT (prorate to lines)',
+    before_vat_no_prorate: 'Overall discount before VAT (no prorate)',
+    before_vat_prorate: 'Overall discount before VAT (prorate to lines)'
+  }
+  const vatDiscountModeLabel = vatDiscountModeLabels[invoice.vatDiscountMode] || 'Overall discount after VAT (no prorate)'
 
   return (
     <div className="lg:ml-64 p-8 bg-gray-50 min-h-screen">
@@ -120,7 +135,7 @@ const InvoiceDetailPage = () => {
                 {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
               </span>
               <span className="text-gray-500 text-sm">
-                Created {new Date(invoice.createdAt).toLocaleDateString('en-IN')}
+                Created {formatDate(invoice.createdAt)}
               </span>
             </div>
           </div>
@@ -210,11 +225,11 @@ const InvoiceDetailPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Issue Date:</span>
-                  <span className="text-sm font-medium text-gray-900">{new Date(invoice.issueDate).toLocaleDateString('en-IN')}</span>
+                  <span className="text-sm font-medium text-gray-900">{formatDate(invoice.issueDate)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Due Date:</span>
-                  <span className="text-sm font-medium text-gray-900">{new Date(invoice.dueDate).toLocaleDateString('en-IN')}</span>
+                  <span className="text-sm font-medium text-gray-900">{formatDate(invoice.dueDate)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Payment:</span>
@@ -226,6 +241,10 @@ const InvoiceDetailPage = () => {
                     <span className="text-sm font-medium text-amber-600">Without VAT</span>
                   </div>
                 )}
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Calc Mode:</span>
+                  <span className="text-sm font-medium text-gray-900">{vatDiscountModeLabel}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -246,7 +265,7 @@ const InvoiceDetailPage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {invoice.items.map((item, index) => (
+                  {(invoice.items || []).map((item, index) => (
                     <tr key={item._id || index} className="hover:bg-gray-50">
                       <td className="px-6 py-4 text-sm text-gray-500">{index + 1}</td>
                       <td className="px-6 py-4">
@@ -254,12 +273,12 @@ const InvoiceDetailPage = () => {
                         {item.sku && <p className="text-xs text-gray-500">SKU: {item.sku}</p>}
                       </td>
                       <td className="px-6 py-4 text-center text-sm text-gray-900">{item.quantity}</td>
-                      <td className="px-6 py-4 text-right text-sm text-gray-900">₹{item.unitPrice.toLocaleString('en-IN')}</td>
+                      <td className="px-6 py-4 text-right text-sm text-gray-900">{'\u20B9'}{item.unitPrice.toLocaleString('en-IN')}</td>
                       <td className="px-6 py-4 text-center text-sm text-gray-600">{invoice.withoutVat ? '0' : item.vatRate}%</td>
                       <td className="px-6 py-4 text-right text-sm text-gray-600">
-                        {item.discountAmount > 0 ? `₹${item.discountAmount.toLocaleString('en-IN')}` : '-'}
+                        {item.discountAmount > 0 ? `\u20B9${item.discountAmount.toLocaleString('en-IN')}` : '-'}
                       </td>
-                      <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">₹{item.lineTotal.toLocaleString('en-IN')}</td>
+                      <td className="px-6 py-4 text-right text-sm font-semibold text-gray-900">{'\u20B9'}{item.lineTotal.toLocaleString('en-IN')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -284,20 +303,20 @@ const InvoiceDetailPage = () => {
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium text-gray-900">₹{invoice.subtotal.toLocaleString('en-IN')}</span>
+                <span className="font-medium text-gray-900">{'\u20B9'}{invoice.subtotal.toLocaleString('en-IN')}</span>
               </div>
 
               {invoice.totalItemDiscount > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Item Discounts</span>
-                  <span className="font-medium text-red-600">-₹{invoice.totalItemDiscount.toLocaleString('en-IN')}</span>
+                  <span className="font-medium text-red-600">-{'\u20B9'}{invoice.totalItemDiscount.toLocaleString('en-IN')}</span>
                 </div>
               )}
 
               {!invoice.withoutVat && invoice.totalVat > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Total VAT</span>
-                  <span className="font-medium text-gray-900">₹{invoice.totalVat.toLocaleString('en-IN')}</span>
+                  <span className="font-medium text-gray-900">{'\u20B9'}{invoice.totalVat.toLocaleString('en-IN')}</span>
                 </div>
               )}
 
@@ -307,14 +326,14 @@ const InvoiceDetailPage = () => {
                     Overall Discount
                     {invoice.overallDiscountType === 'percentage' && ` (${invoice.overallDiscountValue}%)`}
                   </span>
-                  <span className="font-medium text-red-600">-₹{invoice.overallDiscountAmount.toLocaleString('en-IN')}</span>
+                  <span className="font-medium text-red-600">-{'\u20B9'}{invoice.overallDiscountAmount.toLocaleString('en-IN')}</span>
                 </div>
               )}
 
               <div className="border-t border-gray-200 pt-3 mt-3">
                 <div className="flex justify-between">
                   <span className="text-lg font-bold text-gray-900">Grand Total</span>
-                  <span className="text-2xl font-bold text-indigo-600">₹{invoice.grandTotal.toLocaleString('en-IN')}</span>
+                  <span className="text-2xl font-bold text-indigo-600">{'\u20B9'}{invoice.grandTotal.toLocaleString('en-IN')}</span>
                 </div>
               </div>
             </div>
@@ -360,3 +379,4 @@ const InvoiceDetailPage = () => {
 }
 
 export default InvoiceDetailPage
+

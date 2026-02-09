@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -172,7 +172,7 @@ const Dashboard = () => {
           <StatCard
             icon={DollarSign}
             label="Net Balance"
-            value={`₹${stats.balance.toLocaleString()}`}
+            value={`\u20B9${stats.balance.toLocaleString()}`}
             change={stats.totalIncome > 0 ? Math.round(((stats.totalIncome - stats.totalExpense) / stats.totalIncome) * 100) : 0}
             gradient="from-blue-500 to-cyan-500"
             link="/accounting"
@@ -211,7 +211,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <p className="text-green-100 text-sm font-medium mb-1">Total Income</p>
-                      <p className="text-3xl font-bold">₹{stats.totalIncome.toLocaleString()}</p>
+                      <p className="text-3xl font-bold">{'\u20B9'}{stats.totalIncome.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -226,7 +226,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <p className="text-red-100 text-sm font-medium mb-1">Total Expenses</p>
-                      <p className="text-3xl font-bold">₹{stats.totalExpense.toLocaleString()}</p>
+                      <p className="text-3xl font-bold">{'\u20B9'}{stats.totalExpense.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -241,7 +241,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                       <p className="text-indigo-100 text-sm font-medium mb-1">Net Profit/Loss</p>
-                      <p className="text-3xl font-bold">₹{stats.balance.toLocaleString()}</p>
+                      <p className="text-3xl font-bold">{'\u20B9'}{stats.balance.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -306,7 +306,7 @@ const Dashboard = () => {
                       <p className={`text-lg font-bold ${
                         transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
+                        {transaction.type === 'income' ? '+' : '-'}{'\u20B9'}{transaction.amount.toLocaleString()}
                       </p>
                       <p className="text-xs text-gray-500">
                         {new Date(transaction.date).toLocaleDateString()}

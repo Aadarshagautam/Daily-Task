@@ -5,11 +5,12 @@ import axios from 'axios'
 import { toast } from 'react-hot-toast'
 
 const Login = () => {
-  const { backendUrl, setIsLoggedin, getUserData } = useContext(AppContext)
+  const { backendUrl, setIsLoggedin, getUserData, setCurrentOrgId, setCurrentOrgName } = useContext(AppContext)
   const navigate = useNavigate()
   
   const [state, setState] = useState('Login')
   const [formData, setFormData] = useState({
+    username: '',
     email: '',
     password: '',
   })
@@ -22,7 +23,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!formData.email || !formData.password) {
+    if (!formData.email || !formData.password || (state === 'Sign Up' && !formData.username)) {
       toast.error('Please fill all fields')
       return
     }
@@ -30,35 +31,39 @@ const Login = () => {
     setLoading(true)
 
     try {
+      const endpoint = state === 'Sign Up' ? '/api/auth/register' : '/api/auth/login'
+      const payload = state === 'Sign Up'
+        ? { username: formData.username, email: formData.email, password: formData.password }
+        : { email: formData.email, password: formData.password }
+
       const { data } = await axios.post(
-        backendUrl + '/api/auth/login',
-        {
-          email: formData.email,
-          password: formData.password,
-        },
-        {
-          withCredentials: true, // Important for cookies
-        }
+        backendUrl + endpoint,
+        payload,
+        { withCredentials: true } // Important for cookies
       )
 
       if (data.success) {
         // Set logged in state
         setIsLoggedin(true)
+        setCurrentOrgId(data.orgId || null)
+        setCurrentOrgName(data.orgName || null)
         
         // Get user data
         await getUserData()
         
-        toast.success('Login successful!')
+        toast.success(state === 'Sign Up' ? 'Account created!' : 'Login successful!')
         
         // Navigate to dashboard
         navigate('/dashboard')
       } else {
         toast.error(data.message || 'Login failed')
         setIsLoggedin(false)
+        setCurrentOrgId(null)
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed')
       setIsLoggedin(false)
+      setCurrentOrgId(null)
     } finally {
       setLoading(false)
     }
@@ -81,6 +86,23 @@ const Login = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
+          {state === 'Sign Up' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="your name"
+                required
+              />
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Email

@@ -6,12 +6,22 @@ export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-    const [isLoggedin, setIsLoggedin] = useState(false);
+    const [isLoggedin, setIsLoggedinState] = useState(() => {
+        return localStorage.getItem("isLoggedin") === "true";
+    });
     const [userData, setUserData] = useState(null);
+    const [currentOrgId, setCurrentOrgId] = useState(null);
+    const [currentOrgName, setCurrentOrgName] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
     axios.defaults.withCredentials = true;
 
+
+    const setIsLoggedin = (value) => {
+        setIsLoggedinState(value);
+        localStorage.setItem("isLoggedin", value ? "true" : "false");
+    };
 
     const getAuthState = async () => {
         try {
@@ -22,16 +32,26 @@ export const AppContextProvider = (props) => {
       
           if (data.success) {
             setIsLoggedin(true);
+            setCurrentOrgId(data.user?.orgId || null);
+            setCurrentOrgName(data.user?.orgName || null);
             await getUserData();
           } else {
             setIsLoggedin(false);
             setUserData(null);
+            setCurrentOrgId(null);
+            setCurrentOrgName(null);
           }
         } catch (error) {
-          setIsLoggedin(false);
-          setUserData(null);
+          if (error.response?.status === 401) {
+            setIsLoggedin(false);
+            setUserData(null);
+            setCurrentOrgId(null);
+            setCurrentOrgName(null);
+          }
         } finally {
-          setLoading(false);        }
+          setHasCheckedAuth(true);
+          setLoading(false);
+        }
       };
       
 
@@ -42,13 +62,21 @@ export const AppContextProvider = (props) => {
         if (data.success) {
           setUserData(data.user);
           setIsLoggedin(true);
+          setCurrentOrgId(data.user?.orgId || null);
+          setCurrentOrgName(data.user?.orgName || null);
         } else {
           setIsLoggedin(false);
           setUserData(null);
+          setCurrentOrgId(null);
+          setCurrentOrgName(null);
         }
       } catch (error) {
-        setIsLoggedin(false);
-        setUserData(null);
+        if (error.response?.status === 401) {
+          setIsLoggedin(false);
+          setUserData(null);
+          setCurrentOrgId(null);
+          setCurrentOrgName(null);
+        }
       }
     }
 
@@ -65,7 +93,12 @@ export const AppContextProvider = (props) => {
         setIsLoggedin,
         getUserData,
         setUserData,
+        currentOrgId,
+        setCurrentOrgId,
+        currentOrgName,
+        setCurrentOrgName,
         loading,
+        hasCheckedAuth,
         
     }
 

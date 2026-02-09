@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast'
 const Navbar = ({ toggleSidebar }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { userData, backendUrl, setUserData, setIsLoggedin, isLoggedin } = useContext(AppContext)
+  const { userData, backendUrl, setUserData, setIsLoggedin, isLoggedin, currentOrgId, currentOrgName } = useContext(AppContext)
 
   const hideNavbar = ['/login', '/register', '/email-verifty', '/reset-password'].includes(location.pathname)
   const isEditorPage = location.pathname.includes('/create') || (location.pathname.includes('/notes/') && location.pathname !== '/notes')
@@ -124,6 +124,9 @@ const Navbar = ({ toggleSidebar }) => {
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold truncate">{userData?.username || 'User'}</p>
                           <p className="text-xs text-indigo-100 truncate">{userData?.email}</p>
+                          <p className="text-[11px] text-indigo-100/90 truncate">
+                            Org: {currentOrgName || (currentOrgId ? currentOrgId.toString().slice(-6) : 'none')}
+                          </p>
                         </div>
                       </div>
                       {userData && !userData.isAccountVerified && (

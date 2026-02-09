@@ -3,9 +3,9 @@ import { Navigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 
 const ProtectedRoute = ({ children }) => {
-  const { isLoggedin, loading } = useContext(AppContext)
+  const { isLoggedin, loading, hasCheckedAuth } = useContext(AppContext)
 
-  if (loading) {
+  if (!hasCheckedAuth && loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="w-10 h-10 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>

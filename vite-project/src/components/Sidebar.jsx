@@ -12,7 +12,8 @@ import {
   Zap,
   ShoppingCart,
   Users,
-  FileText
+  FileText,
+  Kanban
 } from 'lucide-react'
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -68,11 +69,17 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       gradient: 'from-blue-500 to-indigo-500'
     },
     {
+      icon: Kanban,
+      label: 'CRM Pipeline',
+      path: '/crm',
+      gradient: 'from-violet-500 to-purple-500',
+      section: 'CRM'
+    },
+    {
       icon: Users,
       label: 'Customers',
       path: '/customers',
-      gradient: 'from-indigo-500 to-violet-500',
-      section: 'CRM'
+      gradient: 'from-indigo-500 to-violet-500'
     },
     {
       icon: FileText,

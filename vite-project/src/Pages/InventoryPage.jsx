@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { 
   Plus, 
   Package, 
@@ -129,9 +129,9 @@ const InventoryPage = () => {
   }
 
   const filteredInventory = inventory.filter(item =>
-    item.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.supplier.toLowerCase().includes(searchTerm.toLowerCase())
+    (item.productName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.category || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.supplier || '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const stats = {
@@ -181,7 +181,7 @@ const InventoryPage = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Total Value</p>
-              <p className="text-2xl font-bold text-gray-900">₹{stats.totalValue.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">{'\u20B9'}{stats.totalValue.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -205,7 +205,7 @@ const InventoryPage = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Potential Profit</p>
-              <p className="text-2xl font-bold text-gray-900">₹{stats.totalProfit.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">{'\u20B9'}{stats.totalProfit.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -304,7 +304,7 @@ const InventoryPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Cost Price (₹) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Cost Price ({'\u20B9'}) *</label>
                 <input
                   type="number"
                   value={editingItem ? editingItem.costPrice : newItem.costPrice}
@@ -321,7 +321,7 @@ const InventoryPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Selling Price (₹) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Selling Price ({'\u20B9'}) *</label>
                 <input
                   type="number"
                   value={editingItem ? editingItem.sellingPrice : newItem.sellingPrice}
@@ -466,11 +466,11 @@ const InventoryPage = () => {
                           {item.quantity}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right text-sm text-gray-900">₹{item.costPrice.toLocaleString()}</td>
-                      <td className="px-6 py-4 text-right text-sm text-gray-900">₹{item.sellingPrice.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-right text-sm text-gray-900">{'\u20B9'}{item.costPrice.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-right text-sm text-gray-900">{'\u20B9'}{item.sellingPrice.toLocaleString()}</td>
                       <td className="px-6 py-4 text-right">
                         <span className={`text-sm font-semibold ${profit > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          ₹{profit.toLocaleString()}
+                          {'\u20B9'}{profit.toLocaleString()}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center text-sm text-gray-600">{item.vatRate || 0}%</td>
@@ -507,3 +507,5 @@ const InventoryPage = () => {
 }
 
 export default InventoryPage
+
+

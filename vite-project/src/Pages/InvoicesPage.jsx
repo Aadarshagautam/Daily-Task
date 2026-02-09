@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+﻿import React, { useState, useEffect, useCallback } from 'react'
 import {
   FileText,
   Download,
@@ -56,7 +56,7 @@ const STATUS_TABS = [
 
 const formatCurrency = (amount) => {
   const num = parseFloat(amount) || 0
-  return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  return `\u20B9${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 const formatDate = (dateStr) => {
@@ -521,3 +521,4 @@ const InvoicesPage = () => {
 }
 
 export default InvoicesPage
+

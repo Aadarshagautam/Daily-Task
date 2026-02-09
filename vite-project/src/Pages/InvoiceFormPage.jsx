@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+﻿import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   FileText,
@@ -46,6 +46,7 @@ const InvoiceFormPage = () => {
     customerName: '',
     overallDiscountType: 'none',
     overallDiscountValue: 0,
+    vatDiscountMode: 'after_vat_no_prorate',
     withoutVat: false,
     dueDate: '',
     paymentMethod: 'cash',
@@ -83,6 +84,7 @@ const InvoiceFormPage = () => {
             customerName: data.customerName || '',
             overallDiscountType: data.overallDiscountType || 'none',
             overallDiscountValue: data.overallDiscountValue || 0,
+            vatDiscountMode: data.vatDiscountMode || 'after_vat_no_prorate',
             withoutVat: data.withoutVat || false,
             dueDate: data.dueDate ? data.dueDate.split('T')[0] : '',
             paymentMethod: data.paymentMethod || 'cash',
@@ -192,50 +194,112 @@ const InvoiceFormPage = () => {
 
   // ----- Calculations -----
   const calculations = useMemo(() => {
-    const itemCalcs = items.map(item => {
+    const itemCalcsBase = items.map(item => {
       const quantity = parseFloat(item.quantity) || 0
       const unitPrice = parseFloat(item.unitPrice) || 0
       const vatRate = parseFloat(item.vatRate) || 0
-      const discountValue = parseFloat(item.discountValue) || 0
+      const rawDiscountValue = parseFloat(item.discountValue) || 0
+      const discountValue = item.discountType === 'percentage'
+        ? Math.min(100, Math.max(0, rawDiscountValue))
+        : Math.max(0, rawDiscountValue)
 
       const baseAmount = quantity * unitPrice
       const discountAmount = item.discountType === 'percentage'
         ? baseAmount * (discountValue / 100)
         : discountValue
       const afterDiscount = Math.max(0, baseAmount - discountAmount)
-      const vatAmount = invoice.withoutVat ? 0 : afterDiscount * (vatRate / 100)
-      const lineTotal = afterDiscount + vatAmount
 
       return {
         baseAmount,
         discountAmount,
         afterDiscount,
-        vatAmount,
-        lineTotal
+        vatRate,
+        discountValue
       }
     })
 
-    const subtotal = itemCalcs.reduce((sum, c) => sum + c.baseAmount, 0)
-    const totalItemDiscount = itemCalcs.reduce((sum, c) => sum + c.discountAmount, 0)
-    const totalVat = itemCalcs.reduce((sum, c) => sum + c.vatAmount, 0)
-    const afterItems = subtotal - totalItemDiscount + totalVat
+    const subtotal = itemCalcsBase.reduce((sum, c) => sum + c.baseAmount, 0)
+    const totalItemDiscount = itemCalcsBase.reduce((sum, c) => sum + c.discountAmount, 0)
+    const netAfterItemDiscount = Math.max(0, subtotal - totalItemDiscount)
+
+    const totalVatStandard = invoice.withoutVat
+      ? 0
+      : itemCalcsBase.reduce((sum, c) => sum + (c.afterDiscount * (c.vatRate / 100)), 0)
+
+    const afterItemsStandard = netAfterItemDiscount + totalVatStandard
 
     let overallDiscountAmount = 0
     const odValue = parseFloat(invoice.overallDiscountValue) || 0
-    if (invoice.overallDiscountType === 'percentage') {
-      overallDiscountAmount = afterItems * (odValue / 100)
-    } else if (invoice.overallDiscountType === 'flat') {
-      overallDiscountAmount = odValue
-    }
+    const discountBase = invoice.vatDiscountMode?.startsWith('before_vat')
+      ? netAfterItemDiscount
+      : afterItemsStandard
 
-    const grandTotal = Math.max(0, afterItems - overallDiscountAmount)
+    if (invoice.overallDiscountType === 'percentage') {
+      const pct = Math.min(100, Math.max(0, odValue))
+      overallDiscountAmount = discountBase * (pct / 100)
+    } else if (invoice.overallDiscountType === 'flat') {
+      overallDiscountAmount = Math.max(0, odValue)
+    }
+    overallDiscountAmount = Math.min(discountBase, overallDiscountAmount)
+
+    let totalVat = totalVatStandard
+    let grandTotal = Math.max(0, afterItemsStandard - overallDiscountAmount)
+    let itemCalcs = []
+
+    const mode = invoice.vatDiscountMode || 'after_vat_no_prorate'
+    const sumAfterDiscount = itemCalcsBase.reduce((sum, c) => sum + c.afterDiscount, 0)
+
+    if (mode === 'before_vat_prorate') {
+      itemCalcs = itemCalcsBase.map((c) => {
+        const share = sumAfterDiscount > 0 ? c.afterDiscount / sumAfterDiscount : 0
+        const lineOverallDiscount = overallDiscountAmount * share
+        const taxable = Math.max(0, c.afterDiscount - lineOverallDiscount)
+        const vatAmount = invoice.withoutVat ? 0 : taxable * (c.vatRate / 100)
+        const lineTotal = taxable + vatAmount
+        return { ...c, vatAmount, lineTotal }
+      })
+      totalVat = itemCalcs.reduce((sum, c) => sum + c.vatAmount, 0)
+      grandTotal = itemCalcs.reduce((sum, c) => sum + c.lineTotal, 0)
+    } else if (mode === 'before_vat_no_prorate') {
+      const discountedNet = Math.max(0, netAfterItemDiscount - overallDiscountAmount)
+      const weightedVatNumerator = itemCalcsBase.reduce((sum, c) => sum + (c.afterDiscount * c.vatRate), 0)
+      const avgVatRate = sumAfterDiscount > 0 ? weightedVatNumerator / sumAfterDiscount : 0
+      totalVat = invoice.withoutVat ? 0 : discountedNet * (avgVatRate / 100)
+      grandTotal = discountedNet + totalVat
+      itemCalcs = itemCalcsBase.map((c) => {
+        const vatAmount = invoice.withoutVat ? 0 : c.afterDiscount * (c.vatRate / 100)
+        const lineTotal = c.afterDiscount + vatAmount
+        return { ...c, vatAmount, lineTotal }
+      })
+    } else if (mode === 'after_vat_prorate') {
+      itemCalcs = itemCalcsBase.map((c) => {
+        const vatAmount = invoice.withoutVat ? 0 : c.afterDiscount * (c.vatRate / 100)
+        const lineTotalStandard = c.afterDiscount + vatAmount
+        return { ...c, vatAmount, lineTotalStandard }
+      })
+      const totalLines = itemCalcs.reduce((sum, c) => sum + c.lineTotalStandard, 0)
+      itemCalcs = itemCalcs.map((c) => {
+        const share = totalLines > 0 ? c.lineTotalStandard / totalLines : 0
+        const lineOverallDiscount = overallDiscountAmount * share
+        const lineTotal = Math.max(0, c.lineTotalStandard - lineOverallDiscount)
+        return { ...c, lineTotal }
+      })
+      totalVat = totalVatStandard
+      grandTotal = itemCalcs.reduce((sum, c) => sum + c.lineTotal, 0)
+    } else {
+      itemCalcs = itemCalcsBase.map((c) => {
+        const vatAmount = invoice.withoutVat ? 0 : c.afterDiscount * (c.vatRate / 100)
+        const lineTotal = c.afterDiscount + vatAmount
+        return { ...c, vatAmount, lineTotal }
+      })
+    }
 
     return {
       itemCalcs,
       subtotal,
       totalItemDiscount,
       totalVat,
-      afterItems,
+      afterItems: afterItemsStandard,
       overallDiscountAmount,
       grandTotal
     }
@@ -273,7 +337,7 @@ const InvoiceFormPage = () => {
           quantity: parseFloat(item.quantity) || 0,
           unitPrice: parseFloat(item.unitPrice) || 0,
           vatRate: parseFloat(item.vatRate) || 0,
-          discountValue: parseFloat(item.discountValue) || 0,
+          discountValue: calculations.itemCalcs[index].discountValue,
           discountAmount: calculations.itemCalcs[index].discountAmount,
           vatAmount: calculations.itemCalcs[index].vatAmount,
           lineTotal: calculations.itemCalcs[index].lineTotal
@@ -485,7 +549,7 @@ const InvoiceFormPage = () => {
                             <option value="">-- Select Product --</option>
                             {products.map(product => (
                               <option key={product._id || product.id} value={product._id || product.id}>
-                                {product.productName}{product.sku ? ` (${product.sku})` : ''} - ₹{product.sellingPrice}
+                                {product.productName}{product.sku ? ` (${product.sku})` : ''} - {'\u20B9'}{product.sellingPrice}
                               </option>
                             ))}
                           </select>
@@ -509,7 +573,7 @@ const InvoiceFormPage = () => {
                         {/* Unit Price */}
                         <div className="md:col-span-2">
                           <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-                            Unit Price (₹)
+                            Unit Price ({'\u20B9'})
                           </label>
                           <input
                             type="number"
@@ -564,7 +628,7 @@ const InvoiceFormPage = () => {
                             onChange={(e) => handleItemChange(index, 'discountType', e.target.value)}
                             className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors bg-white"
                           >
-                            <option value="flat">Flat (₹)</option>
+                            <option value="flat">Flat ({'\u20B9'})</option>
                             <option value="percentage">Percentage (%)</option>
                           </select>
                         </div>
@@ -574,14 +638,15 @@ const InvoiceFormPage = () => {
                           <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
                             Discount
                           </label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={item.discountValue}
-                            onChange={(e) => handleItemChange(index, 'discountValue', e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors text-right"
-                          />
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          max={item.discountType === 'percentage' ? 100 : undefined}
+                          value={item.discountValue}
+                          onChange={(e) => handleItemChange(index, 'discountValue', e.target.value)}
+                          className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors text-right"
+                        />
                         </div>
 
                         {/* Calculated summary */}
@@ -593,18 +658,18 @@ const InvoiceFormPage = () => {
                             {calc.discountAmount > 0 && (
                               <div className="flex justify-between text-orange-600">
                                 <span>Discount:</span>
-                                <span>-₹{formatCurrency(calc.discountAmount)}</span>
+                                <span>-{'\u20B9'}{formatCurrency(calc.discountAmount)}</span>
                               </div>
                             )}
                             {!invoice.withoutVat && calc.vatAmount > 0 && (
                               <div className="flex justify-between text-blue-600">
                                 <span>VAT ({item.vatRate}%):</span>
-                                <span>+₹{formatCurrency(calc.vatAmount)}</span>
+                                <span>+{'\u20B9'}{formatCurrency(calc.vatAmount)}</span>
                               </div>
                             )}
                             <div className="flex justify-between font-bold text-gray-900 text-sm pt-1 border-t border-gray-300">
                               <span>Total:</span>
-                              <span>₹{formatCurrency(calc.lineTotal)}</span>
+                              <span>{'\u20B9'}{formatCurrency(calc.lineTotal)}</span>
                             </div>
                           </div>
                         </div>
@@ -653,6 +718,28 @@ const InvoiceFormPage = () => {
                   </label>
                 </div>
 
+                {/* VAT & Discount Mode */}
+                <div>
+                  <p className="font-semibold text-gray-900 mb-3">VAT & Discount Calculation</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        Calculation Mode
+                      </label>
+                      <select
+                        value={invoice.vatDiscountMode}
+                        onChange={(e) => setInvoice(prev => ({ ...prev, vatDiscountMode: e.target.value }))}
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors bg-white"
+                      >
+                        <option value="after_vat_no_prorate">Overall discount after VAT (no prorate)</option>
+                        <option value="after_vat_prorate">Overall discount after VAT (prorate to lines)</option>
+                        <option value="before_vat_no_prorate">Overall discount before VAT (no prorate)</option>
+                        <option value="before_vat_prorate">Overall discount before VAT (prorate to lines)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Overall Discount */}
                 <div>
                   <p className="font-semibold text-gray-900 mb-3">Overall Invoice Discount</p>
@@ -672,14 +759,14 @@ const InvoiceFormPage = () => {
                       >
                         <option value="none">No Discount</option>
                         <option value="percentage">Percentage (%)</option>
-                        <option value="flat">Flat Amount (₹)</option>
+                        <option value="flat">Flat Amount ({'\u20B9'})</option>
                       </select>
                     </div>
 
                     {invoice.overallDiscountType !== 'none' && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                          {invoice.overallDiscountType === 'percentage' ? 'Discount (%)' : 'Discount Amount (₹)'}
+                          {invoice.overallDiscountType === 'percentage' ? 'Discount (%)' : 'Discount Amount (\u20B9)'}
                         </label>
                         <input
                           type="number"
@@ -786,7 +873,7 @@ const InvoiceFormPage = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Subtotal</span>
                     <span className="text-sm font-semibold text-gray-900">
-                      ₹{formatCurrency(calculations.subtotal)}
+                      {'\u20B9'}{formatCurrency(calculations.subtotal)}
                     </span>
                   </div>
 
@@ -795,7 +882,7 @@ const InvoiceFormPage = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-orange-600">Item Discounts</span>
                       <span className="text-sm font-semibold text-orange-600">
-                        -₹{formatCurrency(calculations.totalItemDiscount)}
+                        -{'\u20B9'}{formatCurrency(calculations.totalItemDiscount)}
                       </span>
                     </div>
                   )}
@@ -805,7 +892,7 @@ const InvoiceFormPage = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-blue-600">Total VAT</span>
                       <span className="text-sm font-semibold text-blue-600">
-                        +₹{formatCurrency(calculations.totalVat)}
+                        +{'\u20B9'}{formatCurrency(calculations.totalVat)}
                       </span>
                     </div>
                   )}
@@ -820,7 +907,7 @@ const InvoiceFormPage = () => {
                         )}
                       </span>
                       <span className="text-sm font-semibold text-purple-600">
-                        -₹{formatCurrency(calculations.overallDiscountAmount)}
+                        -{'\u20B9'}{formatCurrency(calculations.overallDiscountAmount)}
                       </span>
                     </div>
                   )}
@@ -830,7 +917,7 @@ const InvoiceFormPage = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-bold text-gray-900">Grand Total</span>
                       <span className="text-2xl font-bold text-indigo-600">
-                        ₹{formatCurrency(calculations.grandTotal)}
+                        {'\u20B9'}{formatCurrency(calculations.grandTotal)}
                       </span>
                     </div>
                   </div>
@@ -890,3 +977,5 @@ const InvoiceFormPage = () => {
 }
 
 export default InvoiceFormPage
+
+
