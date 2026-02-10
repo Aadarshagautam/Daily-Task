@@ -13,6 +13,7 @@ const accentClasses = {
   orange:  { bg: 'bg-orange-50',  text: 'text-orange-600',  border: 'border-orange-500',  icon: 'bg-orange-100 text-orange-600' },
   emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500', icon: 'bg-emerald-100 text-emerald-600' },
   green:   { bg: 'bg-green-50',   text: 'text-green-600',   border: 'border-green-500',   icon: 'bg-green-100 text-green-600' },
+  teal:    { bg: 'bg-teal-50',    text: 'text-teal-600',    border: 'border-teal-500',    icon: 'bg-teal-100 text-teal-600' },
   gray:    { bg: 'bg-gray-100',   text: 'text-gray-600',    border: 'border-gray-500',    icon: 'bg-gray-200 text-gray-600' },
 }
 

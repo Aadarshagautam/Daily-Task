@@ -55,20 +55,27 @@ const Dashboard = () => {
         api.get('/transactions'),
       ])
 
-      const todos = todosRes.data
+      const notes = Array.isArray(notesRes.data?.data) ? notesRes.data.data : []
+      const todos = Array.isArray(todosRes.data?.data) ? todosRes.data.data : []
+      const summary = summaryRes.data?.data || {}
+      const lowStockItems = Array.isArray(inventoryRes.data?.data) ? inventoryRes.data.data : []
+      const transactions = Array.isArray(transactionsRes.data?.data)
+        ? transactionsRes.data.data
+        : []
+
       const completedCount = todos.filter(t => t.completed).length
 
       setStats({
-        totalNotes: notesRes.data.length,
+        totalNotes: notes.length,
         totalTodos: todos.length,
         completedTodos: completedCount,
-        totalIncome: summaryRes.data.totalIncome || 0,
-        totalExpense: summaryRes.data.totalExpense || 0,
-        balance: summaryRes.data.balance || 0,
-        lowStockItems: inventoryRes.data.length,
+        totalIncome: summary.totalIncome || 0,
+        totalExpense: summary.totalExpense || 0,
+        balance: summary.balance || 0,
+        lowStockItems: lowStockItems.length,
       })
 
-      setRecentTransactions(transactionsRes.data.slice(0, 5))
+      setRecentTransactions(transactions.slice(0, 5))
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
       toast.error('Failed to load dashboard')

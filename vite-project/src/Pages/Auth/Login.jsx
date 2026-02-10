@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AppContext } from '../../context/AppContext'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 
 const Login = () => {
   const { backendUrl, setIsLoggedin, getUserData, setCurrentOrgId, setCurrentOrgName } = useContext(AppContext)
+  const location = useLocation()
   const navigate = useNavigate()
   
   const [state, setState] = useState('Login')
@@ -15,6 +16,9 @@ const Login = () => {
     password: '',
   })
   const [loading, setLoading] = useState(false)
+  const redirectTo = location.state?.from?.pathname
+    ? `${location.state.from.pathname}${location.state.from.search || ''}${location.state.from.hash || ''}`
+    : '/dashboard'
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -45,16 +49,16 @@ const Login = () => {
       if (data.success) {
         // Set logged in state
         setIsLoggedin(true)
-        setCurrentOrgId(data.orgId || null)
-        setCurrentOrgName(data.orgName || null)
+        setCurrentOrgId(data.data?.orgId || null)
+        setCurrentOrgName(data.data?.orgName || null)
         
         // Get user data
         await getUserData()
         
         toast.success(state === 'Sign Up' ? 'Account created!' : 'Login successful!')
         
-        // Navigate to dashboard
-        navigate('/dashboard')
+        // Navigate back to the originally requested page (fallback to dashboard)
+        navigate(redirectTo, { replace: true })
       } else {
         toast.error(data.message || 'Login failed')
         setIsLoggedin(false)

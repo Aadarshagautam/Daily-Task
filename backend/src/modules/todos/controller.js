@@ -1,4 +1,6 @@
 import Todo from "./model.js";
+import { pick } from "../../core/utils/pick.js";
+import { sendCreated, sendError, sendSuccess } from "../../core/utils/response.js";
 
 // Get all todos for user
 export const getTodos = async (req, res) => {
@@ -7,10 +9,10 @@ export const getTodos = async (req, res) => {
         const orgId = req.orgId;
         const ownerFilter = orgId ? { orgId } : { userId };
         const todos = await Todo.find(ownerFilter).sort({ createdAt: -1 });
-        res.json(todos);
+        return sendSuccess(res, { data: todos });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -21,7 +23,7 @@ export const createTodo = async (req, res) => {
         const { title, description, priority, dueDate, category } = req.body;
 
         if (!title) {
-            return res.json({ success: false, message: "Title is required" });
+            return sendError(res, { status: 400, message: "Title is required" });
         }
 
         const todo = new Todo({
@@ -35,10 +37,10 @@ export const createTodo = async (req, res) => {
         });
 
         await todo.save();
-        res.json({ success: true, todo });
+        return sendCreated(res, todo, "Todo created");
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -47,20 +49,33 @@ export const updateTodo = async (req, res) => {
     try {
         const userId = req.userId; // From userAuth middleware
         const { id } = req.params;
-        const updates = req.body;
+        const updates = pick(req.body, [
+            "title",
+            "description",
+            "priority",
+            "dueDate",
+            "category",
+            "completed",
+        ]);
         const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
 
-        const todo = await Todo.findOne({ _id: id, ...ownerFilter });
-        if (!todo) {
-            return res.json({ success: false, message: "Todo not found" });
+        if (Object.keys(updates).length === 0) {
+            return sendError(res, { status: 400, message: "No valid fields to update" });
         }
 
-        Object.assign(todo, updates);
-        await todo.save();
-        res.json({ success: true, todo });
+        const todo = await Todo.findOneAndUpdate(
+            { _id: id, ...ownerFilter },
+            { $set: updates },
+            { new: true, runValidators: true }
+        );
+        if (!todo) {
+            return sendError(res, { status: 404, message: "Todo not found" });
+        }
+
+        return sendSuccess(res, { data: todo, message: "Todo updated" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -73,13 +88,13 @@ export const deleteTodo = async (req, res) => {
 
         const todo = await Todo.findOneAndDelete({ _id: id, ...ownerFilter });
         if (!todo) {
-            return res.json({ success: false, message: "Todo not found" });
+            return sendError(res, { status: 404, message: "Todo not found" });
         }
 
-        res.json({ success: true, message: "Todo deleted" });
+        return sendSuccess(res, { message: "Todo deleted" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -92,14 +107,14 @@ export const toggleTodo = async (req, res) => {
 
         const todo = await Todo.findOne({ _id: id, ...ownerFilter });
         if (!todo) {
-            return res.json({ success: false, message: "Todo not found" });
+            return sendError(res, { status: 404, message: "Todo not found" });
         }
 
         todo.completed = !todo.completed;
         await todo.save();
-        res.json({ success: true, todo });
+        return sendSuccess(res, { data: todo, message: "Todo updated" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };

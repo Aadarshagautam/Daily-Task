@@ -38,7 +38,8 @@ const InventoryPage = () => {
     try {
       setLoading(true)
       const res = await api.get('/inventory')
-      setInventory(res.data)
+      const payload = res.data?.data
+      setInventory(Array.isArray(payload) ? payload : [])
     } catch (error) {
       console.error('Error fetching inventory:', error)
       toast.error('Failed to load inventory')
@@ -67,7 +68,11 @@ const InventoryPage = () => {
       })
 
       if (res.data.success) {
-        setInventory([res.data.item, ...inventory])
+        const created = res.data?.data
+        setInventory((prev) => {
+          const safePrev = Array.isArray(prev) ? prev : []
+          return created ? [created, ...safePrev] : safePrev
+        })
         setNewItem({
           productName: '',
           quantity: '',
@@ -101,9 +106,14 @@ const InventoryPage = () => {
       })
 
       if (res.data.success) {
-        setInventory(inventory.map(item => 
-          item._id === editingItem._id ? res.data.item : item
-        ))
+        const updated = res.data?.data
+        if (updated) {
+          setInventory((prev) => (
+            (Array.isArray(prev) ? prev : []).map(item => 
+              item._id === editingItem._id ? updated : item
+            )
+          ))
+        }
         setEditingItem(null)
         toast.success('Product updated!')
       }
@@ -119,7 +129,11 @@ const InventoryPage = () => {
     try {
       const res = await api.delete(`/inventory/${id}`)
       if (res.data.success) {
-        setInventory(inventory.filter(item => item._id !== id))
+        setInventory((prev) => (
+          Array.isArray(prev)
+            ? prev.filter(item => item._id !== id)
+            : []
+        ))
         toast.success('Product deleted')
       }
     } catch (error) {
@@ -128,17 +142,18 @@ const InventoryPage = () => {
     }
   }
 
-  const filteredInventory = inventory.filter(item =>
+  const safeInventory = Array.isArray(inventory) ? inventory : []
+  const filteredInventory = safeInventory.filter(item =>
     (item.productName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (item.category || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (item.supplier || '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const stats = {
-    totalProducts: inventory.length,
-    totalValue: inventory.reduce((sum, item) => sum + (item.quantity * item.sellingPrice), 0),
-    lowStock: inventory.filter(item => item.quantity <= item.lowStockAlert).length,
-    totalProfit: inventory.reduce((sum, item) => sum + ((item.sellingPrice - item.costPrice) * item.quantity), 0)
+    totalProducts: safeInventory.length,
+    totalValue: safeInventory.reduce((sum, item) => sum + (item.quantity * item.sellingPrice), 0),
+    lowStock: safeInventory.filter(item => item.quantity <= item.lowStockAlert).length,
+    totalProfit: safeInventory.reduce((sum, item) => sum + ((item.sellingPrice - item.costPrice) * item.quantity), 0)
   }
 
   if (loading) {

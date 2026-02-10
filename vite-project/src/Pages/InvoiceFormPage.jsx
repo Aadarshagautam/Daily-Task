@@ -71,14 +71,15 @@ const InvoiceFormPage = () => {
           api.get('/customers'),
           api.get('/inventory')
         ])
-        setCustomers(Array.isArray(customersRes.data) ? customersRes.data : customersRes.data.customers || [])
-        const inventoryData = Array.isArray(productsRes.data) ? productsRes.data : productsRes.data.items || []
-        setProducts(inventoryData)
+        const customersPayload = customersRes.data?.data
+        setCustomers(Array.isArray(customersPayload) ? customersPayload : [])
+        const inventoryPayload = productsRes.data?.data
+        setProducts(Array.isArray(inventoryPayload) ? inventoryPayload : [])
 
         // If edit mode, fetch existing invoice
         if (isEditMode) {
           const invoiceRes = await api.get(`/invoices/${id}`)
-          const data = invoiceRes.data.invoice || invoiceRes.data
+          const data = invoiceRes.data?.data || invoiceRes.data?.invoice || invoiceRes.data
           setInvoice({
             customerId: data.customerId || '',
             customerName: data.customerName || '',
@@ -129,9 +130,10 @@ const InvoiceFormPage = () => {
 
   // ----- Customer filtering -----
   const filteredCustomers = useMemo(() => {
-    if (!customerSearch.trim()) return customers
+    const safeCustomers = Array.isArray(customers) ? customers : []
+    if (!customerSearch.trim()) return safeCustomers
     const term = customerSearch.toLowerCase()
-    return customers.filter(c => {
+    return safeCustomers.filter(c => {
       const name = (c.name || c.customerName || '').toLowerCase()
       const email = (c.email || '').toLowerCase()
       const phone = (c.phone || c.mobile || '').toLowerCase()

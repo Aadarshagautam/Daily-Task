@@ -1,14 +1,16 @@
 import Customer from "./model.js";
+import { pick } from "../../core/utils/pick.js";
+import { sendCreated, sendError, sendSuccess } from "../../core/utils/response.js";
 
 export const getCustomers = async (req, res) => {
   try {
     const userId = req.userId;
     const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
     const customers = await Customer.find(ownerFilter).sort({ createdAt: -1 });
-    res.json(customers);
+    return sendSuccess(res, { data: customers });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -19,12 +21,12 @@ export const getCustomer = async (req, res) => {
     const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
     const customer = await Customer.findOne({ _id: id, ...ownerFilter });
     if (!customer) {
-      return res.json({ success: false, message: "Customer not found" });
+      return sendError(res, { status: 404, message: "Customer not found" });
     }
-    res.json({ success: true, customer });
+    return sendSuccess(res, { data: customer });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -34,7 +36,7 @@ export const createCustomer = async (req, res) => {
     const { name, email, phone, company, address, gstin, notes } = req.body;
 
     if (!name) {
-      return res.json({ success: false, message: "Customer name is required" });
+      return sendError(res, { status: 400, message: "Customer name is required" });
     }
 
     const customer = new Customer({
@@ -43,10 +45,10 @@ export const createCustomer = async (req, res) => {
     });
 
     await customer.save();
-    res.json({ success: true, customer });
+    return sendCreated(res, customer, "Customer created");
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -54,20 +56,34 @@ export const updateCustomer = async (req, res) => {
   try {
     const userId = req.userId;
     const { id } = req.params;
-    const updates = req.body;
+    const updates = pick(req.body, [
+      "name",
+      "email",
+      "phone",
+      "company",
+      "address",
+      "gstin",
+      "notes",
+    ]);
     const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
 
-    const customer = await Customer.findOne({ _id: id, ...ownerFilter });
-    if (!customer) {
-      return res.json({ success: false, message: "Customer not found" });
+    if (Object.keys(updates).length === 0) {
+      return sendError(res, { status: 400, message: "No valid fields to update" });
     }
 
-    Object.assign(customer, updates);
-    await customer.save();
-    res.json({ success: true, customer });
+    const customer = await Customer.findOneAndUpdate(
+      { _id: id, ...ownerFilter },
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+    if (!customer) {
+      return sendError(res, { status: 404, message: "Customer not found" });
+    }
+
+    return sendSuccess(res, { data: customer, message: "Customer updated" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -79,13 +95,13 @@ export const deleteCustomer = async (req, res) => {
 
     const customer = await Customer.findOneAndDelete({ _id: id, ...ownerFilter });
     if (!customer) {
-      return res.json({ success: false, message: "Customer not found" });
+      return sendError(res, { status: 404, message: "Customer not found" });
     }
 
-    res.json({ success: true, message: "Customer deleted" });
+    return sendSuccess(res, { message: "Customer deleted" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -96,7 +112,7 @@ export const searchCustomers = async (req, res) => {
     const { q } = req.query;
 
     if (!q || q.length < 2) {
-      return res.json([]);
+      return sendSuccess(res, { data: [] });
     }
 
     const customers = await Customer.find({
@@ -109,9 +125,9 @@ export const searchCustomers = async (req, res) => {
       ],
     }).limit(10);
 
-    res.json(customers);
+    return sendSuccess(res, { data: customers });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };

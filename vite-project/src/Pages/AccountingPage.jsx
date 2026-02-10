@@ -79,9 +79,16 @@ const AccountingPage = () => {
         api.get('/transactions/summary')
       ])
       
-      const allTransactions = transactionsRes.data
+      const allTransactions = Array.isArray(transactionsRes.data?.data)
+        ? transactionsRes.data.data
+        : []
+      const summary = summaryRes.data?.data || {}
       setTransactions(allTransactions)
-      setSummary(summaryRes.data)
+      setSummary({
+        totalIncome: summary.totalIncome || 0,
+        totalExpense: summary.totalExpense || 0,
+        balance: summary.balance || 0,
+      })
       
       const years = [...new Set(allTransactions.map(t => new Date(t.date).getFullYear()))]
       setAvailableYears(years.sort((a, b) => b - a))

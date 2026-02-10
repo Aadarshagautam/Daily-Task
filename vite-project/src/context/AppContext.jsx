@@ -34,8 +34,8 @@ export const AppContextProvider = (props) => {
       
           if (data.success) {
             setIsLoggedin(true);
-            setCurrentOrgId(data.user?.orgId || null);
-            setCurrentOrgName(data.user?.orgName || null);
+            setCurrentOrgId(data.data?.orgId || null);
+            setCurrentOrgName(data.data?.orgName || null);
             await getUserData();
           } else {
             setIsLoggedin(false);
@@ -62,12 +62,13 @@ export const AppContextProvider = (props) => {
         const { data } = await axios.get(backendUrl + "/api/user/data");
 
         if (data.success) {
-          setUserData(data.user);
+          const user = data.data || null;
+          setUserData(user);
           setIsLoggedin(true);
-          setCurrentOrgId(data.user?.orgId || null);
-          setCurrentOrgName(data.user?.orgName || null);
-          setUserRole(data.user?.role || null);
-          setUserPermissions(data.user?.permissions || []);
+          setCurrentOrgId(user?.orgId || null);
+          setCurrentOrgName(user?.orgName || null);
+          setUserRole(user?.role || null);
+          setUserPermissions(user?.permissions || []);
         } else {
           setIsLoggedin(false);
           setUserData(null);

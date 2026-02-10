@@ -18,7 +18,11 @@ const NoteCard = ({ note, setNotes, viewMode = 'grid' }) => {
         setIsDeleting(true)
         try {
             await api.delete(`/notes/${note._id}`)
-            setNotes((prevNotes) => prevNotes.filter(n => n._id !== note._id))
+            setNotes((prevNotes) => (
+                Array.isArray(prevNotes)
+                    ? prevNotes.filter(n => n._id !== note._id)
+                    : []
+            ))
             toast.success("Note deleted")
         } catch (error) {
             console.error("Error deleting note:", error)

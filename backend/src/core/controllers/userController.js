@@ -2,6 +2,7 @@ import UserModel from "../models/User.js";
 import OrganizationModel from "../models/Organization.js";
 import OrgMemberModel from "../models/OrgMember.js";
 import { ROLE_PERMISSIONS } from "../config/permissions.js";
+import { sendError, sendSuccess } from "../utils/response.js";
 
 export const getUserData = async (req, res) => {
     try {
@@ -10,7 +11,7 @@ export const getUserData = async (req, res) => {
         const user = await UserModel.findById(userId).select('-password');
 
         if (!user) {
-          return res.json({ success: false, message: "User not found" });
+          return sendError(res, { status: 404, message: "User not found" });
         }
 
         let orgName = null;
@@ -29,9 +30,8 @@ export const getUserData = async (req, res) => {
           permissions = [...new Set([...rolePerms, ...(membership?.permissions || [])])];
         }
 
-        return res.json({
-          success: true,
-          user: {
+        return sendSuccess(res, {
+          data: {
             id: user._id,
             username: user.username,
             email: user.email,
@@ -40,10 +40,10 @@ export const getUserData = async (req, res) => {
             orgName,
             role,
             permissions,
-          }
+          },
         });
       } catch (error) {
         console.error("Get user data error:", error);
-        return res.json({ success: false, message: "Failed to get user data" });
+        return sendError(res, { status: 500, message: "Failed to get user data" });
       }
 }

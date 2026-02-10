@@ -22,7 +22,8 @@ const NoteDetailPage = () => {
       setLoading(true);
       try {
         const res = await api.get(`/notes/${id}`);
-        setNote(res.data);
+        const payload = res.data?.data || res.data;
+        setNote(payload && typeof payload === 'object' ? payload : { title: "", content: "" });
         setLastSaved(new Date());
       } catch (error) {
         console.error("Error fetching note:", error);

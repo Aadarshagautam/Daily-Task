@@ -1,7 +1,6 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { AppContext } from './context/AppContext.jsx'
 
 // Layout
 import DashboardLayout from './components/DashboardLayout.jsx'
@@ -35,32 +34,50 @@ import LeadsKanbanPage from './Pages/crm/LeadsKanbanPage.jsx'
 import AppSwitcher from './components/AppSwitcher.jsx'
 import SettingsPage from './Pages/SettingsPage.jsx'
 
+// POS Module
+import POSDashboard from './features/pos/POSDashboard.jsx'
+import ProductManagement from './features/pos/ProductManagement.jsx'
+import CustomerManagement from './features/pos/CustomerManagement.jsx'
+import BillingScreen from './features/pos/BillingScreen.jsx'
+import SalesHistory from './features/pos/SalesHistory.jsx'
+import PosInvoiceDetail from './features/pos/InvoiceDetail.jsx'
+
 const App = () => {
-  const { hasCheckedAuth } = useContext(AppContext)
-
-  if (!hasCheckedAuth) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="w-10 h-10 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster position="top-right" />
       <Routes>
-        {/* ── Auth pages (no layout) ── */}
+        {/* -- Auth pages (no layout) -- */}
         <Route path="/login" element={<Login />} />
         <Route path="/email-verifty" element={<EmailVerifty />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* ── Full-screen editors (no sidebar) ── */}
-        <Route path="/create" element={<ProtectedRoute><CreatePages /></ProtectedRoute>} />
-        <Route path="/notes/:id" element={<ProtectedRoute><NoteDetailPage /></ProtectedRoute>} />
+        {/* -- Full-screen editors (no sidebar) -- */}
+        <Route
+          path="/create"
+          element={
+            <ProtectedRoute>
+              <CreatePages />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notes/:id"
+          element={
+            <ProtectedRoute>
+              <NoteDetailPage />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* ── All other pages: DashboardLayout provides Odoo sidebar + topbar ── */}
-        <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+        {/* -- All other pages: DashboardLayout provides Odoo sidebar + topbar -- */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/" element={<HomePages />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/todos" element={<TodoPage />} />
@@ -78,6 +95,12 @@ const App = () => {
           <Route path="/crm/leads/new" element={<LeadFormPage />} />
           <Route path="/crm/leads/:id/edit" element={<LeadFormPage />} />
           <Route path="/crm/pipeline" element={<LeadsKanbanPage />} />
+          <Route path="/pos" element={<POSDashboard />} />
+          <Route path="/pos/products" element={<ProductManagement />} />
+          <Route path="/pos/customers" element={<CustomerManagement />} />
+          <Route path="/pos/billing" element={<BillingScreen />} />
+          <Route path="/pos/sales" element={<SalesHistory />} />
+          <Route path="/pos/sales/:id" element={<PosInvoiceDetail />} />
           <Route path="/apps" element={<AppSwitcher />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>

@@ -149,3 +149,20 @@
     transform: scale(1);
   }
 }
+
+/* ─── POS Print Styles ─── */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print\:block,
+  .print\:block * {
+    visibility: visible;
+  }
+  header, aside, nav, .print\:hidden {
+    display: none !important;
+  }
+  .page-break-before {
+    page-break-before: always;
+  }
+}

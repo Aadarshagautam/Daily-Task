@@ -13,6 +13,8 @@ import {
   CheckSquare,
   Settings,
   FolderKanban,
+  Monitor,
+  Receipt,
 } from 'lucide-react'
 
 /**
@@ -49,6 +51,21 @@ export const apps = [
     menu: [
       { label: 'Customers', path: '/customers', icon: Users },
       { label: 'Invoices', path: '/invoices', icon: FileText },
+    ],
+  },
+  {
+    id: 'pos',
+    name: 'POS',
+    icon: Monitor,
+    accent: 'teal',
+    basePath: '/pos',
+    pathPrefixes: ['/pos'],
+    menu: [
+      { label: 'Dashboard', path: '/pos', icon: Monitor, exact: true },
+      { label: 'Billing', path: '/pos/billing', icon: ShoppingCart },
+      { label: 'Products', path: '/pos/products', icon: Package },
+      { label: 'Customers', path: '/pos/customers', icon: Users },
+      { label: 'Sales', path: '/pos/sales', icon: Receipt },
     ],
   },
   {

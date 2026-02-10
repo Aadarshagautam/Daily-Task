@@ -25,7 +25,8 @@ const HomePages = () => {
     setLoading(true);
     try {
       const res = await api.get("/notes");
-      setNotes(res.data);
+      const payload = res.data?.data;
+      setNotes(Array.isArray(payload) ? payload : []);
     } catch (error) {
       console.error("Error fetching notes:", error);
       toast.error("Failed to load notes");
@@ -34,10 +35,11 @@ const HomePages = () => {
     }
   };
 
-  const filteredNotes = notes
+  const safeNotes = Array.isArray(notes) ? notes : [];
+  const filteredNotes = safeNotes
     .filter(note =>
-      note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      note.content.toLowerCase().includes(searchTerm.toLowerCase())
+      (note?.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (note?.content || "").toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
       if (sortBy === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
@@ -70,7 +72,7 @@ const HomePages = () => {
                 My Notes
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                {notes.length} total notes
+                {safeNotes.length} total notes
               </p>
             </div>
             <Link

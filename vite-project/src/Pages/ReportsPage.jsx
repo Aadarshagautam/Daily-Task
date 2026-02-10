@@ -47,11 +47,28 @@ const ReportsPage = () => {
         api.get('/todos')
       ])
 
+      const summaryPayload = summaryRes.data?.data || {}
+      const transactions = Array.isArray(transactionsRes.data?.data)
+        ? transactionsRes.data.data
+        : []
+      const inventory = Array.isArray(inventoryRes.data?.data)
+        ? inventoryRes.data.data
+        : []
+      const todos = Array.isArray(todosRes.data?.data)
+        ? todosRes.data.data
+        : []
+
       setReportData({
-        summary: summaryRes.data,
-        transactions: transactionsRes.data,
-        inventory: inventoryRes.data,
-        todos: todosRes.data
+        summary: {
+          totalIncome: summaryPayload.totalIncome || 0,
+          totalExpense: summaryPayload.totalExpense || 0,
+          balance: summaryPayload.balance || 0,
+          incomeByCategory: summaryPayload.incomeByCategory || {},
+          expenseByCategory: summaryPayload.expenseByCategory || {},
+        },
+        transactions,
+        inventory,
+        todos
       })
     } catch (error) {
       console.error('Error fetching report data:', error)

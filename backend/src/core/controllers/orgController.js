@@ -2,31 +2,32 @@ import OrganizationModel from "../models/Organization.js";
 import OrgMemberModel from "../models/OrgMember.js";
 import UserModel from "../models/User.js";
 import { logAudit } from "../utils/auditLogger.js";
+import { sendError, sendSuccess } from "../utils/response.js";
 
 export const getOrganization = async (req, res) => {
   try {
     if (!req.orgId) {
-      return res.json({ success: false, message: "No organization selected" });
+      return sendError(res, { status: 400, message: "No organization selected" });
     }
     const org = await OrganizationModel.findById(req.orgId);
     if (!org) {
-      return res.json({ success: false, message: "Organization not found" });
+      return sendError(res, { status: 404, message: "Organization not found" });
     }
-    res.json({ success: true, org });
+    return sendSuccess(res, { data: org });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
 export const updateOrganization = async (req, res) => {
   try {
     if (!req.orgId) {
-      return res.json({ success: false, message: "No organization selected" });
+      return sendError(res, { status: 400, message: "No organization selected" });
     }
     const org = await OrganizationModel.findById(req.orgId);
     if (!org) {
-      return res.json({ success: false, message: "Organization not found" });
+      return sendError(res, { status: 404, message: "Organization not found" });
     }
 
     const { name, phone, email, gstin, currency, financialYearStart, invoicePrefix, address } = req.body;
@@ -41,17 +42,17 @@ export const updateOrganization = async (req, res) => {
 
     await org.save();
     logAudit({ action: "update", module: "settings", targetId: org._id, targetName: org.name, description: "Updated company settings" }, req);
-    res.json({ success: true, org });
+    return sendSuccess(res, { data: org, message: "Organization updated" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
 export const getMembers = async (req, res) => {
   try {
     if (!req.orgId) {
-      return res.json({ success: false, message: "No organization selected" });
+      return sendError(res, { status: 400, message: "No organization selected" });
     }
 
     const members = await OrgMemberModel.find({ orgId: req.orgId }).sort({ role: 1 });
@@ -72,17 +73,17 @@ export const getMembers = async (req, res) => {
       createdAt: m.createdAt,
     }));
 
-    res.json({ success: true, members: result });
+    return sendSuccess(res, { data: result });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
 export const updateMemberRole = async (req, res) => {
   try {
     if (!req.orgId) {
-      return res.json({ success: false, message: "No organization selected" });
+      return sendError(res, { status: 400, message: "No organization selected" });
     }
 
     const { memberId } = req.params;
@@ -90,12 +91,12 @@ export const updateMemberRole = async (req, res) => {
 
     const validRoles = ["owner", "admin", "manager", "member", "viewer"];
     if (!validRoles.includes(role)) {
-      return res.json({ success: false, message: "Invalid role" });
+      return sendError(res, { status: 400, message: "Invalid role" });
     }
 
     const member = await OrgMemberModel.findOne({ _id: memberId, orgId: req.orgId });
     if (!member) {
-      return res.json({ success: false, message: "Member not found" });
+      return sendError(res, { status: 404, message: "Member not found" });
     }
 
     const oldRole = member.role;
@@ -108,9 +109,9 @@ export const updateMemberRole = async (req, res) => {
       changes: { role: { old: oldRole, new: role } },
     }, req);
 
-    res.json({ success: true, member });
+    return sendSuccess(res, { data: member, message: "Member role updated" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };

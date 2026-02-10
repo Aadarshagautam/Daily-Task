@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tanstack/react-query": "^5.90.20",
     "axios": "^1.13.2",
     "lucide-react": "^0.556.0",
     "modules": "^0.4.0",

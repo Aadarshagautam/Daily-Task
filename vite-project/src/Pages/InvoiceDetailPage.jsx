@@ -29,7 +29,7 @@ const InvoiceDetailPage = () => {
     try {
       setLoading(true)
       const res = await api.get(`/invoices/${id}`)
-      const data = res.data?.invoice || res.data
+      const data = res.data?.data || res.data?.invoice || res.data
       if (data) {
         setInvoice(data)
         return
@@ -65,7 +65,10 @@ const InvoiceDetailPage = () => {
     try {
       const res = await api.patch(`/invoices/${id}/status`, { status })
       if (res.data.success) {
-        setInvoice(res.data.invoice)
+        const updated = res.data?.data
+        if (updated) {
+          setInvoice(updated)
+        }
         toast.success(`Invoice marked as ${status}`)
       }
     } catch (error) {

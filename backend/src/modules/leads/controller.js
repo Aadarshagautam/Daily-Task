@@ -1,5 +1,6 @@
 import CrmLead from "./model.js";
 import { logAudit } from "../../core/utils/auditLogger.js";
+import { sendCreated, sendError, sendSuccess } from "../../core/utils/response.js";
 
 // POST /api/leads
 export const createLead = async (req, res) => {
@@ -8,7 +9,7 @@ export const createLead = async (req, res) => {
     const { name, phone, email, company, source, stage, expectedRevenue, assignedTo } = req.body;
 
     if (!name || !name.trim()) {
-      return res.status(400).json({ success: false, message: "Lead name is required", data: null });
+      return sendError(res, { status: 400, message: "Lead name is required" });
     }
 
     const lead = new CrmLead({
@@ -31,10 +32,10 @@ export const createLead = async (req, res) => {
       req
     );
 
-    res.status(201).json({ success: true, message: "Lead created", data: lead });
+    return sendCreated(res, lead, "Lead created");
   } catch (error) {
     console.error("createLead error:", error);
-    res.status(500).json({ success: false, message: "Server error", data: null });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -56,10 +57,10 @@ export const getLeads = async (req, res) => {
 
     const leads = await CrmLead.find(filter).sort({ createdAt: -1 });
 
-    res.json({ success: true, message: "Leads fetched", data: leads });
+    return sendSuccess(res, { data: leads, message: "Leads fetched" });
   } catch (error) {
     console.error("getLeads error:", error);
-    res.status(500).json({ success: false, message: "Server error", data: null });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -73,13 +74,13 @@ export const getLead = async (req, res) => {
     const lead = await CrmLead.findOne({ _id: id, ...ownerFilter });
 
     if (!lead) {
-      return res.status(404).json({ success: false, message: "Lead not found", data: null });
+      return sendError(res, { status: 404, message: "Lead not found" });
     }
 
-    res.json({ success: true, message: "Lead fetched", data: lead });
+    return sendSuccess(res, { data: lead, message: "Lead fetched" });
   } catch (error) {
     console.error("getLead error:", error);
-    res.status(500).json({ success: false, message: "Server error", data: null });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -93,7 +94,7 @@ export const updateLead = async (req, res) => {
     const lead = await CrmLead.findOne({ _id: id, ...ownerFilter });
 
     if (!lead) {
-      return res.status(404).json({ success: false, message: "Lead not found", data: null });
+      return sendError(res, { status: 404, message: "Lead not found" });
     }
 
     const allowed = ["name", "phone", "email", "company", "source", "stage", "expectedRevenue", "assignedTo"];
@@ -110,10 +111,10 @@ export const updateLead = async (req, res) => {
       req
     );
 
-    res.json({ success: true, message: "Lead updated", data: lead });
+    return sendSuccess(res, { data: lead, message: "Lead updated" });
   } catch (error) {
     console.error("updateLead error:", error);
-    res.status(500).json({ success: false, message: "Server error", data: null });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -127,13 +128,13 @@ export const updateStage = async (req, res) => {
 
     const validStages = ["new", "qualified", "proposal", "won", "lost"];
     if (!stage || !validStages.includes(stage)) {
-      return res.status(400).json({ success: false, message: `Invalid stage. Must be one of: ${validStages.join(", ")}`, data: null });
+      return sendError(res, { status: 400, message: `Invalid stage. Must be one of: ${validStages.join(", ")}` });
     }
 
     const lead = await CrmLead.findOne({ _id: id, ...ownerFilter });
 
     if (!lead) {
-      return res.status(404).json({ success: false, message: "Lead not found", data: null });
+      return sendError(res, { status: 404, message: "Lead not found" });
     }
 
     const prevStage = lead.stage;
@@ -145,10 +146,10 @@ export const updateStage = async (req, res) => {
       req
     );
 
-    res.json({ success: true, message: `Stage updated to ${stage}`, data: lead });
+    return sendSuccess(res, { data: lead, message: `Stage updated to ${stage}` });
   } catch (error) {
     console.error("updateStage error:", error);
-    res.status(500).json({ success: false, message: "Server error", data: null });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -161,13 +162,13 @@ export const addNote = async (req, res) => {
     const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
 
     if (!text || !text.trim()) {
-      return res.status(400).json({ success: false, message: "Note text is required", data: null });
+      return sendError(res, { status: 400, message: "Note text is required" });
     }
 
     const lead = await CrmLead.findOne({ _id: id, ...ownerFilter });
 
     if (!lead) {
-      return res.status(404).json({ success: false, message: "Lead not found", data: null });
+      return sendError(res, { status: 404, message: "Lead not found" });
     }
 
     lead.notes.push({ text, userId });
@@ -178,10 +179,10 @@ export const addNote = async (req, res) => {
       req
     );
 
-    res.status(201).json({ success: true, message: "Note added", data: lead });
+    return sendCreated(res, lead, "Note added");
   } catch (error) {
     console.error("addNote error:", error);
-    res.status(500).json({ success: false, message: "Server error", data: null });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -195,7 +196,7 @@ export const deleteLead = async (req, res) => {
     const lead = await CrmLead.findOneAndDelete({ _id: id, ...ownerFilter });
 
     if (!lead) {
-      return res.status(404).json({ success: false, message: "Lead not found", data: null });
+      return sendError(res, { status: 404, message: "Lead not found" });
     }
 
     logAudit(
@@ -203,9 +204,9 @@ export const deleteLead = async (req, res) => {
       req
     );
 
-    res.json({ success: true, message: "Lead deleted", data: null });
+    return sendSuccess(res, { message: "Lead deleted" });
   } catch (error) {
     console.error("deleteLead error:", error);
-    res.status(500).json({ success: false, message: "Server error", data: null });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };

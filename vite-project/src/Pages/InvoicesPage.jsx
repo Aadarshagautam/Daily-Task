@@ -89,7 +89,8 @@ const InvoicesPage = () => {
     try {
       setLoading(true)
       const res = await api.get('/invoices')
-      setInvoices(Array.isArray(res.data) ? res.data : res.data.invoices || [])
+      const payload = res.data?.data
+      setInvoices(Array.isArray(payload) ? payload : [])
     } catch (error) {
       console.error('Error fetching invoices:', error)
       toast.error('Failed to load invoices')
@@ -101,7 +102,7 @@ const InvoicesPage = () => {
   const fetchStats = useCallback(async () => {
     try {
       const res = await api.get('/invoices/stats')
-      const data = res.data.stats || res.data || {}
+      const data = res.data?.data || {}
       setStats({
         totalInvoices: data.totalInvoices || 0,
         totalRevenue: data.totalRevenue || 0,
@@ -152,11 +153,11 @@ const InvoicesPage = () => {
   const updateStatus = async (invoiceId, newStatus) => {
     try {
       await api.patch(`/invoices/${invoiceId}/status`, { status: newStatus })
-      setInvoices((prev) =>
-        prev.map((inv) =>
+      setInvoices((prev) => (
+        (Array.isArray(prev) ? prev : []).map((inv) =>
           (inv._id || inv.id) === invoiceId ? { ...inv, status: newStatus } : inv
         )
-      )
+      ))
       setStatusDropdownOpen(null)
       toast.success(`Invoice marked as ${newStatus}`)
       fetchStats()
@@ -171,7 +172,11 @@ const InvoicesPage = () => {
 
     try {
       await api.delete(`/invoices/${invoiceId}`)
-      setInvoices((prev) => prev.filter((inv) => (inv._id || inv.id) !== invoiceId))
+      setInvoices((prev) => (
+        Array.isArray(prev)
+          ? prev.filter((inv) => (inv._id || inv.id) !== invoiceId)
+          : []
+      ))
       toast.success('Invoice deleted successfully')
       fetchStats()
     } catch (error) {
@@ -180,7 +185,8 @@ const InvoicesPage = () => {
     }
   }
 
-  const filteredInvoices = invoices.filter((invoice) => {
+  const safeInvoices = Array.isArray(invoices) ? invoices : []
+  const filteredInvoices = safeInvoices.filter((invoice) => {
     const matchesSearch =
       (invoice.invoiceNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (invoice.customerName || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -202,8 +208,8 @@ const InvoicesPage = () => {
   }
 
   const getFilterCount = (filterKey) => {
-    if (filterKey === 'all') return invoices.length
-    return invoices.filter((inv) => inv.status === filterKey).length
+    if (filterKey === 'all') return safeInvoices.length
+    return safeInvoices.filter((inv) => inv.status === filterKey).length
   }
 
   if (loading) {
@@ -504,8 +510,8 @@ const InvoicesPage = () => {
           <div className="flex items-center justify-between text-sm text-gray-600">
             <p>
               Showing <span className="font-semibold text-gray-900">{filteredInvoices.length}</span>{' '}
-              of <span className="font-semibold text-gray-900">{invoices.length}</span> invoice
-              {invoices.length !== 1 ? 's' : ''}
+              of <span className="font-semibold text-gray-900">{safeInvoices.length}</span> invoice
+              {safeInvoices.length !== 1 ? 's' : ''}
             </p>
             <p className="font-medium">
               Total:{' '}

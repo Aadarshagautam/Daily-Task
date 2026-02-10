@@ -20,6 +20,7 @@ import customerRouter from "./modules/customers/routes.js";
 import invoiceRouter from "./modules/invoices/routes.js";
 import crmRouter from "./modules/crm/routes.js";
 import leadsRouter from "./modules/leads/routes.js";
+import posRouter from "./modules/pos/routes.js";
 
 import { ConnectDB } from "./core/config/db.js";
 import { securityMiddleware } from "./core/config/security.js";
@@ -27,33 +28,44 @@ import { securityMiddleware } from "./core/config/security.js";
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// Trust proxy headers (required for correct IP detection behind proxies)
+app.set("trust proxy", 1);
+
 // Connect Database
 ConnectDB();
 
 // ============================================
 // CORS Configuration (IMPORTANT!)
 // ============================================
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
+const defaultOrigins = ["http://localhost:5173", "http://localhost:5174"];
+const configuredOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const allowedOrigins = configuredOrigins.length > 0 ? configuredOrigins : defaultOrigins;
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
-    return callback(null, true);
+
+    const msg = "The CORS policy for this site does not allow access from the specified Origin.";
+    return callback(new Error(msg), false);
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-  exposedHeaders: ['Set-Cookie']
-}));
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+  exposedHeaders: ["Set-Cookie"],
+};
 
-// Handle preflight requests
-app.options('/*', cors());
+app.use(cors(corsOptions));
+
+// Handle preflight requests with the same CORS options
+app.options("/*", cors(corsOptions));
 
 // ============================================
 // Middleware
@@ -83,6 +95,7 @@ app.use("/api/customers", customerRouter);
 app.use("/api/invoices", invoiceRouter);
 app.use("/api/crm", crmRouter);
 app.use("/api/leads", leadsRouter);
+app.use("/api/pos", posRouter);
 
 // Health check
 app.get('/health', (req, res) => {

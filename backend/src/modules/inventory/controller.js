@@ -1,4 +1,6 @@
 import Inventory from "./model.js";
+import { pick } from "../../core/utils/pick.js";
+import { sendCreated, sendError, sendSuccess } from "../../core/utils/response.js";
 
 // Get all inventory items
 export const getInventory = async (req, res) => {
@@ -6,10 +8,10 @@ export const getInventory = async (req, res) => {
         const userId = req.userId;
         const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
         const inventory = await Inventory.find(ownerFilter).sort({ createdAt: -1 });
-        res.json(inventory);
+        return sendSuccess(res, { data: inventory });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -20,7 +22,7 @@ export const createInventoryItem = async (req, res) => {
         const { productName, quantity, costPrice, sellingPrice, category, supplier, lowStockAlert, vatRate, sku } = req.body;
 
         if (!productName || quantity === undefined || !costPrice || !sellingPrice) {
-            return res.json({ success: false, message: "Required fields missing" });
+            return sendError(res, { status: 400, message: "Required fields missing" });
         }
 
         const item = new Inventory({
@@ -38,10 +40,10 @@ export const createInventoryItem = async (req, res) => {
         });
 
         await item.save();
-        res.json({ success: true, item });
+        return sendCreated(res, item, "Inventory item created");
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -51,19 +53,35 @@ export const updateInventoryItem = async (req, res) => {
         const userId = req.userId;
         const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
         const { id } = req.params;
-        const updates = req.body;
+        const updates = pick(req.body, [
+            "productName",
+            "quantity",
+            "costPrice",
+            "sellingPrice",
+            "category",
+            "supplier",
+            "lowStockAlert",
+            "vatRate",
+            "sku",
+        ]);
 
-        const item = await Inventory.findOne({ _id: id, ...ownerFilter });
-        if (!item) {
-            return res.json({ success: false, message: "Item not found" });
+        if (Object.keys(updates).length === 0) {
+            return sendError(res, { status: 400, message: "No valid fields to update" });
         }
 
-        Object.assign(item, updates);
-        await item.save();
-        res.json({ success: true, item });
+        const item = await Inventory.findOneAndUpdate(
+            { _id: id, ...ownerFilter },
+            { $set: updates },
+            { new: true, runValidators: true }
+        );
+        if (!item) {
+            return sendError(res, { status: 404, message: "Item not found" });
+        }
+
+        return sendSuccess(res, { data: item, message: "Item updated" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -76,13 +94,13 @@ export const deleteInventoryItem = async (req, res) => {
 
         const item = await Inventory.findOneAndDelete({ _id: id, ...ownerFilter });
         if (!item) {
-            return res.json({ success: false, message: "Item not found" });
+            return sendError(res, { status: 404, message: "Item not found" });
         }
 
-        res.json({ success: true, message: "Item deleted" });
+        return sendSuccess(res, { message: "Item deleted" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -94,9 +112,9 @@ export const getLowStock = async (req, res) => {
         const items = await Inventory.find(ownerFilter);
 
         const lowStock = items.filter(item => item.quantity <= item.lowStockAlert);
-        res.json(lowStock);
+        return sendSuccess(res, { data: lowStock });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };

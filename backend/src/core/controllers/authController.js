@@ -6,6 +6,7 @@ import OrgMemberModel from "../models/OrgMember.js";
 import transporter from "../config/nodemailer.js";
 import crypto from "crypto";
 import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE,WELCOME_EMAIL_TEMPLATE } from "../config/emailTemplate.js";
+import { sendCreated, sendError, sendSuccess } from "../utils/response.js";
 
 
 
@@ -14,22 +15,22 @@ export const register = async (req, res) => {
     const { username, email, password} = req.body;
 
     if (!username || !email || !password) {
-        return res.json({ success: false, message: "Missing Details" });
+        return sendError(res, { status: 400, message: "Missing Details" });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        return res.json({ success: false, message: "Invalid email format" });
+        return sendError(res, { status: 400, message: "Invalid email format" });
     }
 
     if (password.length < 8) {
-        return res.json({ success: false, message: "Password must be at least 8 characters" });
+        return sendError(res, { status: 400, message: "Password must be at least 8 characters" });
     }
 
     try {
         const exists = await UserModel.findOne({ email })
         if (exists) {
-            return res.json({ success: false, message: "User already exists" });
+            return sendError(res, { status: 409, message: "User already exists" });
         }
         const hashedPassword = bcrypt.hashSync(password, 10);
         const user = new UserModel({username, email, password: hashedPassword,isAccountVerified: false, });
@@ -73,12 +74,12 @@ export const register = async (req, res) => {
 
         }
         await transporter.sendMail(mailOption);
-        return res.json({ success: true, orgId: org._id, orgName: org.name });
+        return sendCreated(res, { orgId: org._id, orgName: org.name }, "Registration successful");
 
 
     } catch (error) {
         console.error("Register error:", error);
-        res.json({ success: false, message: "Registration failed" });
+        return sendError(res, { status: 500, message: "Registration failed" });
     }
 }
 // Login Controller
@@ -86,20 +87,20 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.json({ success: false, message: "All fields required" });
+    return sendError(res, { status: 400, message: "All fields required" });
   }
 
   try {
     const user = await UserModel.findOne({ email }).select('+password');
 
     if (!user) {
-      return res.json({ success: false, message: "Invalid credentials" });
+      return sendError(res, { status: 401, message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.json({ success: false, message: "Invalid credentials" });
+      return sendError(res, { status: 401, message: "Invalid credentials" });
     }
 
     if (!user.currentOrgId) {
@@ -138,15 +139,13 @@ export const login = async (req, res) => {
 
     console.log('Login successful for:', email);
 
-    return res.json({ 
-      success: true,
+    return sendSuccess(res, {
       message: "Login successful",
-      orgId: user.currentOrgId || null,
-      orgName
+      data: { orgId: user.currentOrgId || null, orgName },
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 // Logout Controller
@@ -157,10 +156,10 @@ export const logout = async (req, res) => {
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
         });
-        return res.json({ success: true, message: "Logged out successfully" });
+        return sendSuccess(res, { message: "Logged out successfully" });
 
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        return sendError(res, { status: 500, message: error.message || "Logout failed" });
 
     };
 }
@@ -172,11 +171,11 @@ export const sendVerificationOTP = async (req, res) => {
       const user = await UserModel.findById(userId);
   
       if (!user) {
-        return res.json({ success: false, message: "User not found" });
+        return sendError(res, { status: 404, message: "User not found" });
       }
   
       if (user.isAccountVerified) {
-        return res.json({ success: false, message: "Account already verified" });
+        return sendError(res, { status: 400, message: "Account already verified" });
       }
   
       const otp = String(crypto.randomInt(100000, 999999));
@@ -193,14 +192,11 @@ await transporter.sendMail({
   html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}", otp),
 });
 
-return res.json({ 
-  success: true, 
-  message: "Verification OTP sent to email"
-});      
+return sendSuccess(res, { message: "Verification OTP sent to email" });      
       
     } catch (error) {
       console.error("Send verification OTP error:", error);
-      return res.json({ success: false, message: "Failed to send OTP" });
+      return sendError(res, { status: 500, message: "Failed to send OTP" });
     }
   };
 
@@ -210,22 +206,22 @@ export const verifyEmail = async (req, res) => {
     const userID = req.userId;
     
     if (!userID || !otp) {
-        return res.json({ success: false, message: "Missing Details" });
+        return sendError(res, { status: 400, message: "Missing Details" });
     }
     
     try {
         const user = await UserModel.findById(userID); // ✅ Changed from findById({userID})
         
         if (!user) {
-            return res.json({ success: false, message: "User not found" });
+            return sendError(res, { status: 404, message: "User not found" });
         }
         
         if (user.verifyOtp === '' || user.verifyOtp !== otp) { // ✅ Fixed typo: opt to otp
-            return res.json({ success: false, message: "Invalid OTP" });
+            return sendError(res, { status: 400, message: "Invalid OTP" });
         }
 
         if (user.verifyOtpExpireAt < Date.now()) {
-            return res.json({ success: false, message: "OTP Expired" });
+            return sendError(res, { status: 400, message: "OTP Expired" });
         }
 
         user.isAccountVerified = true;
@@ -233,11 +229,11 @@ export const verifyEmail = async (req, res) => {
         user.verifyOtpExpireAt = 0;
 
         await user.save();
-        return res.json({ success: true, message: "Email verified successfully" });
+        return sendSuccess(res, { message: "Email verified successfully" });
 
     } catch (error) {
         console.error("Verify email error:", error);
-        return res.json({ success: false, message: "Verification failed" });
+        return sendError(res, { status: 500, message: "Verification failed" });
     }
 }
 // Is Authenticated Controller
@@ -246,20 +242,20 @@ export const isAuthenticated = async(req, res)=>{
         const { token } = req.cookies;
     
         if (!token) {
-          return res.json({ success: false, message: "Not authenticated" });
+          return sendError(res, { status: 401, message: "Not authenticated" });
         }
     
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
         if (!decoded || !decoded.id) {
-          return res.json({ success: false, message: "Invalid token" });
+          return sendError(res, { status: 401, message: "Invalid token" });
         }
     
         // Get user data
         const user = await UserModel.findById(decoded.id).select('-password');
     
         if (!user) {
-          return res.json({ success: false, message: "User not found" });
+          return sendError(res, { status: 404, message: "User not found" });
         }
 
         if (!user.currentOrgId) {
@@ -299,9 +295,8 @@ export const isAuthenticated = async(req, res)=>{
           });
         }
     
-        return res.json({ 
-          success: true, 
-          user: {
+        return sendSuccess(res, { 
+          data: {
             id: user._id,
             username: user.username,
             email: user.email,
@@ -312,7 +307,7 @@ export const isAuthenticated = async(req, res)=>{
         });
       } catch (error) {
         console.error("Auth check error:", error);
-        return res.json({ success: false, message: "Authentication failed" });
+        return sendError(res, { status: 500, message: "Authentication failed" });
       }
     };
 
@@ -320,13 +315,13 @@ export const isAuthenticated = async(req, res)=>{
 export const sendRestopt= async(req,res)=>{
     const{email}= req.body;
     if(!email){
-        return res.json({success:false, message:"Email is required"});
+        return sendError(res, { status: 400, message: "Email is required" });
     }
     try {
 
         const user =await UserModel.findOne({email});
         if(!user){
-            return res.json({success:false, message:"User not found"});
+            return sendError(res, { status: 404, message: "User not found" });
         }
         const otp = String(crypto.randomInt(100000, 999999));
         user.resetOtp = otp;
@@ -341,12 +336,12 @@ export const sendRestopt= async(req,res)=>{
 
         }
         await transporter.sendMail(mailOption);
-        return res.json({ success: true, message: "Verification OTP sent to your email" });
+        return sendSuccess(res, { message: "Verification OTP sent to your email" });
 
         
     } catch (error) {
         console.error("Send reset OTP error:", error);
-        res.json({ success: false, message: "Failed to send reset OTP" });
+        return sendError(res, { status: 500, message: "Failed to send reset OTP" });
     }
 }
 
@@ -355,27 +350,24 @@ export const resetPassword = async (req, res) => {
     const { email, otp, newPassword } = req.body;
 
     if (!email || !otp || !newPassword) {
-        return res.json({
-            success: false,
-            message: "Email, OTP, and new password are required",
-        });
+        return sendError(res, { status: 400, message: "Email, OTP, and new password are required" });
     }
 
     try {
         const user = await UserModel.findOne({ email });
 
         if (!user) {
-            return res.json({ success: false, message: "User not found" });
+            return sendError(res, { status: 404, message: "User not found" });
         }
 
         // ✅ Check OTP correctly
         if (user.resetOtp === "" || user.resetOtp !== otp) {
-            return res.json({ success: false, message: "Invalid OTP" });
+            return sendError(res, { status: 400, message: "Invalid OTP" });
         }
 
         // ✅ Check expiry
         if (user.resetOtpExpireAt < Date.now()) {
-            return res.json({ success: false, message: "OTP Expired" });
+            return sendError(res, { status: 400, message: "OTP Expired" });
         }
 
         // ✅ Hash new password
@@ -388,11 +380,11 @@ export const resetPassword = async (req, res) => {
 
         await user.save();
 
-        return res.json({ success: true, message: "Password reset successfully" });
+        return sendSuccess(res, { message: "Password reset successfully" });
 
     } catch (error) {
         console.error("Reset password error:", error);
-        res.json({ success: false, message: "Password reset failed" });
+        return sendError(res, { status: 500, message: "Password reset failed" });
     }
 };
 
@@ -402,13 +394,13 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.json({ success: false, message: "Email is required" });
+      return sendError(res, { status: 400, message: "Email is required" });
     }
 
     try {
       const user = await UserModel.findOne({ email });
       if (!user) {
-        return res.json({ success: false, message: "User not found" });
+        return sendError(res, { status: 404, message: "User not found" });
       }
 
       const otp = String(crypto.randomInt(100000, 999999));
@@ -424,10 +416,10 @@ export const forgotPassword = async (req, res) => {
         html: PASSWORD_RESET_TEMPLATE.replace("{{otp}}", otp).replace("{{email}}", user.email),
       });
 
-      res.json({ success: true, message: "Password reset OTP sent to your email" });
+      return sendSuccess(res, { message: "Password reset OTP sent to your email" });
     } catch (error) {
       console.error("Forgot password error:", error);
-      res.json({ success: false, message: "Failed to process request" });
+      return sendError(res, { status: 500, message: "Failed to process request" });
     }
   };
   

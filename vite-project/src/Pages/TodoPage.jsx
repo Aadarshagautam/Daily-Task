@@ -24,7 +24,8 @@ const TodoPage = () => {
     try {
       setLoading(true)
       const res = await api.get('/todos')
-      setTodos(res.data)
+      const payload = res.data?.data
+      setTodos(Array.isArray(payload) ? payload : [])
     } catch (error) {
       console.error('Error fetching todos:', error)
       toast.error('Failed to load todos')
@@ -44,7 +45,11 @@ const TodoPage = () => {
     try {
       const res = await api.post('/todos', newTodo)
       if (res.data.success) {
-        setTodos([res.data.todo, ...todos])
+        const created = res.data?.data
+        setTodos((prev) => {
+          const safePrev = Array.isArray(prev) ? prev : []
+          return created ? [created, ...safePrev] : safePrev
+        })
         setNewTodo({ title: '', description: '', priority: 'medium', dueDate: '', category: 'general' })
         setShowAddForm(false)
         toast.success('Task created!')
@@ -59,9 +64,14 @@ const TodoPage = () => {
     try {
       const res = await api.patch(`/todos/${id}/toggle`)
       if (res.data.success) {
-        setTodos(todos.map(todo => 
-          todo._id === id ? res.data.todo : todo
-        ))
+        const updated = res.data?.data
+        if (updated) {
+          setTodos((prev) => (
+            (Array.isArray(prev) ? prev : []).map(todo => 
+              todo._id === id ? updated : todo
+            )
+          ))
+        }
       }
     } catch (error) {
       console.error('Error toggling todo:', error)
@@ -75,7 +85,11 @@ const TodoPage = () => {
     try {
       const res = await api.delete(`/todos/${id}`)
       if (res.data.success) {
-        setTodos(todos.filter(todo => todo._id !== id))
+        setTodos((prev) => (
+          Array.isArray(prev)
+            ? prev.filter(todo => todo._id !== id)
+            : []
+        ))
         toast.success('Task deleted')
       }
     } catch (error) {
@@ -84,16 +98,18 @@ const TodoPage = () => {
     }
   }
 
-  const filteredTodos = todos.filter(todo => {
+  const safeTodos = Array.isArray(todos) ? todos : []
+
+  const filteredTodos = safeTodos.filter(todo => {
     if (filter === 'active') return !todo.completed
     if (filter === 'completed') return todo.completed
     return true
   })
 
   const stats = {
-    total: todos.length,
-    active: todos.filter(t => !t.completed).length,
-    completed: todos.filter(t => t.completed).length,
+    total: safeTodos.length,
+    active: safeTodos.filter(t => !t.completed).length,
+    completed: safeTodos.filter(t => t.completed).length,
   }
 
   const getPriorityColor = (priority) => {

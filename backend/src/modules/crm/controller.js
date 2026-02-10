@@ -1,6 +1,8 @@
 import Lead from "./model.js";
 import Customer from "../customers/model.js";
 import { logAudit } from "../../core/utils/auditLogger.js";
+import { pick } from "../../core/utils/pick.js";
+import { sendCreated, sendError, sendSuccess } from "../../core/utils/response.js";
 
 export const getLeads = async (req, res) => {
   try {
@@ -14,10 +16,10 @@ export const getLeads = async (req, res) => {
     if (source) filter.source = source;
 
     const leads = await Lead.find(filter).sort({ stage: 1, stageOrder: 1, createdAt: -1 });
-    res.json(leads);
+    return sendSuccess(res, { data: leads });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -29,12 +31,12 @@ export const getLead = async (req, res) => {
 
     const lead = await Lead.findOne({ _id: id, ...ownerFilter });
     if (!lead) {
-      return res.json({ success: false, message: "Lead not found" });
+      return sendError(res, { status: 404, message: "Lead not found" });
     }
-    res.json({ success: true, lead });
+    return sendSuccess(res, { data: lead });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -44,7 +46,7 @@ export const createLead = async (req, res) => {
     const { name, email, phone, company, stage, expectedRevenue, probability, source, priority, tags, notes, nextFollowUp } = req.body;
 
     if (!name) {
-      return res.json({ success: false, message: "Lead name is required" });
+      return sendError(res, { status: 400, message: "Lead name is required" });
     }
 
     // Get max stageOrder for the target stage
@@ -69,10 +71,10 @@ export const createLead = async (req, res) => {
 
     await lead.save();
     logAudit({ action: "create", module: "crm", targetId: lead._id, targetName: lead.name, description: `Created lead: ${lead.name}` }, req);
-    res.json({ success: true, lead });
+    return sendCreated(res, lead, "Lead created");
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -80,21 +82,40 @@ export const updateLead = async (req, res) => {
   try {
     const userId = req.userId;
     const { id } = req.params;
-    const updates = req.body;
+    const updates = pick(req.body, [
+      "name",
+      "email",
+      "phone",
+      "company",
+      "stage",
+      "expectedRevenue",
+      "probability",
+      "source",
+      "priority",
+      "tags",
+      "notes",
+      "nextFollowUp",
+    ]);
     const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
 
-    const lead = await Lead.findOne({ _id: id, ...ownerFilter });
-    if (!lead) {
-      return res.json({ success: false, message: "Lead not found" });
+    if (Object.keys(updates).length === 0) {
+      return sendError(res, { status: 400, message: "No valid fields to update" });
     }
 
-    Object.assign(lead, updates);
-    await lead.save();
+    const lead = await Lead.findOneAndUpdate(
+      { _id: id, ...ownerFilter },
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+    if (!lead) {
+      return sendError(res, { status: 404, message: "Lead not found" });
+    }
+
     logAudit({ action: "update", module: "crm", targetId: lead._id, targetName: lead.name, description: `Updated lead: ${lead.name}` }, req);
-    res.json({ success: true, lead });
+    return sendSuccess(res, { data: lead, message: "Lead updated" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -106,14 +127,14 @@ export const deleteLead = async (req, res) => {
 
     const lead = await Lead.findOneAndDelete({ _id: id, ...ownerFilter });
     if (!lead) {
-      return res.json({ success: false, message: "Lead not found" });
+      return sendError(res, { status: 404, message: "Lead not found" });
     }
 
     logAudit({ action: "delete", module: "crm", targetId: lead._id, targetName: lead.name, description: `Deleted lead: ${lead.name}` }, req);
-    res.json({ success: true, message: "Lead deleted" });
+    return sendSuccess(res, { message: "Lead deleted" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -126,12 +147,12 @@ export const moveLeadStage = async (req, res) => {
 
     const validStages = ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"];
     if (!validStages.includes(stage)) {
-      return res.json({ success: false, message: "Invalid stage" });
+      return sendError(res, { status: 400, message: "Invalid stage" });
     }
 
     const lead = await Lead.findOne({ _id: id, ...ownerFilter });
     if (!lead) {
-      return res.json({ success: false, message: "Lead not found" });
+      return sendError(res, { status: 404, message: "Lead not found" });
     }
 
     // Get max order in target stage
@@ -145,10 +166,10 @@ export const moveLeadStage = async (req, res) => {
 
     await lead.save();
     logAudit({ action: "stage_change", module: "crm", targetId: lead._id, targetName: lead.name, description: `Moved lead "${lead.name}" to ${stage}` }, req);
-    res.json({ success: true, lead });
+    return sendSuccess(res, { data: lead, message: "Stage updated" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -160,11 +181,11 @@ export const convertToCustomer = async (req, res) => {
 
     const lead = await Lead.findOne({ _id: id, ...ownerFilter });
     if (!lead) {
-      return res.json({ success: false, message: "Lead not found" });
+      return sendError(res, { status: 404, message: "Lead not found" });
     }
 
     if (lead.customerId) {
-      return res.json({ success: false, message: "Lead already converted to customer" });
+      return sendError(res, { status: 400, message: "Lead already converted to customer" });
     }
 
     // Create customer from lead
@@ -186,10 +207,10 @@ export const convertToCustomer = async (req, res) => {
     await lead.save();
 
     logAudit({ action: "convert", module: "crm", targetId: lead._id, targetName: lead.name, description: `Converted lead "${lead.name}" to customer` }, req);
-    res.json({ success: true, lead, customer });
+    return sendSuccess(res, { data: { lead, customer }, message: "Lead converted" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -216,9 +237,9 @@ export const getLeadStats = async (req, res) => {
       stats.weightedRevenue += lead.expectedRevenue * (lead.probability / 100);
     });
 
-    res.json(stats);
+    return sendSuccess(res, { data: stats });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };

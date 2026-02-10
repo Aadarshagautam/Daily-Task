@@ -2,6 +2,7 @@ import Invoice from "./model.js";
 import Customer from "../customers/model.js";
 import UserModel from "../../core/models/User.js";
 import PDFDocument from "pdfkit";
+import { sendCreated, sendError, sendSuccess } from "../../core/utils/response.js";
 
 export const getInvoices = async (req, res) => {
   try {
@@ -17,10 +18,10 @@ export const getInvoices = async (req, res) => {
     }
 
     const invoices = await Invoice.find(filter).sort({ createdAt: -1 });
-    res.json(invoices);
+    return sendSuccess(res, { data: invoices });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -31,12 +32,12 @@ export const getInvoice = async (req, res) => {
     const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId: req.userId };
     const invoice = await Invoice.findOne({ _id: id, ...ownerFilter });
     if (!invoice) {
-      return res.json({ success: false, message: "Invoice not found" });
+      return sendError(res, { status: 404, message: "Invoice not found" });
     }
-    res.json({ success: true, invoice });
+    return sendSuccess(res, { data: invoice });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -73,10 +74,10 @@ export const getInvoiceStats = async (req, res) => {
       }
     });
 
-    res.json(stats);
+    return sendSuccess(res, { data: stats });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -94,10 +95,10 @@ export const getNextInvoiceNumber = async (req, res) => {
       nextNumber = `INV-${String(lastNum + 1).padStart(4, "0")}`;
     }
 
-    res.json({ success: true, invoiceNumber: nextNumber });
+    return sendSuccess(res, { data: { invoiceNumber: nextNumber } });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -111,12 +112,12 @@ export const createInvoice = async (req, res) => {
     } = req.body;
 
     if (!customerId || !items || items.length === 0 || !dueDate) {
-      return res.json({ success: false, message: "Customer, items, and due date are required" });
+      return sendError(res, { status: 400, message: "Customer, items, and due date are required" });
     }
 
     const customer = await Customer.findOne({ _id: customerId, ...ownerFilter });
     if (!customer) {
-      return res.json({ success: false, message: "Customer not found" });
+      return sendError(res, { status: 404, message: "Customer not found" });
     }
 
     // Generate invoice number
@@ -204,10 +205,10 @@ export const createInvoice = async (req, res) => {
     });
 
     await invoice.save();
-    res.json({ success: true, invoice });
+    return sendCreated(res, invoice, "Invoice created");
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -223,7 +224,7 @@ export const updateInvoice = async (req, res) => {
 
     const invoice = await Invoice.findOne({ _id: id, ...ownerFilter });
     if (!invoice) {
-      return res.json({ success: false, message: "Invoice not found" });
+      return sendError(res, { status: 404, message: "Invoice not found" });
     }
 
     // Recalculate if items changed
@@ -305,10 +306,10 @@ export const updateInvoice = async (req, res) => {
     if (overallDiscountValue !== undefined) invoice.overallDiscountValue = overallDiscountValue;
 
     await invoice.save();
-    res.json({ success: true, invoice });
+    return sendSuccess(res, { data: invoice, message: "Invoice updated" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -321,22 +322,22 @@ export const updateInvoiceStatus = async (req, res) => {
 
     const validStatuses = ["draft", "sent", "paid", "overdue", "cancelled"];
     if (!validStatuses.includes(status)) {
-      return res.json({ success: false, message: "Invalid status" });
+      return sendError(res, { status: 400, message: "Invalid status" });
     }
 
     const invoice = await Invoice.findOne({ _id: id, ...ownerFilter });
     if (!invoice) {
-      return res.json({ success: false, message: "Invoice not found" });
+      return sendError(res, { status: 404, message: "Invoice not found" });
     }
 
     invoice.status = status;
     if (status === "paid") invoice.paidDate = new Date();
 
     await invoice.save();
-    res.json({ success: true, invoice });
+    return sendSuccess(res, { data: invoice, message: "Invoice status updated" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -348,13 +349,13 @@ export const deleteInvoice = async (req, res) => {
 
     const invoice = await Invoice.findOneAndDelete({ _id: id, ...ownerFilter });
     if (!invoice) {
-      return res.json({ success: false, message: "Invoice not found" });
+      return sendError(res, { status: 404, message: "Invoice not found" });
     }
 
-    res.json({ success: true, message: "Invoice deleted" });
+    return sendSuccess(res, { message: "Invoice deleted" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    return sendError(res, { status: 500, message: "Server error" });
   }
 };
 
@@ -366,7 +367,7 @@ export const generateInvoicePDF = async (req, res) => {
 
     const invoice = await Invoice.findOne({ _id: id, ...ownerFilter });
     if (!invoice) {
-      return res.status(404).json({ success: false, message: "Invoice not found" });
+      return sendError(res, { status: 404, message: "Invoice not found" });
     }
 
     const user = await UserModel.findById(userId).select("username email");
@@ -491,6 +492,6 @@ export const generateInvoicePDF = async (req, res) => {
     doc.end();
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "PDF generation failed" });
+    return sendError(res, { status: 500, message: "PDF generation failed" });
   }
 };

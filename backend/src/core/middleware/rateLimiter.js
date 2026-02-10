@@ -8,12 +8,20 @@ const ratelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(20, "60 s"),
 });
 
+const getClientIp = (req) => {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string" && forwarded.length > 0) {
+    return forwarded.split(",")[0].trim();
+  }
+  if (Array.isArray(forwarded) && forwarded.length > 0) {
+    return forwarded[0].trim();
+  }
+  return req.ip || req.socket?.remoteAddress || "127.0.0.1";
+};
+
 const rateLimiter = async (req, res, next) => {
   try {
-    const ip =
-      req.headers["x-forwarded-for"] ||
-      req.socket.remoteAddress ||
-      "127.0.0.1";
+    const ip = getClientIp(req);
     const { success } = await ratelimit.limit(ip);
     if (!success) {
       return res

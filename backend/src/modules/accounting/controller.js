@@ -1,4 +1,6 @@
 import Transaction from "./model.js";
+import { pick } from "../../core/utils/pick.js";
+import { sendCreated, sendError, sendSuccess } from "../../core/utils/response.js";
 
 // Get all transactions
 export const getTransactions = async (req, res) => {
@@ -16,10 +18,10 @@ export const getTransactions = async (req, res) => {
         }
 
         const transactions = await Transaction.find(query).sort({ date: -1 });
-        res.json(transactions);
+        return sendSuccess(res, { data: transactions });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -30,7 +32,7 @@ export const createTransaction = async (req, res) => {
         const { type, category, amount, description, date, paymentMethod } = req.body;
 
         if (!type || !category || !amount || !description) {
-            return res.json({ success: false, message: "All fields are required" });
+            return sendError(res, { status: 400, message: "All fields are required" });
         }
 
         const transaction = new Transaction({
@@ -45,10 +47,10 @@ export const createTransaction = async (req, res) => {
         });
 
         await transaction.save();
-        res.json({ success: true, transaction });
+        return sendCreated(res, transaction, "Transaction created");
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -58,19 +60,32 @@ export const updateTransaction = async (req, res) => {
         const userId = req.userId;
         const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
         const { id } = req.params;
-        const updates = req.body;
+        const updates = pick(req.body, [
+            "type",
+            "category",
+            "amount",
+            "description",
+            "date",
+            "paymentMethod",
+        ]);
 
-        const transaction = await Transaction.findOne({ _id: id, ...ownerFilter });
-        if (!transaction) {
-            return res.json({ success: false, message: "Transaction not found" });
+        if (Object.keys(updates).length === 0) {
+            return sendError(res, { status: 400, message: "No valid fields to update" });
         }
 
-        Object.assign(transaction, updates);
-        await transaction.save();
-        res.json({ success: true, transaction });
+        const transaction = await Transaction.findOneAndUpdate(
+            { _id: id, ...ownerFilter },
+            { $set: updates },
+            { new: true, runValidators: true }
+        );
+        if (!transaction) {
+            return sendError(res, { status: 404, message: "Transaction not found" });
+        }
+
+        return sendSuccess(res, { data: transaction, message: "Transaction updated" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -83,13 +98,13 @@ export const deleteTransaction = async (req, res) => {
 
         const transaction = await Transaction.findOneAndDelete({ _id: id, ...ownerFilter });
         if (!transaction) {
-            return res.json({ success: false, message: "Transaction not found" });
+            return sendError(res, { status: 404, message: "Transaction not found" });
         }
 
-        res.json({ success: true, message: "Transaction deleted" });
+        return sendSuccess(res, { message: "Transaction deleted" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };
 
@@ -129,9 +144,9 @@ export const getSummary = async (req, res) => {
 
         summary.balance = summary.totalIncome - summary.totalExpense;
 
-        res.json(summary);
+        return sendSuccess(res, { data: summary });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server error" });
+        return sendError(res, { status: 500, message: "Server error" });
     }
 };

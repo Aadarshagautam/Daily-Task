@@ -40,7 +40,8 @@ const CustomersPage = () => {
     try {
       setLoading(true)
       const res = await api.get('/customers')
-      setCustomers(res.data)
+      const payload = res.data?.data
+      setCustomers(Array.isArray(payload) ? payload : [])
     } catch (error) {
       console.error('Error fetching customers:', error)
       toast.error('Failed to load customers')
@@ -61,7 +62,11 @@ const CustomersPage = () => {
       const res = await api.post('/customers', newCustomer)
 
       if (res.data.success) {
-        setCustomers([res.data.customer, ...customers])
+        const created = res.data?.data
+        setCustomers((prev) => {
+          const safePrev = Array.isArray(prev) ? prev : []
+          return created ? [created, ...safePrev] : safePrev
+        })
         setNewCustomer({ ...initialCustomerState })
         setShowAddForm(false)
         toast.success('Customer added!')
@@ -84,9 +89,14 @@ const CustomersPage = () => {
       const res = await api.put(`/customers/${editingCustomer._id}`, editingCustomer)
 
       if (res.data.success) {
-        setCustomers(customers.map(c =>
-          c._id === editingCustomer._id ? res.data.customer : c
-        ))
+        const updated = res.data?.data
+        if (updated) {
+          setCustomers((prev) => (
+            (Array.isArray(prev) ? prev : []).map(c =>
+              c._id === editingCustomer._id ? updated : c
+            )
+          ))
+        }
         setEditingCustomer(null)
         toast.success('Customer updated!')
       }
@@ -102,7 +112,11 @@ const CustomersPage = () => {
     try {
       const res = await api.delete(`/customers/${id}`)
       if (res.data.success) {
-        setCustomers(customers.filter(c => c._id !== id))
+        setCustomers((prev) => (
+          Array.isArray(prev)
+            ? prev.filter(c => c._id !== id)
+            : []
+        ))
         toast.success('Customer deleted')
       }
     } catch (error) {
@@ -111,7 +125,8 @@ const CustomersPage = () => {
     }
   }
 
-  const filteredCustomers = customers.filter(c => {
+  const safeCustomers = Array.isArray(customers) ? customers : []
+  const filteredCustomers = safeCustomers.filter(c => {
     const term = searchTerm.toLowerCase()
     return (
       (c.name || '').toLowerCase().includes(term) ||
@@ -122,10 +137,10 @@ const CustomersPage = () => {
   })
 
   const stats = {
-    totalCustomers: customers.length,
-    withEmail: customers.filter(c => c.email && c.email.trim() !== '').length,
-    withCompany: customers.filter(c => c.company && c.company.trim() !== '').length,
-    newThisMonth: customers.filter(c => {
+    totalCustomers: safeCustomers.length,
+    withEmail: safeCustomers.filter(c => c.email && c.email.trim() !== '').length,
+    withCompany: safeCustomers.filter(c => c.company && c.company.trim() !== '').length,
+    newThisMonth: safeCustomers.filter(c => {
       if (!c.createdAt) return false
       const created = new Date(c.createdAt)
       const now = new Date()
