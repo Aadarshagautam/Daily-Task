@@ -8,6 +8,8 @@ import cookieParser from "cookie-parser";
 // Core routes
 import authRouter from "./core/routes/authRoutes.js";
 import userRouter from "./core/routes/userRoutes.js";
+import auditRouter from "./core/routes/auditRoutes.js";
+import orgRouter from "./core/routes/orgRoutes.js";
 
 // Module routes
 import notesRouter from "./modules/notes/routes.js";
@@ -68,6 +70,8 @@ securityMiddleware(app);
 // Core
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/audit", auditRouter);
+app.use("/api/org", orgRouter);
 
 // Modules
 app.use("/api/notes", notesRouter);

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   FileText,
@@ -369,9 +369,9 @@ const InvoiceFormPage = () => {
   // ----- Loading state -----
   if (loading) {
     return (
-      <div className="lg:ml-64 p-8 bg-gray-50 min-h-screen flex items-center justify-center">
+      <div className="lg:ml-64 p-8 min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-lg font-medium text-gray-700">
             {isEditMode ? 'Loading invoice...' : 'Preparing form...'}
           </p>
@@ -381,23 +381,23 @@ const InvoiceFormPage = () => {
   }
 
   return (
-    <div className="lg:ml-64 p-8 bg-gray-50 min-h-screen">
+    <div className="lg:ml-64 p-8 min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50">
       {/* ========== Header ========== */}
       <div className="mb-8">
         <button
           onClick={() => navigate('/invoices')}
-          className="flex items-center gap-2 text-gray-600 hover:text-indigo-600 mb-4 transition-colors group"
+          className="flex items-center gap-2 text-gray-600 hover:text-emerald-600 mb-4 transition-colors group"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">Back to Invoices</span>
         </button>
 
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-            <FileText className="w-6 h-6 text-indigo-600" />
+          <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+            <FileText className="w-6 h-6 text-emerald-600" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 font-serif tracking-tight">
               {isEditMode ? 'Edit Invoice' : 'Create New Invoice'}
             </h1>
             <p className="text-gray-600 mt-1">
@@ -414,9 +414,9 @@ const InvoiceFormPage = () => {
 
             {/* ------ Customer Section ------ */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="bg-indigo-50 px-6 py-4 border-b border-indigo-100">
-                <h2 className="text-lg font-semibold text-indigo-900 flex items-center gap-2">
-                  <Search className="w-5 h-5 text-indigo-600" />
+              <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100">
+                <h2 className="text-lg font-semibold text-emerald-900 font-serif tracking-wide flex items-center gap-2">
+                  <Search className="w-5 h-5 text-emerald-600" />
                   Customer Details
                 </h2>
               </div>
@@ -439,12 +439,12 @@ const InvoiceFormPage = () => {
                       }}
                       onFocus={() => setShowCustomerDropdown(true)}
                       placeholder="Search customer by name, email, or phone..."
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
                   {showCustomerDropdown && filteredCustomers.length > 0 && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border-2 border-indigo-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                    <div className="absolute z-20 w-full mt-1 bg-white border-2 border-emerald-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                       {filteredCustomers.map((customer) => {
                         const custId = customer._id || customer.id
                         const custName = customer.name || customer.customerName || ''
@@ -455,7 +455,7 @@ const InvoiceFormPage = () => {
                             key={custId}
                             type="button"
                             onClick={() => handleSelectCustomer(customer)}
-                            className="w-full text-left px-4 py-3 hover:bg-indigo-50 border-b border-gray-100 last:border-0 transition-colors"
+                            className="w-full text-left px-4 py-3 hover:bg-emerald-50 border-b border-gray-100 last:border-0 transition-colors"
                           >
                             <p className="font-semibold text-gray-900">{custName}</p>
                             <p className="text-sm text-gray-500">
@@ -475,8 +475,8 @@ const InvoiceFormPage = () => {
                 </div>
 
                 {invoice.customerId && (
-                  <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-indigo-50 rounded-lg border border-indigo-200">
-                    <span className="text-sm text-indigo-700 font-medium">
+                  <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <span className="text-sm text-emerald-700 font-medium">
                       Selected: {invoice.customerName}
                     </span>
                     <button
@@ -485,7 +485,7 @@ const InvoiceFormPage = () => {
                         setInvoice(prev => ({ ...prev, customerId: '', customerName: '' }))
                         setCustomerSearch('')
                       }}
-                      className="ml-auto text-indigo-400 hover:text-red-500 transition-colors"
+                      className="ml-auto text-emerald-400 hover:text-red-500 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -496,15 +496,15 @@ const InvoiceFormPage = () => {
 
             {/* ------ Line Items Section ------ */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="bg-indigo-50 px-6 py-4 border-b border-indigo-100 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-indigo-900 flex items-center gap-2">
-                  <Calculator className="w-5 h-5 text-indigo-600" />
+              <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-emerald-900 font-serif tracking-wide flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-emerald-600" />
                   Line Items
                 </h2>
                 <button
                   type="button"
                   onClick={addLineItem}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   Add Item
@@ -517,10 +517,10 @@ const InvoiceFormPage = () => {
                   return (
                     <div
                       key={index}
-                      className="border-2 border-gray-200 rounded-xl p-5 hover:border-indigo-200 transition-colors relative group"
+                      className="border-2 border-gray-200 rounded-xl p-5 hover:border-emerald-200 transition-colors relative group"
                     >
                       {/* Item number badge */}
-                      <div className="absolute -top-3 left-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      <div className="absolute -top-3 left-4 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full">
                         #{index + 1}
                       </div>
 
@@ -544,7 +544,7 @@ const InvoiceFormPage = () => {
                           <select
                             value={item.productId}
                             onChange={(e) => handleProductSelect(index, e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors bg-white"
+                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                           >
                             <option value="">-- Select Product --</option>
                             {products.map(product => (
@@ -566,7 +566,7 @@ const InvoiceFormPage = () => {
                             step="1"
                             value={item.quantity}
                             onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors text-center"
+                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-center"
                           />
                         </div>
 
@@ -581,7 +581,7 @@ const InvoiceFormPage = () => {
                             step="0.01"
                             value={item.unitPrice}
                             onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors text-right"
+                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-right"
                           />
                         </div>
 
@@ -597,7 +597,7 @@ const InvoiceFormPage = () => {
                             step="0.01"
                             value={item.vatRate}
                             onChange={(e) => handleItemChange(index, 'vatRate', e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors text-center"
+                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-center"
                           />
                         </div>
                       </div>
@@ -626,7 +626,7 @@ const InvoiceFormPage = () => {
                           <select
                             value={item.discountType}
                             onChange={(e) => handleItemChange(index, 'discountType', e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors bg-white"
+                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                           >
                             <option value="flat">Flat ({'\u20B9'})</option>
                             <option value="percentage">Percentage (%)</option>
@@ -645,7 +645,7 @@ const InvoiceFormPage = () => {
                           max={item.discountType === 'percentage' ? 100 : undefined}
                           value={item.discountValue}
                           onChange={(e) => handleItemChange(index, 'discountValue', e.target.value)}
-                          className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors text-right"
+                          className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-right"
                         />
                         </div>
 
@@ -682,7 +682,7 @@ const InvoiceFormPage = () => {
                 <button
                   type="button"
                   onClick={addLineItem}
-                  className="w-full py-3 border-2 border-dashed border-indigo-300 rounded-xl text-indigo-600 hover:bg-indigo-50 hover:border-indigo-400 transition-colors font-medium flex items-center justify-center gap-2"
+                  className="w-full py-3 border-2 border-dashed border-emerald-300 rounded-xl text-emerald-600 hover:bg-emerald-50 hover:border-emerald-400 transition-colors font-medium flex items-center justify-center gap-2"
                 >
                   <Plus className="w-5 h-5" />
                   Add Another Line Item
@@ -692,9 +692,9 @@ const InvoiceFormPage = () => {
 
             {/* ------ Without VAT Toggle & Overall Discount ------ */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="bg-indigo-50 px-6 py-4 border-b border-indigo-100">
-                <h2 className="text-lg font-semibold text-indigo-900 flex items-center gap-2">
-                  <Percent className="w-5 h-5 text-indigo-600" />
+              <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100">
+                <h2 className="text-lg font-semibold text-emerald-900 font-serif tracking-wide flex items-center gap-2">
+                  <Percent className="w-5 h-5 text-emerald-600" />
                   Tax & Discount Settings
                 </h2>
               </div>
@@ -714,7 +714,7 @@ const InvoiceFormPage = () => {
                       onChange={(e) => setInvoice(prev => ({ ...prev, withoutVat: e.target.checked }))}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                   </label>
                 </div>
 
@@ -729,7 +729,7 @@ const InvoiceFormPage = () => {
                       <select
                         value={invoice.vatDiscountMode}
                         onChange={(e) => setInvoice(prev => ({ ...prev, vatDiscountMode: e.target.value }))}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors bg-white"
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                       >
                         <option value="after_vat_no_prorate">Overall discount after VAT (no prorate)</option>
                         <option value="after_vat_prorate">Overall discount after VAT (prorate to lines)</option>
@@ -755,7 +755,7 @@ const InvoiceFormPage = () => {
                           overallDiscountType: e.target.value,
                           overallDiscountValue: e.target.value === 'none' ? 0 : prev.overallDiscountValue
                         }))}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors bg-white"
+                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                       >
                         <option value="none">No Discount</option>
                         <option value="percentage">Percentage (%)</option>
@@ -775,7 +775,7 @@ const InvoiceFormPage = () => {
                           max={invoice.overallDiscountType === 'percentage' ? 100 : undefined}
                           value={invoice.overallDiscountValue}
                           onChange={(e) => setInvoice(prev => ({ ...prev, overallDiscountValue: e.target.value }))}
-                          className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors text-right"
+                          className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-right"
                           placeholder="0"
                         />
                       </div>
@@ -787,9 +787,9 @@ const InvoiceFormPage = () => {
 
             {/* ------ Additional Details ------ */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="bg-indigo-50 px-6 py-4 border-b border-indigo-100">
-                <h2 className="text-lg font-semibold text-indigo-900 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-indigo-600" />
+              <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100">
+                <h2 className="text-lg font-semibold text-emerald-900 font-serif tracking-wide flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-emerald-600" />
                   Additional Details
                 </h2>
               </div>
@@ -804,7 +804,7 @@ const InvoiceFormPage = () => {
                       type="date"
                       value={invoice.dueDate}
                       onChange={(e) => setInvoice(prev => ({ ...prev, dueDate: e.target.value }))}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors"
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors"
                     />
                   </div>
 
@@ -816,7 +816,7 @@ const InvoiceFormPage = () => {
                     <select
                       value={invoice.paymentMethod}
                       onChange={(e) => setInvoice(prev => ({ ...prev, paymentMethod: e.target.value }))}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors bg-white"
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                     >
                       {PAYMENT_METHODS.map(pm => (
                         <option key={pm.value} value={pm.value}>{pm.label}</option>
@@ -832,7 +832,7 @@ const InvoiceFormPage = () => {
                     <select
                       value={invoice.status}
                       onChange={(e) => setInvoice(prev => ({ ...prev, status: e.target.value }))}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors bg-white"
+                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                     >
                       <option value="draft">Draft</option>
                       <option value="sent">Sent</option>
@@ -850,7 +850,7 @@ const InvoiceFormPage = () => {
                     onChange={(e) => setInvoice(prev => ({ ...prev, notes: e.target.value }))}
                     rows="3"
                     placeholder="Additional notes, terms, or instructions for this invoice..."
-                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-colors resize-none"
+                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors resize-none"
                   />
                 </div>
               </div>
@@ -862,7 +862,7 @@ const InvoiceFormPage = () => {
             <div className="sticky top-8 space-y-6">
               {/* Totals Card */}
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="bg-indigo-600 px-6 py-4">
+                <div className="bg-emerald-600 px-6 py-4">
                   <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                     <Calculator className="w-5 h-5" />
                     Invoice Totals
@@ -900,23 +900,23 @@ const InvoiceFormPage = () => {
                   {/* Overall Discount */}
                   {calculations.overallDiscountAmount > 0 && (
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-purple-600">
+                      <span className="text-sm text-amber-600">
                         Overall Discount
                         {invoice.overallDiscountType === 'percentage' && (
                           <span className="text-xs ml-1">({invoice.overallDiscountValue}%)</span>
                         )}
                       </span>
-                      <span className="text-sm font-semibold text-purple-600">
+                      <span className="text-sm font-semibold text-amber-600">
                         -{'\u20B9'}{formatCurrency(calculations.overallDiscountAmount)}
                       </span>
                     </div>
                   )}
 
                   {/* Divider */}
-                  <div className="border-t-2 border-indigo-200 pt-4">
+                  <div className="border-t-2 border-emerald-200 pt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-bold text-gray-900">Grand Total</span>
-                      <span className="text-2xl font-bold text-indigo-600">
+                      <span className="text-2xl font-bold text-emerald-600">
                         {'\u20B9'}{formatCurrency(calculations.grandTotal)}
                       </span>
                     </div>
@@ -935,7 +935,7 @@ const InvoiceFormPage = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-6 py-3.5 rounded-xl font-semibold text-base transition-colors shadow-lg shadow-indigo-200"
+                  className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white px-6 py-3.5 rounded-xl font-semibold text-base transition-colors shadow-lg shadow-emerald-200"
                 >
                   {saving ? (
                     <>
@@ -977,5 +977,7 @@ const InvoiceFormPage = () => {
 }
 
 export default InvoiceFormPage
+
+
 
 

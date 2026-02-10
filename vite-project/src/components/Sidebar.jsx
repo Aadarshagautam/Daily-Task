@@ -13,7 +13,8 @@ import {
   ShoppingCart,
   Users,
   FileText,
-  Kanban
+  Kanban,
+  Settings
 } from 'lucide-react'
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -86,6 +87,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       label: 'Invoices',
       path: '/invoices',
       gradient: 'from-teal-500 to-cyan-500'
+    },
+    {
+      icon: Settings,
+      label: 'Settings',
+      path: '/settings',
+      gradient: 'from-gray-500 to-gray-700',
+      section: 'Settings'
     },
   ]
 

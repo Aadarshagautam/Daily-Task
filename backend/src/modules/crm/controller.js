@@ -1,5 +1,6 @@
 import Lead from "./model.js";
 import Customer from "../customers/model.js";
+import { logAudit } from "../../core/utils/auditLogger.js";
 
 export const getLeads = async (req, res) => {
   try {
@@ -67,6 +68,7 @@ export const createLead = async (req, res) => {
     });
 
     await lead.save();
+    logAudit({ action: "create", module: "crm", targetId: lead._id, targetName: lead.name, description: `Created lead: ${lead.name}` }, req);
     res.json({ success: true, lead });
   } catch (error) {
     console.error(error);
@@ -88,6 +90,7 @@ export const updateLead = async (req, res) => {
 
     Object.assign(lead, updates);
     await lead.save();
+    logAudit({ action: "update", module: "crm", targetId: lead._id, targetName: lead.name, description: `Updated lead: ${lead.name}` }, req);
     res.json({ success: true, lead });
   } catch (error) {
     console.error(error);
@@ -106,6 +109,7 @@ export const deleteLead = async (req, res) => {
       return res.json({ success: false, message: "Lead not found" });
     }
 
+    logAudit({ action: "delete", module: "crm", targetId: lead._id, targetName: lead.name, description: `Deleted lead: ${lead.name}` }, req);
     res.json({ success: true, message: "Lead deleted" });
   } catch (error) {
     console.error(error);
@@ -140,6 +144,7 @@ export const moveLeadStage = async (req, res) => {
     lead.probability = stageProbabilities[stage];
 
     await lead.save();
+    logAudit({ action: "stage_change", module: "crm", targetId: lead._id, targetName: lead.name, description: `Moved lead "${lead.name}" to ${stage}` }, req);
     res.json({ success: true, lead });
   } catch (error) {
     console.error(error);
@@ -180,6 +185,7 @@ export const convertToCustomer = async (req, res) => {
     lead.probability = 100;
     await lead.save();
 
+    logAudit({ action: "convert", module: "crm", targetId: lead._id, targetName: lead.name, description: `Converted lead "${lead.name}" to customer` }, req);
     res.json({ success: true, lead, customer });
   } catch (error) {
     console.error(error);

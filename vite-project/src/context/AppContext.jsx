@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 
 export const AppContext = createContext();
@@ -12,6 +12,8 @@ export const AppContextProvider = (props) => {
     const [userData, setUserData] = useState(null);
     const [currentOrgId, setCurrentOrgId] = useState(null);
     const [currentOrgName, setCurrentOrgName] = useState(null);
+    const [userRole, setUserRole] = useState(null);
+    const [userPermissions, setUserPermissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
@@ -64,11 +66,15 @@ export const AppContextProvider = (props) => {
           setIsLoggedin(true);
           setCurrentOrgId(data.user?.orgId || null);
           setCurrentOrgName(data.user?.orgName || null);
+          setUserRole(data.user?.role || null);
+          setUserPermissions(data.user?.permissions || []);
         } else {
           setIsLoggedin(false);
           setUserData(null);
           setCurrentOrgId(null);
           setCurrentOrgName(null);
+          setUserRole(null);
+          setUserPermissions([]);
         }
       } catch (error) {
         if (error.response?.status === 401) {
@@ -76,11 +82,20 @@ export const AppContextProvider = (props) => {
           setUserData(null);
           setCurrentOrgId(null);
           setCurrentOrgName(null);
+          setUserRole(null);
+          setUserPermissions([]);
         }
       }
     }
 
-    
+    const hasPermission = useCallback((required) => {
+      if (!required) return true;
+      if (userPermissions.includes("*")) return true;
+      if (userPermissions.includes(required)) return true;
+      const [module] = required.split(".");
+      if (userPermissions.includes(`${module}.*`)) return true;
+      return false;
+    }, [userPermissions]);
 
     useEffect(() => {
         getAuthState();
@@ -99,7 +114,9 @@ export const AppContextProvider = (props) => {
         setCurrentOrgName,
         loading,
         hasCheckedAuth,
-        
+        userRole,
+        userPermissions,
+        hasPermission,
     }
 
     return (

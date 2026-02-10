@@ -19,6 +19,8 @@ import InvoicesPage from './Pages/InvoicesPage.jsx'
 import InvoiceFormPage from './Pages/InvoiceFormPage.jsx'
 import InvoiceDetailPage from './Pages/InvoiceDetailPage.jsx'
 import CRMPage from './Pages/CRMPage.jsx'
+import AppSwitcher from './components/AppSwitcher.jsx'
+import SettingsPage from './Pages/SettingsPage.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import { Toaster } from 'react-hot-toast'
 import { AppContext } from './context/AppContext.jsx'
@@ -61,6 +63,8 @@ const App = () => {
         <Route path="/invoices/:id" element={<ProtectedRoute><InvoiceDetailPage /></ProtectedRoute>} />
         <Route path="/invoices/:id/edit" element={<ProtectedRoute><InvoiceFormPage /></ProtectedRoute>} />
         <Route path="/crm" element={<ProtectedRoute><CRMPage /></ProtectedRoute>} />
+        <Route path="/apps" element={<ProtectedRoute><AppSwitcher /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       </Routes>
     </div>
   )

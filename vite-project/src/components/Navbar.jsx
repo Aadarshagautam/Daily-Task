@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Plus, User, LogOut, Mail, Menu, Bell, Search } from 'lucide-react'
+import { Plus, User, LogOut, Mail, Menu, Bell, Search, LayoutGrid } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import axios from 'axios'
@@ -88,7 +88,12 @@ const Navbar = ({ toggleSidebar }) => {
                   <span className="hidden sm:inline">New Note</span>
                 </Link> */}
 
-                {/* Notifications (optional) */}
+                {/* App Switcher */}
+                <Link to="/apps" className="p-2 hover:bg-gray-100 rounded-xl transition-all duration-200" title="All Apps">
+                  <LayoutGrid className="w-5 h-5 text-gray-600" />
+                </Link>
+
+                {/* Notifications */}
                 <button className="relative p-2 hover:bg-gray-100 rounded-xl transition-all duration-200">
                   <Bell className="w-5 h-5 text-gray-600" />
                   {/* Notification badge */}
