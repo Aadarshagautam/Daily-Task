@@ -1,10 +1,10 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  StickyNote, 
-  CheckSquare, 
-  DollarSign, 
+import {
+  LayoutDashboard,
+  StickyNote,
+  CheckSquare,
+  DollarSign,
   Package,
   TrendingUp,
   HelpCircle,
@@ -14,7 +14,9 @@ import {
   Users,
   FileText,
   Kanban,
-  Settings
+  Settings,
+  List,
+  Columns3
 } from 'lucide-react'
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -77,6 +79,18 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       section: 'CRM'
     },
     {
+      icon: List,
+      label: 'Leads',
+      path: '/crm/leads',
+      gradient: 'from-fuchsia-500 to-pink-500'
+    },
+    {
+      icon: Columns3,
+      label: 'Pipeline Board',
+      path: '/crm/pipeline',
+      gradient: 'from-rose-500 to-red-500'
+    },
+    {
       icon: Users,
       label: 'Customers',
       path: '/customers',
@@ -99,6 +113,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
   const isActive = (path) => {
     if (path === '/' && location.pathname === '/') return true
+    if (path === '/crm') return location.pathname === '/crm'
     if (path !== '/' && location.pathname.startsWith(path)) return true
     return false
   }

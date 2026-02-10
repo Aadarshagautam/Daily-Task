@@ -18,6 +18,8 @@ export const ALL_PERMISSIONS = [
   "reports.read",
   // CRM
   "crm.read", "crm.create", "crm.update", "crm.delete",
+  // Leads
+  "leads.read", "leads.create", "leads.update", "leads.delete",
   // Settings
   "settings.read", "settings.update",
   // User management
@@ -31,7 +33,7 @@ export const ROLE_PERMISSIONS = {
   manager: [
     "notes.*", "todos.*", "accounting.*", "inventory.*",
     "customers.*", "invoices.*", "purchases.*", "reports.read",
-    "crm.*", "users.read",
+    "crm.*", "leads.*", "users.read",
   ],
   member: [
     "notes.read", "notes.create", "notes.update",
@@ -43,11 +45,12 @@ export const ROLE_PERMISSIONS = {
     "purchases.read",
     "reports.read",
     "crm.read", "crm.create", "crm.update",
+    "leads.read", "leads.create", "leads.update",
   ],
   viewer: [
     "notes.read", "todos.read", "accounting.read",
     "inventory.read", "customers.read", "invoices.read",
-    "purchases.read", "reports.read", "crm.read",
+    "purchases.read", "reports.read", "crm.read", "leads.read",
   ],
 };
 
