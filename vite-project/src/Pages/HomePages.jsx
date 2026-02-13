@@ -52,8 +52,8 @@ const HomePages = () => {
     return (
       <div className="lg:ml-64 min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please log in to view your notes</h2>
-          <Link to="/login" className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">Please log in to view your notes</h2>
+          <Link to="/login" className="px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors">
             Go to Login
           </Link>
         </div>
@@ -62,22 +62,22 @@ const HomePages = () => {
   }
 
   return (
-    <div className="lg:ml-64 min-h-screen bg-gray-50">
+    <div className="lg:ml-64 min-h-screen bg-slate-50">
       {/* Simple Clean Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-slate-900">
                 My Notes
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-slate-600 mt-1">
                 {safeNotes.length} total notes
               </p>
             </div>
             <Link
               to="/create"
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg transition-colors font-medium"
+              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-lg transition-colors font-medium"
             >
               <Plus className="w-5 h-5" />
               New Note
@@ -88,13 +88,13 @@ const HomePages = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search notes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
               />
             </div>
 
@@ -102,7 +102,7 @@ const HomePages = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -110,16 +110,16 @@ const HomePages = () => {
             </select>
 
             {/* View Toggle */}
-            <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+            <div className="flex border border-slate-300 rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`px-4 py-2.5 ${viewMode === "grid" ? "bg-indigo-600 text-white" : "bg-white text-gray-700 hover:bg-gray-50"}`}
+                className={`px-4 py-2.5 ${viewMode === "grid" ? "bg-slate-900 text-white" : "bg-white text-slate-700 hover:bg-slate-50"}`}
               >
                 <Grid3x3 className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`px-4 py-2.5 border-l ${viewMode === "list" ? "bg-indigo-600 text-white" : "bg-white text-gray-700 hover:bg-gray-50"}`}
+                className={`px-4 py-2.5 border-l ${viewMode === "list" ? "bg-slate-900 text-white" : "bg-white text-slate-700 hover:bg-slate-50"}`}
               >
                 <List className="w-5 h-5" />
               </button>
@@ -132,15 +132,15 @@ const HomePages = () => {
       <div className="max-w-7xl mx-auto p-6">
         {loading ? (
           <div className="text-center py-12">
-            <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading notes...</p>
+            <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading notes...</p>
           </div>
         ) : filteredNotes.length === 0 ? (
           searchTerm ? (
-            <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-              <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No results found</h3>
-              <p className="text-gray-600">Try searching with different keywords</p>
+            <div className="text-center py-12 bg-white rounded-lg border border-slate-200">
+              <Search className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">No results found</h3>
+              <p className="text-slate-600">Try searching with different keywords</p>
             </div>
           ) : (
             <NotesNotFound />

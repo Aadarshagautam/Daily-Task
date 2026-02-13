@@ -5,17 +5,17 @@
 @layer base {
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: #f8fafc;
   }
 
   ::-webkit-scrollbar-thumb {
     background: #cbd5e1;
-    border-radius: 4px;
+    border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -35,55 +35,38 @@
 }
 
 @layer components {
-  /* Custom button styles */
+  /* Button styles — professional, no gradients */
   .btn-primary {
-    @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105;
+    @apply bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors;
   }
 
   .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-gray-700 px-6 py-2.5 rounded-lg font-medium border border-gray-300 transition-all duration-200 hover:shadow-md;
+    @apply bg-white hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-lg font-medium text-sm border border-slate-200 transition-colors;
   }
 
   .btn-danger {
-    @apply bg-red-500 hover:bg-red-600 text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors;
   }
 
   /* Input styles */
   .input-primary {
-    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-colors;
   }
 
-  /* Card styles */
+  /* Card styles — clean, minimal */
   .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300;
-  }
-
-  .card-gradient {
-    @apply bg-gradient-to-br from-white to-indigo-50 rounded-xl border border-indigo-100 shadow-sm hover:shadow-xl transition-all duration-300;
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm;
   }
 }
 
 @layer utilities {
-  /* Custom gradient backgrounds */
-  .gradient-bg {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-
-  .gradient-text {
-    @apply bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent;
-  }
-
-  /* Animation utilities */
+  /* Animation utilities — subtle only */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-in;
+    animation: fadeIn 0.4s ease-in;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.5s ease-out;
-  }
-
-  .animate-scale {
-    animation: scale 0.3s ease-in-out;
+    animation: slideUp 0.4s ease-out;
   }
 }
 
@@ -98,24 +81,12 @@
 
 @keyframes slideUp {
   from {
-    transform: translateY(20px);
+    transform: translateY(10px);
     opacity: 0;
   }
   to {
     transform: translateY(0);
     opacity: 1;
-  }
-}
-
-@keyframes scale {
-  0% {
-    transform: scale(0.95);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
   }
 }
 

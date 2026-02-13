@@ -1,14 +1,11 @@
 import axios from "axios";
 import { createContext, useState, useEffect, useCallback } from "react";
-import toast from "react-hot-toast";
 
 export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-    const [isLoggedin, setIsLoggedinState] = useState(() => {
-        return localStorage.getItem("isLoggedin") === "true";
-    });
+    const [isLoggedin, setIsLoggedinState] = useState(false);
     const [userData, setUserData] = useState(null);
     const [currentOrgId, setCurrentOrgId] = useState(null);
     const [currentOrgName, setCurrentOrgName] = useState(null);
@@ -22,7 +19,6 @@ export const AppContextProvider = (props) => {
 
     const setIsLoggedin = (value) => {
         setIsLoggedinState(value);
-        localStorage.setItem("isLoggedin", value ? "true" : "false");
     };
 
     const getAuthState = async () => {

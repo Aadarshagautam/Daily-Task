@@ -98,12 +98,12 @@ const CreatePages = () => {
       onKeyDown={handleKeyDown}
     >
       {/* Top Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
           {/* Left */}
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
           >
             <X className="w-5 h-5" />
             <span className="text-sm font-medium">Close</span>
@@ -111,13 +111,13 @@ const CreatePages = () => {
 
           {/* Right */}
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-slate-500">
               {title || content ? "Unsaved changes" : "Start writing..."}
             </span>
             <button
               onClick={handleSubmit}
               disabled={loading || !title.trim() || !content.trim()}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:from-indigo-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               {loading ? (
                 <>
@@ -147,12 +147,12 @@ const CreatePages = () => {
             onChange={(e) => setTitle(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className="w-full text-5xl font-bold text-gray-900 placeholder-gray-300 outline-none border-none bg-transparent mb-4"
+            className="w-full text-5xl font-bold text-slate-900 placeholder-slate-300 outline-none border-none bg-transparent mb-4"
             style={{ caretColor: '#6366f1' }}
           />
 
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
+          <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-8" />
 
           {/* Content Textarea */}
           <textarea
@@ -160,7 +160,7 @@ const CreatePages = () => {
             placeholder="Start writing... (Try typing '# ' for a heading or '- ' for a list)"
             value={content}
             onChange={handleContentChange}
-            className="w-full min-h-[60vh] text-lg text-gray-700 placeholder-gray-400 outline-none border-none bg-transparent resize-none leading-relaxed"
+            className="w-full min-h-[60vh] text-lg text-slate-700 placeholder-slate-400 outline-none border-none bg-transparent resize-none leading-relaxed"
             style={{ 
               caretColor: '#6366f1',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
@@ -169,13 +169,13 @@ const CreatePages = () => {
 
           {/* Helper Text */}
           {!title && !content && (
-            <div className="mt-8 text-sm text-gray-400 space-y-2">
-              <p>✨ <strong>Tip:</strong> Press <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">Cmd/Ctrl + S</kbd> to save</p>
+            <div className="mt-8 text-sm text-slate-400 space-y-2">
+              <p>✨ <strong>Tip:</strong> Press <kbd className="px-2 py-1 bg-slate-100 rounded text-xs">Cmd/Ctrl + S</kbd> to save</p>
               <p>📝 <strong>Markdown shortcuts:</strong></p>
               <ul className="ml-6 space-y-1">
-                <li>• Type <code className="px-1 bg-gray-100 rounded"># </code> for a large heading</li>
-                <li>• Type <code className="px-1 bg-gray-100 rounded">## </code> for a medium heading</li>
-                <li>• Type <code className="px-1 bg-gray-100 rounded">- </code> or <code className="px-1 bg-gray-100 rounded">* </code> for a bullet list</li>
+                <li>• Type <code className="px-1 bg-slate-100 rounded"># </code> for a large heading</li>
+                <li>• Type <code className="px-1 bg-slate-100 rounded">## </code> for a medium heading</li>
+                <li>• Type <code className="px-1 bg-slate-100 rounded">- </code> or <code className="px-1 bg-slate-100 rounded">* </code> for a bullet list</li>
               </ul>
             </div>
           )}

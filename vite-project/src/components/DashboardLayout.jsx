@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import { useState, useContext } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X, LayoutGrid, Bell, LogOut, User, Mail, LayoutDashboard, ChevronRight } from 'lucide-react'
 import { AppContext } from '../context/AppContext'
@@ -6,15 +6,15 @@ import { apps, getActiveApp, isMenuItemActive } from '../config/sidebarConfig'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
-/* ─── accent color lookup (tailwind classes) ─── */
+/* ─── accent color lookup (unified slate palette) ─── */
 const accentClasses = {
-  violet:  { bg: 'bg-violet-50',  text: 'text-violet-600',  border: 'border-violet-500',  icon: 'bg-violet-100 text-violet-600' },
-  blue:    { bg: 'bg-blue-50',    text: 'text-blue-600',    border: 'border-blue-500',    icon: 'bg-blue-100 text-blue-600' },
-  orange:  { bg: 'bg-orange-50',  text: 'text-orange-600',  border: 'border-orange-500',  icon: 'bg-orange-100 text-orange-600' },
-  emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-500', icon: 'bg-emerald-100 text-emerald-600' },
-  green:   { bg: 'bg-green-50',   text: 'text-green-600',   border: 'border-green-500',   icon: 'bg-green-100 text-green-600' },
-  teal:    { bg: 'bg-teal-50',    text: 'text-teal-600',    border: 'border-teal-500',    icon: 'bg-teal-100 text-teal-600' },
-  gray:    { bg: 'bg-gray-100',   text: 'text-gray-600',    border: 'border-gray-500',    icon: 'bg-gray-200 text-gray-600' },
+  violet:  { bg: 'bg-slate-50',  text: 'text-slate-700',  border: 'border-slate-300',  icon: 'bg-slate-100 text-slate-600' },
+  blue:    { bg: 'bg-slate-50',  text: 'text-slate-700',  border: 'border-slate-300',  icon: 'bg-slate-100 text-slate-600' },
+  orange:  { bg: 'bg-slate-50',  text: 'text-slate-700',  border: 'border-slate-300',  icon: 'bg-slate-100 text-slate-600' },
+  emerald: { bg: 'bg-slate-50',  text: 'text-slate-700',  border: 'border-slate-300',  icon: 'bg-slate-100 text-slate-600' },
+  green:   { bg: 'bg-slate-50',  text: 'text-slate-700',  border: 'border-slate-300',  icon: 'bg-slate-100 text-slate-600' },
+  teal:    { bg: 'bg-slate-50',  text: 'text-slate-700',  border: 'border-slate-300',  icon: 'bg-slate-100 text-slate-600' },
+  gray:    { bg: 'bg-slate-50',  text: 'text-slate-600',  border: 'border-slate-300',  icon: 'bg-slate-100 text-slate-500' },
 }
 
 const DashboardLayout = () => {
@@ -55,7 +55,7 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
       axios.defaults.withCredentials = true
       const { data } = await axios.post(backendUrl + '/api/auth/send-verify-opt')
       data.success ? toast.success(data.message) : toast.error(data.message)
-      if (data.success) navigate('/email-verifty')
+      if (data.success) navigate('/email-verify')
     } catch (e) { toast.error(e.message) }
   }
 
@@ -73,48 +73,48 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
   }
 
   return (
-    <header className="sticky top-0 z-50 h-16 bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-50 h-14 bg-white border-b border-slate-200">
       <div className="flex items-center justify-between h-full px-4 lg:pl-[17rem]">
         {/* Left */}
         <div className="flex items-center gap-3">
           <button
             onClick={toggleSidebar}
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
           >
-            {sidebarOpen ? <X className="w-5 h-5 text-gray-600" /> : <Menu className="w-5 h-5 text-gray-600" />}
+            {sidebarOpen ? <X className="w-5 h-5 text-slate-600" /> : <Menu className="w-5 h-5 text-slate-600" />}
           </button>
 
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
+            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">T</span>
             </div>
-            <span className="hidden sm:block text-base font-bold text-gray-900">ThinkBoard</span>
+            <span className="hidden sm:block text-sm font-semibold text-slate-900">ThinkBoard</span>
           </Link>
 
-          {/* Breadcrumb-style active app indicator */}
+          {/* Breadcrumb */}
           {activeApp && (
-            <div className="hidden md:flex items-center gap-1.5 text-sm text-gray-400 ml-2">
+            <div className="hidden md:flex items-center gap-1.5 text-sm text-slate-400 ml-2">
               <ChevronRight className="w-4 h-4" />
-              <span className="font-medium text-gray-700">{activeApp.name}</span>
+              <span className="font-medium text-slate-600">{activeApp.name}</span>
             </div>
           )}
         </div>
 
         {/* Right */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {isLoggedin ? (
             <>
               <Link
                 to="/apps"
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
                 title="All Apps"
               >
-                <LayoutGrid className="w-5 h-5 text-gray-500" />
+                <LayoutGrid className="w-5 h-5 text-slate-500" />
               </Link>
 
-              <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Bell className="w-5 h-5 text-gray-500" />
+              <button className="relative p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                <Bell className="w-5 h-5 text-slate-500" />
                 {userData && !userData.isAccountVerified && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
                 )}
@@ -122,21 +122,21 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
 
               {/* User dropdown */}
               <div className="relative group">
-                <button className="flex items-center gap-2 p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
-                  <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
+                <button className="flex items-center gap-2 p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+                  <div className="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
                     {userData?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
-                  <span className="hidden md:block text-sm font-medium text-gray-700 max-w-[100px] truncate">
+                  <span className="hidden md:block text-sm font-medium text-slate-700 max-w-[100px] truncate">
                     {userData?.username || 'User'}
                   </span>
                 </button>
 
-                <div className="absolute right-0 mt-1 w-64 bg-white rounded-xl shadow-xl border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50 overflow-hidden">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{userData?.username || 'User'}</p>
-                    <p className="text-xs text-gray-500 truncate">{userData?.email}</p>
+                <div className="absolute right-0 mt-1 w-64 bg-white rounded-xl shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-slate-100">
+                    <p className="text-sm font-semibold text-slate-900 truncate">{userData?.username || 'User'}</p>
+                    <p className="text-xs text-slate-500 truncate">{userData?.email}</p>
                     {currentOrgName && (
-                      <p className="text-xs text-gray-400 truncate mt-0.5">{currentOrgName}</p>
+                      <p className="text-xs text-slate-400 truncate mt-0.5">{currentOrgName}</p>
                     )}
                   </div>
 
@@ -144,18 +144,18 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
                     {userData && !userData.isAccountVerified && (
                       <button
                         onClick={sendVerificationOtp}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
                       >
-                        <Mail className="w-4 h-4 text-indigo-500" /> Verify Email
+                        <Mail className="w-4 h-4 text-slate-500" /> Verify Email
                       </button>
                     )}
                     <Link
                       to="/dashboard"
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
                     >
-                      <User className="w-4 h-4 text-gray-500" /> My Profile
+                      <User className="w-4 h-4 text-slate-500" /> My Profile
                     </Link>
-                    <div className="h-px bg-gray-100 my-1" />
+                    <div className="h-px bg-slate-100 my-1" />
                     <button
                       onClick={logout}
                       className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -169,7 +169,7 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
           ) : (
             <button
               onClick={() => navigate('/login')}
-              className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700"
+              className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
             >
               Login
             </button>
@@ -186,7 +186,6 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
 const OdooSidebar = ({ activeApp, pathname, isOpen, closeSidebar }) => {
   const navigate = useNavigate()
 
-  // Separate settings from the rest
   const mainApps = apps.filter(a => a.id !== 'settings')
   const settingsApp = apps.find(a => a.id === 'settings')
 
@@ -205,13 +204,13 @@ const OdooSidebar = ({ activeApp, pathname, isOpen, closeSidebar }) => {
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/20 z-30 lg:hidden"
           onClick={closeSidebar}
         />
       )}
 
       <aside className={`
-        fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200
+        fixed top-14 left-0 h-[calc(100vh-3.5rem)] w-64 bg-white border-r border-slate-200
         z-40 flex flex-col transition-transform duration-200
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
@@ -220,10 +219,10 @@ const OdooSidebar = ({ activeApp, pathname, isOpen, closeSidebar }) => {
           <Link
             to="/dashboard"
             onClick={closeSidebar}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
               pathname === '/dashboard'
-                ? 'bg-indigo-50 text-indigo-700'
-                : 'text-gray-600 hover:bg-gray-50'
+                ? 'bg-slate-100 text-slate-900'
+                : 'text-slate-600 hover:bg-slate-50'
             }`}
           >
             <LayoutDashboard className="w-5 h-5" />
@@ -231,7 +230,7 @@ const OdooSidebar = ({ activeApp, pathname, isOpen, closeSidebar }) => {
           </Link>
         </div>
 
-        <div className="h-px bg-gray-100 mx-4" />
+        <div className="h-px bg-slate-100 mx-4" />
 
         {/* App list */}
         <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-0.5">
@@ -245,14 +244,14 @@ const OdooSidebar = ({ activeApp, pathname, isOpen, closeSidebar }) => {
                 {/* App row */}
                 <button
                   onClick={() => handleAppClick(app)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                     isActive
-                      ? `${accent.bg} ${accent.text} font-semibold`
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-slate-100 text-slate-900 font-medium'
+                      : 'text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                    isActive ? accent.icon : 'bg-gray-100 text-gray-500'
+                    isActive ? accent.icon : 'bg-slate-50 text-slate-400'
                   }`}>
                     <Icon className="w-4 h-4" />
                   </div>
@@ -262,9 +261,9 @@ const OdooSidebar = ({ activeApp, pathname, isOpen, closeSidebar }) => {
                   )}
                 </button>
 
-                {/* Submenu (expanded only for active app) */}
+                {/* Submenu */}
                 {isActive && app.menu.length > 1 && (
-                  <div className="ml-5 pl-4 border-l-2 border-gray-200 mt-1 mb-2 space-y-0.5">
+                  <div className="ml-5 pl-4 border-l border-slate-200 mt-1 mb-2 space-y-0.5">
                     {app.menu.map(item => {
                       const ItemIcon = item.icon
                       const menuActive = isMenuItemActive(item, pathname)
@@ -275,8 +274,8 @@ const OdooSidebar = ({ activeApp, pathname, isOpen, closeSidebar }) => {
                           onClick={() => handleMenuClick(item.path)}
                           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
                             menuActive
-                              ? `${accent.text} font-medium bg-white shadow-sm border border-gray-100`
-                              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                              ? 'text-slate-900 font-medium bg-slate-50'
+                              : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           <ItemIcon className="w-4 h-4" />
@@ -293,17 +292,17 @@ const OdooSidebar = ({ activeApp, pathname, isOpen, closeSidebar }) => {
 
         {/* Settings — pinned at bottom */}
         {settingsApp && (
-          <div className="border-t border-gray-100 px-3 py-3">
+          <div className="border-t border-slate-100 px-3 py-3">
             <button
               onClick={() => handleAppClick(settingsApp)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                 activeApp?.id === 'settings'
-                  ? 'bg-gray-100 text-gray-700 font-semibold'
-                  : 'text-gray-500 hover:bg-gray-50'
+                  ? 'bg-slate-100 text-slate-700 font-medium'
+                  : 'text-slate-500 hover:bg-slate-50'
               }`}
             >
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                activeApp?.id === 'settings' ? 'bg-gray-200 text-gray-600' : 'bg-gray-100 text-gray-400'
+                activeApp?.id === 'settings' ? 'bg-slate-200 text-slate-600' : 'bg-slate-50 text-slate-400'
               }`}>
                 <settingsApp.icon className="w-4 h-4" />
               </div>

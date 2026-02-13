@@ -191,67 +191,67 @@ const CustomersPage = () => {
     return (
       <div className="lg:ml-64 flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading customers...</p>
+          <div className="w-16 h-16 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading customers...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="lg:ml-64 p-8 bg-gray-50 min-h-screen">
+    <div className="lg:ml-64 p-8 bg-slate-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Customer Management</h1>
-        <p className="text-gray-600">Manage your customer database and contact information.</p>
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">Customer Management</h1>
+        <p className="text-slate-600">Manage your customer database and contact information.</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-indigo-600" />
+            <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+              <Users className="w-6 h-6 text-slate-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Total Customers</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalCustomers}</p>
+              <p className="text-sm text-slate-600">Total Customers</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.totalCustomers}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-violet-100 rounded-lg flex items-center justify-center">
               <Mail className="w-6 h-6 text-violet-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">With Email</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.withEmail}</p>
+              <p className="text-sm text-slate-600">With Email</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.withEmail}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
               <Building2 className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">With Company</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.withCompany}</p>
+              <p className="text-sm text-slate-600">With Company</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.withCompany}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <UserPlus className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">New This Month</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.newThisMonth}</p>
+              <p className="text-sm text-slate-600">New This Month</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.newThisMonth}</p>
             </div>
           </div>
         </div>
@@ -261,13 +261,13 @@ const CustomersPage = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div className="flex-1 w-full sm:max-w-md">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="text"
               placeholder="Search customers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
             />
           </div>
         </div>
@@ -277,7 +277,7 @@ const CustomersPage = () => {
             setShowAddForm(!showAddForm)
             setEditingCustomer(null)
           }}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
         >
           <Plus className="w-5 h-5" />
           Add Customer
@@ -286,131 +286,131 @@ const CustomersPage = () => {
 
       {/* Add/Edit Form */}
       {(showAddForm || editingCustomer) && (
-        <div className="bg-white rounded-xl p-6 border border-gray-200 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white rounded-xl p-6 border border-slate-200 mb-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">
             {editingCustomer ? 'Edit Customer' : 'Add New Customer'}
           </h3>
           <form onSubmit={editingCustomer ? handleUpdateCustomer : handleCreateCustomer} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Customer Name *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Customer Name *</label>
                 <input
                   type="text"
                   value={getFieldValue('name')}
                   onChange={(e) => handleFieldChange('name', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="Enter customer name"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
                 <input
                   type="email"
                   value={getFieldValue('email')}
                   onChange={(e) => handleFieldChange('email', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="customer@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
                 <input
                   type="tel"
                   value={getFieldValue('phone')}
                   onChange={(e) => handleFieldChange('phone', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="+91 98765 43210"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Company</label>
                 <input
                   type="text"
                   value={getFieldValue('company')}
                   onChange={(e) => handleFieldChange('company', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="Company name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">GSTIN</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">GSTIN</label>
                 <input
                   type="text"
                   value={getFieldValue('gstin')}
                   onChange={(e) => handleFieldChange('gstin', e.target.value.toUpperCase())}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="22AAAAA0000A1Z5"
                   maxLength={15}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Street Address</label>
                 <input
                   type="text"
                   value={getAddressValue('street')}
                   onChange={(e) => handleAddressChange('street', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="Street address"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">City</label>
                 <input
                   type="text"
                   value={getAddressValue('city')}
                   onChange={(e) => handleAddressChange('city', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="City"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">State</label>
                 <input
                   type="text"
                   value={getAddressValue('state')}
                   onChange={(e) => handleAddressChange('state', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="State"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Pincode</label>
                 <input
                   type="text"
                   value={getAddressValue('pincode')}
                   onChange={(e) => handleAddressChange('pincode', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="400001"
                   maxLength={6}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Country</label>
                 <input
                   type="text"
                   value={getAddressValue('country')}
                   onChange={(e) => handleAddressChange('country', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="India"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Notes</label>
                 <textarea
                   value={getFieldValue('notes')}
                   onChange={(e) => handleFieldChange('notes', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="Additional notes about this customer..."
                   rows={3}
                 />
@@ -420,7 +420,7 @@ const CustomersPage = () => {
             <div className="flex gap-3">
               <button
                 type="submit"
-                className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+                className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition-colors"
               >
                 {editingCustomer ? 'Update Customer' : 'Add Customer'}
               </button>
@@ -431,7 +431,7 @@ const CustomersPage = () => {
                   setEditingCustomer(null)
                   setNewCustomer({ ...initialCustomerState })
                 }}
-                className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors"
+                className="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition-colors"
               >
                 Cancel
               </button>
@@ -442,16 +442,16 @@ const CustomersPage = () => {
 
       {/* Customer Cards */}
       {filteredCustomers.length === 0 ? (
-        <div className="bg-white rounded-xl p-12 text-center border border-gray-200">
-          <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No customers found</h3>
-          <p className="text-gray-600 mb-4">
+        <div className="bg-white rounded-xl p-12 text-center border border-slate-200">
+          <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">No customers found</h3>
+          <p className="text-slate-600 mb-4">
             {searchTerm ? 'Try a different search term' : 'Start by adding your first customer'}
           </p>
           {!searchTerm && (
             <button
               onClick={() => setShowAddForm(true)}
-              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+              className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition-colors"
             >
               Add First Customer
             </button>
@@ -462,20 +462,20 @@ const CustomersPage = () => {
           {filteredCustomers.map((customer) => (
             <div
               key={customer._id}
-              className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl p-6 border border-slate-200 hover:shadow-md transition-shadow"
             >
               {/* Card Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-indigo-600 font-semibold text-sm">
+                  <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-slate-600 font-semibold text-sm">
                       {customer.name ? customer.name.charAt(0).toUpperCase() : '?'}
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate">{customer.name}</h3>
+                    <h3 className="font-semibold text-slate-900 truncate">{customer.name}</h3>
                     {customer.company && (
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
+                      <div className="flex items-center gap-1 text-sm text-slate-500">
                         <Building2 className="w-3.5 h-3.5 flex-shrink-0" />
                         <span className="truncate">{customer.company}</span>
                       </div>
@@ -491,14 +491,14 @@ const CustomersPage = () => {
                       })
                       setShowAddForm(false)
                     }}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
                     title="Edit"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteCustomer(customer._id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -509,11 +509,11 @@ const CustomersPage = () => {
               {/* Card Details */}
               <div className="space-y-2.5">
                 {customer.email && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Mail className="w-4 h-4 text-slate-400 flex-shrink-0" />
                     <a
                       href={`mailto:${customer.email}`}
-                      className="hover:text-indigo-600 transition-colors truncate"
+                      className="hover:text-slate-600 transition-colors truncate"
                     >
                       {customer.email}
                     </a>
@@ -521,11 +521,11 @@ const CustomersPage = () => {
                 )}
 
                 {customer.phone && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Phone className="w-4 h-4 text-slate-400 flex-shrink-0" />
                     <a
                       href={`tel:${customer.phone}`}
-                      className="hover:text-indigo-600 transition-colors"
+                      className="hover:text-slate-600 transition-colors"
                     >
                       {customer.phone}
                     </a>
@@ -533,15 +533,15 @@ const CustomersPage = () => {
                 )}
 
                 {formatAddress(customer.address) && (
-                  <div className="flex items-start gap-2 text-sm text-gray-600">
-                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2 text-sm text-slate-600">
+                    <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
                     <span>{formatAddress(customer.address)}</span>
                   </div>
                 )}
 
                 {customer.gstin && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
                       GSTIN
                     </span>
                     <span className="font-mono text-xs">{customer.gstin}</span>
@@ -551,8 +551,8 @@ const CustomersPage = () => {
 
               {/* Notes */}
               {customer.notes && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-sm text-gray-500 line-clamp-2">{customer.notes}</p>
+                <div className="mt-3 pt-3 border-t border-slate-100">
+                  <p className="text-sm text-slate-500 line-clamp-2">{customer.notes}</p>
                 </div>
               )}
             </div>

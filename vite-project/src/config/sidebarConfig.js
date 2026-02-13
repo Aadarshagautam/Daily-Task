@@ -1,5 +1,4 @@
 import {
-  LayoutDashboard,
   Kanban,
   List,
   Columns3,
@@ -97,10 +96,10 @@ export const apps = [
     name: 'Projects',
     icon: FolderKanban,
     accent: 'green',
-    basePath: '/',
-    pathPrefixes: ['/', '/todos'],
+    basePath: '/notes',
+    pathPrefixes: ['/notes', '/todos'],
     menu: [
-      { label: 'Notes', path: '/', icon: StickyNote, exact: true },
+      { label: 'Notes', path: '/notes', icon: StickyNote, exact: true },
       { label: 'Tasks', path: '/todos', icon: CheckSquare },
     ],
   },

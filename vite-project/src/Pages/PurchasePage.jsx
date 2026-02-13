@@ -224,28 +224,28 @@ const PurchasePage = () => {
       <div className="lg:ml-64 flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-700">Loading purchases...</p>
+          <p className="text-lg font-medium text-slate-700">Loading purchases...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="lg:ml-64 min-h-screen bg-gray-50">
+    <div className="lg:ml-64 min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">🛒 Purchase Management</h1>
-              <p className="text-sm text-gray-600 mt-1">Track all product purchases from suppliers</p>
+              <h1 className="text-2xl font-bold text-slate-900">🛒 Purchase Management</h1>
+              <p className="text-sm text-slate-600 mt-1">Track all product purchases from suppliers</p>
             </div>
             <button
               onClick={() => {
                 setShowAddForm(!showAddForm)
                 if (editingId) resetForm()
               }}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg font-medium transition-colors shadow-md"
+              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-3 rounded-lg font-medium transition-colors "
             >
               <Plus className="w-5 h-5" />
               Add Purchase
@@ -263,8 +263,8 @@ const PurchasePage = () => {
                 <ShoppingCart className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-600">Total Purchases</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-xs text-slate-600">Total Purchases</p>
+                <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
               </div>
             </div>
           </div>
@@ -275,8 +275,8 @@ const PurchasePage = () => {
                 <DollarSign className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-600">Total Amount</p>
-                <p className="text-xl font-bold text-gray-900">{'\u20B9'}{stats.totalAmount.toLocaleString()}</p>
+                <p className="text-xs text-slate-600">Total Amount</p>
+                <p className="text-xl font-bold text-slate-900">{'\u20B9'}{stats.totalAmount.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -287,8 +287,8 @@ const PurchasePage = () => {
                 <Calendar className="w-5 h-5 text-amber-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-600">Pending Payment</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+                <p className="text-xs text-slate-600">Pending Payment</p>
+                <p className="text-2xl font-bold text-slate-900">{stats.pending}</p>
               </div>
             </div>
           </div>
@@ -299,20 +299,20 @@ const PurchasePage = () => {
                 <Package className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-600">Paid</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.paid}</p>
+                <p className="text-xs text-slate-600">Paid</p>
+                <p className="text-2xl font-bold text-slate-900">{stats.paid}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-5 border-2 border-indigo-200">
+          <div className="bg-white rounded-lg p-5 border-2 border-slate-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <Truck className="w-5 h-5 text-indigo-600" />
+              <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                <Truck className="w-5 h-5 text-slate-600" />
               </div>
               <div>
-                <p className="text-xs text-gray-600">Delivered</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.delivered}</p>
+                <p className="text-xs text-slate-600">Delivered</p>
+                <p className="text-2xl font-bold text-slate-900">{stats.delivered}</p>
               </div>
             </div>
           </div>
@@ -322,10 +322,10 @@ const PurchasePage = () => {
         {(showAddForm || editingId) && (
           <div className="bg-white rounded-xl p-6 border-2 border-blue-200 shadow-lg">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-xl font-bold text-slate-900">
                 {editingId ? '✏️ Edit Purchase' : '➕ Add New Purchase'}
               </h3>
-              <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
+              <button onClick={resetForm} className="text-slate-400 hover:text-slate-600">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -333,13 +333,13 @@ const PurchasePage = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Supplier Information */}
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <User className="w-5 h-5 text-blue-600" />
                   Supplier Information
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-slate-700 mb-2">
                       Supplier Name *
                     </label>
                     <input
@@ -353,7 +353,7 @@ const PurchasePage = () => {
                           setFormData(prev => ({ ...prev, supplierContact: supplier.contact }))
                         }
                       }}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                       placeholder="Enter supplier name"
                       required
                     />
@@ -365,14 +365,14 @@ const PurchasePage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-slate-700 mb-2">
                       Contact Number
                     </label>
                     <input
                       type="text"
                       value={formData.supplierContact}
                       onChange={(e) => setFormData({ ...formData, supplierContact: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                       placeholder="Phone/Email"
                     />
                   </div>
@@ -381,34 +381,34 @@ const PurchasePage = () => {
 
               {/* Product Information */}
               <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                <h4 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2">
                   <Package className="w-5 h-5 text-purple-600" />
                   Product Details
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-slate-700 mb-2">
                       Product Name *
                     </label>
                     <input
                       type="text"
                       value={formData.productName}
                       onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                       placeholder="Product name"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-slate-700 mb-2">
                       Quantity *
                     </label>
                     <input
                       type="number"
                       value={formData.quantity}
                       onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                       placeholder="0"
                       min="1"
                       required
@@ -416,14 +416,14 @@ const PurchasePage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-slate-700 mb-2">
                       Unit Price (\u20B9) *
                     </label>
                     <input
                       type="number"
                       value={formData.unitPrice}
                       onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                       placeholder="0.00"
                       step="0.01"
                       required
@@ -432,7 +432,7 @@ const PurchasePage = () => {
                 </div>
 
                 <div className="mt-4 p-4 bg-white rounded-lg border-2 border-purple-300">
-                  <p className="text-sm text-gray-600">Total Amount:</p>
+                  <p className="text-sm text-slate-600">Total Amount:</p>
                   <p className="text-3xl font-bold text-purple-600">{'\u20B9'}{formData.totalAmount || '0.00'}</p>
                 </div>
               </div>
@@ -440,26 +440,26 @@ const PurchasePage = () => {
               {/* Purchase Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">
                     Purchase Date *
                   </label>
                   <input
                     type="date"
                     value={formData.purchaseDate}
                     onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">
                     Payment Method
                   </label>
                   <select
                     value={formData.paymentMethod}
                     onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                   >
                     <option value="cash">Cash</option>
                     <option value="card">Card</option>
@@ -470,13 +470,13 @@ const PurchasePage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">
                     Payment Status
                   </label>
                   <select
                     value={formData.paymentStatus}
                     onChange={(e) => setFormData({ ...formData, paymentStatus: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                   >
                     <option value="pending">Pending</option>
                     <option value="partial">Partial Paid</option>
@@ -485,13 +485,13 @@ const PurchasePage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">
                     Delivery Status
                   </label>
                   <select
                     value={formData.deliveryStatus}
                     onChange={(e) => setFormData({ ...formData, deliveryStatus: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                   >
                     <option value="pending">Pending</option>
                     <option value="in_transit">In Transit</option>
@@ -502,13 +502,13 @@ const PurchasePage = () => {
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-slate-700 mb-2">
                   Additional Notes
                 </label>
                 <textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
                   rows="3"
                   placeholder="Any additional information..."
                 />
@@ -518,7 +518,7 @@ const PurchasePage = () => {
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold text-lg transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-lg font-bold text-lg transition-colors"
                 >
                   <Save className="w-5 h-5" />
                   {editingId ? 'Update Purchase' : 'Save Purchase'}
@@ -526,7 +526,7 @@ const PurchasePage = () => {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-bold transition-colors"
+                  className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-bold transition-colors"
                 >
                   Cancel
                 </button>
@@ -538,20 +538,20 @@ const PurchasePage = () => {
         {/* Search and Filter */}
         <div className="flex gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="text"
               placeholder="Search by product or supplier..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
             />
           </div>
 
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-400"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending Payment</option>
@@ -562,15 +562,15 @@ const PurchasePage = () => {
 
         {/* Purchases List */}
         {filteredPurchases.length === 0 ? (
-          <div className="bg-white rounded-xl p-16 text-center border-2 border-dashed border-gray-300">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ShoppingCart className="w-10 h-10 text-gray-400" />
+          <div className="bg-white rounded-xl p-16 text-center border-2 border-dashed border-slate-300">
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ShoppingCart className="w-10 h-10 text-slate-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No purchases yet</h3>
-            <p className="text-gray-600 mb-6">Start tracking your product purchases from suppliers</p>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">No purchases yet</h3>
+            <p className="text-slate-600 mb-6">Start tracking your product purchases from suppliers</p>
             <button
               onClick={() => setShowAddForm(true)}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-colors"
+              className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold transition-colors"
             >
               Add First Purchase
             </button>
@@ -578,11 +578,11 @@ const PurchasePage = () => {
         ) : (
           <div className="space-y-4">
             {filteredPurchases.map((purchase) => (
-              <div key={purchase.id} className="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+              <div key={purchase.id} className="bg-white rounded-xl border-2 border-slate-200 overflow-hidden">
                 {/* Purchase Header */}
                 <div
                   onClick={() => setExpandedPurchase(expandedPurchase === purchase.id ? null : purchase.id)}
-                  className="p-5 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="p-5 hover:bg-slate-50 cursor-pointer transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 flex-1">
@@ -592,7 +592,7 @@ const PurchasePage = () => {
 
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
-                          <h3 className="text-lg font-bold text-gray-900">{purchase.productName}</h3>
+                          <h3 className="text-lg font-bold text-slate-900">{purchase.productName}</h3>
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                             purchase.paymentStatus === 'paid' 
                               ? 'bg-green-100 text-green-700'
@@ -607,12 +607,12 @@ const PurchasePage = () => {
                               ? 'bg-green-100 text-green-700'
                               : purchase.deliveryStatus === 'in_transit'
                               ? 'bg-blue-100 text-blue-700'
-                              : 'bg-gray-100 text-gray-700'
+                              : 'bg-slate-100 text-slate-700'
                           }`}>
                             {purchase.deliveryStatus === 'delivered' ? '📦 Delivered' : purchase.deliveryStatus === 'in_transit' ? '🚚 In Transit' : '⏳ Pending'}
                           </span>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-4 text-sm text-slate-600">
                           <span className="flex items-center gap-1">
                             <User className="w-4 h-4" />
                             {purchase.supplierName}
@@ -628,16 +628,16 @@ const PurchasePage = () => {
                       </div>
 
                       <div className="text-right mr-4">
-                        <p className="text-xs text-gray-600 mb-1">Total Amount</p>
+                        <p className="text-xs text-slate-600 mb-1">Total Amount</p>
                         <p className="text-2xl font-bold text-blue-600">{'\u20B9'}{parseFloat(purchase.totalAmount).toLocaleString()}</p>
-                        <p className="text-xs text-gray-500">{'\u20B9'}{purchase.unitPrice}/unit</p>
+                        <p className="text-xs text-slate-500">{'\u20B9'}{purchase.unitPrice}/unit</p>
                       </div>
 
                       <div className="flex items-center gap-2">
                         {expandedPurchase === purchase.id ? (
-                          <ChevronUp className="w-5 h-5 text-gray-400" />
+                          <ChevronUp className="w-5 h-5 text-slate-400" />
                         ) : (
-                          <ChevronDown className="w-5 h-5 text-gray-400" />
+                          <ChevronDown className="w-5 h-5 text-slate-400" />
                         )}
                       </div>
                     </div>
@@ -646,28 +646,28 @@ const PurchasePage = () => {
 
                 {/* Expanded Details */}
                 {expandedPurchase === purchase.id && (
-                  <div className="border-t border-gray-200 bg-gray-50 p-5">
+                  <div className="border-t border-slate-200 bg-slate-50 p-5">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <p className="text-xs text-gray-600 mb-1">Supplier Contact</p>
-                        <p className="font-medium text-gray-900">{purchase.supplierContact || 'N/A'}</p>
+                      <div className="bg-white p-4 rounded-lg border border-slate-200">
+                        <p className="text-xs text-slate-600 mb-1">Supplier Contact</p>
+                        <p className="font-medium text-slate-900">{purchase.supplierContact || 'N/A'}</p>
                       </div>
 
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <p className="text-xs text-gray-600 mb-1">Payment Method</p>
-                        <p className="font-medium text-gray-900 capitalize">{purchase.paymentMethod.replace('_', ' ')}</p>
+                      <div className="bg-white p-4 rounded-lg border border-slate-200">
+                        <p className="text-xs text-slate-600 mb-1">Payment Method</p>
+                        <p className="font-medium text-slate-900 capitalize">{purchase.paymentMethod.replace('_', ' ')}</p>
                       </div>
 
-                      <div className="bg-white p-4 rounded-lg border border-gray-200">
-                        <p className="text-xs text-gray-600 mb-1">Unit Price</p>
-                        <p className="font-medium text-gray-900">{'\u20B9'}{purchase.unitPrice} × {purchase.quantity} = {'\u20B9'}{purchase.totalAmount}</p>
+                      <div className="bg-white p-4 rounded-lg border border-slate-200">
+                        <p className="text-xs text-slate-600 mb-1">Unit Price</p>
+                        <p className="font-medium text-slate-900">{'\u20B9'}{purchase.unitPrice} × {purchase.quantity} = {'\u20B9'}{purchase.totalAmount}</p>
                       </div>
                     </div>
 
                     {purchase.notes && (
                       <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-4">
                         <p className="text-xs font-bold text-amber-800 mb-1">📝 Notes:</p>
-                        <p className="text-sm text-gray-700">{purchase.notes}</p>
+                        <p className="text-sm text-slate-700">{purchase.notes}</p>
                       </div>
                     )}
 
@@ -677,7 +677,7 @@ const PurchasePage = () => {
                           e.stopPropagation()
                           startEdit(purchase)
                         }}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                         Edit Purchase

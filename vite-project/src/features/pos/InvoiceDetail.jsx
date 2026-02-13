@@ -32,7 +32,7 @@ const InvoiceDetail = () => {
   if (isLoading) {
     return (
       <div className="p-4 lg:pl-[17.5rem] pt-20 flex items-center justify-center min-h-[50vh]">
-        <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin" />
       </div>
     );
   }
@@ -40,7 +40,7 @@ const InvoiceDetail = () => {
   if (!sale) {
     return (
       <div className="p-4 lg:pl-[17.5rem] pt-20 text-center py-20">
-        <p className="text-gray-500">Sale not found</p>
+        <p className="text-slate-500">Sale not found</p>
       </div>
     );
   }
@@ -58,7 +58,7 @@ const InvoiceDetail = () => {
         <div className="flex items-center justify-between mb-4 print:hidden">
           <button
             onClick={() => navigate("/pos/sales")}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+            className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Sales
           </button>
@@ -75,7 +75,7 @@ const InvoiceDetail = () => {
             )}
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 text-sm font-medium"
             >
               <Printer className="w-4 h-4" /> Print
             </button>

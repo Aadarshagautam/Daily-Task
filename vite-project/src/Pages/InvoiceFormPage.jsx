@@ -371,10 +371,10 @@ const InvoiceFormPage = () => {
   // ----- Loading state -----
   if (loading) {
     return (
-      <div className="lg:ml-64 p-8 min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50 flex items-center justify-center">
+      <div className="lg:ml-64 p-8 min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-700">
+          <p className="text-lg font-medium text-slate-700">
             {isEditMode ? 'Loading invoice...' : 'Preparing form...'}
           </p>
         </div>
@@ -383,12 +383,12 @@ const InvoiceFormPage = () => {
   }
 
   return (
-    <div className="lg:ml-64 p-8 min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50">
+    <div className="lg:ml-64 p-8 min-h-screen bg-slate-50">
       {/* ========== Header ========== */}
       <div className="mb-8">
         <button
           onClick={() => navigate('/invoices')}
-          className="flex items-center gap-2 text-gray-600 hover:text-emerald-600 mb-4 transition-colors group"
+          className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 mb-4 transition-colors group"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">Back to Invoices</span>
@@ -399,10 +399,10 @@ const InvoiceFormPage = () => {
             <FileText className="w-6 h-6 text-emerald-600" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 font-serif tracking-tight">
+            <h1 className="text-3xl font-bold text-slate-900 font-serif tracking-tight">
               {isEditMode ? 'Edit Invoice' : 'Create New Invoice'}
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-slate-600 mt-1">
               {isEditMode ? 'Update the invoice details below' : 'Fill in the details to generate a new invoice'}
             </p>
           </div>
@@ -415,7 +415,7 @@ const InvoiceFormPage = () => {
           <div className="xl:col-span-2 space-y-6">
 
             {/* ------ Customer Section ------ */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100">
                 <h2 className="text-lg font-semibold text-emerald-900 font-serif tracking-wide flex items-center gap-2">
                   <Search className="w-5 h-5 text-emerald-600" />
@@ -424,11 +424,11 @@ const InvoiceFormPage = () => {
               </div>
               <div className="p-6">
                 <div className="relative" ref={customerDropdownRef}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">
                     Customer <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input
                       type="text"
                       value={customerSearch}
@@ -441,7 +441,7 @@ const InvoiceFormPage = () => {
                       }}
                       onFocus={() => setShowCustomerDropdown(true)}
                       placeholder="Search customer by name, email, or phone..."
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                      className="w-full pl-10 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                     />
                   </div>
 
@@ -457,10 +457,10 @@ const InvoiceFormPage = () => {
                             key={custId}
                             type="button"
                             onClick={() => handleSelectCustomer(customer)}
-                            className="w-full text-left px-4 py-3 hover:bg-emerald-50 border-b border-gray-100 last:border-0 transition-colors"
+                            className="w-full text-left px-4 py-3 hover:bg-emerald-50 border-b border-slate-100 last:border-0 transition-colors"
                           >
-                            <p className="font-semibold text-gray-900">{custName}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="font-semibold text-slate-900">{custName}</p>
+                            <p className="text-sm text-slate-500">
                               {custEmail}{custEmail && custPhone ? ' | ' : ''}{custPhone}
                             </p>
                           </button>
@@ -470,8 +470,8 @@ const InvoiceFormPage = () => {
                   )}
 
                   {showCustomerDropdown && customerSearch.trim() && filteredCustomers.length === 0 && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-xl p-4 text-center">
-                      <p className="text-gray-500 text-sm">No customers found matching "{customerSearch}"</p>
+                    <div className="absolute z-20 w-full mt-1 bg-white border-2 border-slate-200 rounded-lg shadow-xl p-4 text-center">
+                      <p className="text-slate-500 text-sm">No customers found matching "{customerSearch}"</p>
                     </div>
                   )}
                 </div>
@@ -497,7 +497,7 @@ const InvoiceFormPage = () => {
             </div>
 
             {/* ------ Line Items Section ------ */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-emerald-900 font-serif tracking-wide flex items-center gap-2">
                   <Calculator className="w-5 h-5 text-emerald-600" />
@@ -519,7 +519,7 @@ const InvoiceFormPage = () => {
                   return (
                     <div
                       key={index}
-                      className="border-2 border-gray-200 rounded-xl p-5 hover:border-emerald-200 transition-colors relative group"
+                      className="border-2 border-slate-200 rounded-xl p-5 hover:border-emerald-200 transition-colors relative group"
                     >
                       {/* Item number badge */}
                       <div className="absolute -top-3 left-4 bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -530,7 +530,7 @@ const InvoiceFormPage = () => {
                       <button
                         type="button"
                         onClick={() => removeLineItem(index)}
-                        className="absolute top-3 right-3 p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        className="absolute top-3 right-3 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         title="Remove item"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -540,13 +540,13 @@ const InvoiceFormPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-2">
                         {/* Product */}
                         <div className="md:col-span-5">
-                          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                          <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
                             Product
                           </label>
                           <select
                             value={item.productId}
                             onChange={(e) => handleProductSelect(index, e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
+                            className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                           >
                             <option value="">-- Select Product --</option>
                             {products.map(product => (
@@ -559,7 +559,7 @@ const InvoiceFormPage = () => {
 
                         {/* Quantity */}
                         <div className="md:col-span-2">
-                          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                          <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
                             Qty
                           </label>
                           <input
@@ -568,13 +568,13 @@ const InvoiceFormPage = () => {
                             step="1"
                             value={item.quantity}
                             onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-center"
+                            className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-center"
                           />
                         </div>
 
                         {/* Unit Price */}
                         <div className="md:col-span-2">
-                          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                          <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
                             Unit Price ({'\u20B9'})
                           </label>
                           <input
@@ -583,13 +583,13 @@ const InvoiceFormPage = () => {
                             step="0.01"
                             value={item.unitPrice}
                             onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-right"
+                            className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-right"
                           />
                         </div>
 
                         {/* VAT Rate */}
                         <div className="md:col-span-3">
-                          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                          <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
                             VAT Rate (%)
                           </label>
                           <input
@@ -599,7 +599,7 @@ const InvoiceFormPage = () => {
                             step="0.01"
                             value={item.vatRate}
                             onChange={(e) => handleItemChange(index, 'vatRate', e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-center"
+                            className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-center"
                           />
                         </div>
                       </div>
@@ -608,7 +608,7 @@ const InvoiceFormPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
                         {/* SKU (readonly display) */}
                         <div className="md:col-span-3">
-                          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                          <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
                             SKU
                           </label>
                           <input
@@ -616,19 +616,19 @@ const InvoiceFormPage = () => {
                             value={item.sku}
                             readOnly
                             placeholder="Auto-filled"
-                            className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-500"
+                            className="w-full px-3 py-2.5 border-2 border-slate-200 rounded-lg bg-slate-50 text-sm text-slate-500"
                           />
                         </div>
 
                         {/* Discount Type */}
                         <div className="md:col-span-3">
-                          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                          <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
                             Discount Type
                           </label>
                           <select
                             value={item.discountType}
                             onChange={(e) => handleItemChange(index, 'discountType', e.target.value)}
-                            className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
+                            className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                           >
                             <option value="flat">Flat ({'\u20B9'})</option>
                             <option value="percentage">Percentage (%)</option>
@@ -637,7 +637,7 @@ const InvoiceFormPage = () => {
 
                         {/* Discount Value */}
                         <div className="md:col-span-2">
-                          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                          <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
                             Discount
                           </label>
                         <input
@@ -647,16 +647,16 @@ const InvoiceFormPage = () => {
                           max={item.discountType === 'percentage' ? 100 : undefined}
                           value={item.discountValue}
                           onChange={(e) => handleItemChange(index, 'discountValue', e.target.value)}
-                          className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-right"
+                          className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-right"
                         />
                         </div>
 
                         {/* Calculated summary */}
                         <div className="md:col-span-4">
-                          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+                          <label className="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide">
                             Line Summary
                           </label>
-                          <div className="bg-gray-50 border-2 border-gray-200 rounded-lg px-3 py-2 text-xs space-y-0.5">
+                          <div className="bg-slate-50 border-2 border-slate-200 rounded-lg px-3 py-2 text-xs space-y-0.5">
                             {calc.discountAmount > 0 && (
                               <div className="flex justify-between text-orange-600">
                                 <span>Discount:</span>
@@ -669,7 +669,7 @@ const InvoiceFormPage = () => {
                                 <span>+{'\u20B9'}{formatCurrency(calc.vatAmount)}</span>
                               </div>
                             )}
-                            <div className="flex justify-between font-bold text-gray-900 text-sm pt-1 border-t border-gray-300">
+                            <div className="flex justify-between font-bold text-slate-900 text-sm pt-1 border-t border-slate-300">
                               <span>Total:</span>
                               <span>{'\u20B9'}{formatCurrency(calc.lineTotal)}</span>
                             </div>
@@ -693,7 +693,7 @@ const InvoiceFormPage = () => {
             </div>
 
             {/* ------ Without VAT Toggle & Overall Discount ------ */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100">
                 <h2 className="text-lg font-semibold text-emerald-900 font-serif tracking-wide flex items-center gap-2">
                   <Percent className="w-5 h-5 text-emerald-600" />
@@ -702,10 +702,10 @@ const InvoiceFormPage = () => {
               </div>
               <div className="p-6 space-y-6">
                 {/* Without VAT toggle */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
                   <div>
-                    <p className="font-semibold text-gray-900">Without VAT</p>
-                    <p className="text-sm text-gray-500 mt-0.5">
+                    <p className="font-semibold text-slate-900">Without VAT</p>
+                    <p className="text-sm text-slate-500 mt-0.5">
                       Enable this to exclude VAT from all line items
                     </p>
                   </div>
@@ -716,22 +716,22 @@ const InvoiceFormPage = () => {
                       onChange={(e) => setInvoice(prev => ({ ...prev, withoutVat: e.target.checked }))}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                   </label>
                 </div>
 
                 {/* VAT & Discount Mode */}
                 <div>
-                  <p className="font-semibold text-gray-900 mb-3">VAT & Discount Calculation</p>
+                  <p className="font-semibold text-slate-900 mb-3">VAT & Discount Calculation</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">
                         Calculation Mode
                       </label>
                       <select
                         value={invoice.vatDiscountMode}
                         onChange={(e) => setInvoice(prev => ({ ...prev, vatDiscountMode: e.target.value }))}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
+                        className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                       >
                         <option value="after_vat_no_prorate">Overall discount after VAT (no prorate)</option>
                         <option value="after_vat_prorate">Overall discount after VAT (prorate to lines)</option>
@@ -744,10 +744,10 @@ const InvoiceFormPage = () => {
 
                 {/* Overall Discount */}
                 <div>
-                  <p className="font-semibold text-gray-900 mb-3">Overall Invoice Discount</p>
+                  <p className="font-semibold text-slate-900 mb-3">Overall Invoice Discount</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">
                         Discount Type
                       </label>
                       <select
@@ -757,7 +757,7 @@ const InvoiceFormPage = () => {
                           overallDiscountType: e.target.value,
                           overallDiscountValue: e.target.value === 'none' ? 0 : prev.overallDiscountValue
                         }))}
-                        className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
+                        className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                       >
                         <option value="none">No Discount</option>
                         <option value="percentage">Percentage (%)</option>
@@ -767,7 +767,7 @@ const InvoiceFormPage = () => {
 
                     {invoice.overallDiscountType !== 'none' && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        <label className="block text-sm font-medium text-slate-700 mb-1.5">
                           {invoice.overallDiscountType === 'percentage' ? 'Discount (%)' : 'Discount Amount (\u20B9)'}
                         </label>
                         <input
@@ -777,7 +777,7 @@ const InvoiceFormPage = () => {
                           max={invoice.overallDiscountType === 'percentage' ? 100 : undefined}
                           value={invoice.overallDiscountValue}
                           onChange={(e) => setInvoice(prev => ({ ...prev, overallDiscountValue: e.target.value }))}
-                          className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-right"
+                          className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors text-right"
                           placeholder="0"
                         />
                       </div>
@@ -788,7 +788,7 @@ const InvoiceFormPage = () => {
             </div>
 
             {/* ------ Additional Details ------ */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="bg-emerald-50 px-6 py-4 border-b border-emerald-100">
                 <h2 className="text-lg font-semibold text-emerald-900 font-serif tracking-wide flex items-center gap-2">
                   <FileText className="w-5 h-5 text-emerald-600" />
@@ -799,26 +799,26 @@ const InvoiceFormPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Due Date */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                       Due Date
                     </label>
                     <input
                       type="date"
                       value={invoice.dueDate}
                       onChange={(e) => setInvoice(prev => ({ ...prev, dueDate: e.target.value }))}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors"
+                      className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors"
                     />
                   </div>
 
                   {/* Payment Method */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                       Payment Method
                     </label>
                     <select
                       value={invoice.paymentMethod}
                       onChange={(e) => setInvoice(prev => ({ ...prev, paymentMethod: e.target.value }))}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
+                      className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                     >
                       {PAYMENT_METHODS.map(pm => (
                         <option key={pm.value} value={pm.value}>{pm.label}</option>
@@ -828,13 +828,13 @@ const InvoiceFormPage = () => {
 
                   {/* Status */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                       Status
                     </label>
                     <select
                       value={invoice.status}
                       onChange={(e) => setInvoice(prev => ({ ...prev, status: e.target.value }))}
-                      className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
+                      className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors bg-white"
                     >
                       <option value="draft">Draft</option>
                       <option value="sent">Sent</option>
@@ -844,7 +844,7 @@ const InvoiceFormPage = () => {
 
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                     Notes
                   </label>
                   <textarea
@@ -852,7 +852,7 @@ const InvoiceFormPage = () => {
                     onChange={(e) => setInvoice(prev => ({ ...prev, notes: e.target.value }))}
                     rows="3"
                     placeholder="Additional notes, terms, or instructions for this invoice..."
-                    className="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors resize-none"
+                    className="w-full px-3 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition-colors resize-none"
                   />
                 </div>
               </div>
@@ -863,7 +863,7 @@ const InvoiceFormPage = () => {
           <div className="xl:col-span-1">
             <div className="sticky top-8 space-y-6">
               {/* Totals Card */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="bg-emerald-600 px-6 py-4">
                   <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                     <Calculator className="w-5 h-5" />
@@ -873,8 +873,8 @@ const InvoiceFormPage = () => {
                 <div className="p-6 space-y-4">
                   {/* Subtotal */}
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Subtotal</span>
-                    <span className="text-sm font-semibold text-gray-900">
+                    <span className="text-sm text-slate-600">Subtotal</span>
+                    <span className="text-sm font-semibold text-slate-900">
                       {'\u20B9'}{formatCurrency(calculations.subtotal)}
                     </span>
                   </div>
@@ -917,7 +917,7 @@ const InvoiceFormPage = () => {
                   {/* Divider */}
                   <div className="border-t-2 border-emerald-200 pt-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-gray-900">Grand Total</span>
+                      <span className="text-lg font-bold text-slate-900">Grand Total</span>
                       <span className="text-2xl font-bold text-emerald-600">
                         {'\u20B9'}{formatCurrency(calculations.grandTotal)}
                       </span>
@@ -925,7 +925,7 @@ const InvoiceFormPage = () => {
                   </div>
 
                   {/* Item count */}
-                  <div className="text-xs text-gray-400 text-center pt-1">
+                  <div className="text-xs text-slate-400 text-center pt-1">
                     {items.length} line item{items.length !== 1 ? 's' : ''}
                     {invoice.withoutVat && ' | VAT excluded'}
                   </div>
@@ -955,7 +955,7 @@ const InvoiceFormPage = () => {
                 <button
                   type="button"
                   onClick={() => navigate('/invoices')}
-                  className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-medium transition-colors border border-gray-300"
+                  className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-3 rounded-xl font-medium transition-colors border border-slate-300"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Cancel

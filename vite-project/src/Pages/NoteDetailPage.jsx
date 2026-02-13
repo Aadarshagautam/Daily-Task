@@ -137,8 +137,8 @@ const NoteDetailPage = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-10 h-10 animate-spin text-indigo-500 mx-auto mb-4" />
-          <p className="text-gray-500">Loading your note...</p>
+          <Loader2 className="w-10 h-10 animate-spin text-slate-600 mx-auto mb-4" />
+          <p className="text-slate-500">Loading your note...</p>
         </div>
       </div>
     );
@@ -147,19 +147,19 @@ const NoteDetailPage = () => {
   return (
     <div className="min-h-screen bg-white" onKeyDown={handleKeyDown}>
       {/* Top Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
           {/* Left */}
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
           >
             <X className="w-5 h-5" />
             <span className="text-sm font-medium">Close</span>
           </button>
 
           {/* Center - Save Status */}
-          <div className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
             {saving ? (
               <>
                 <Loader2 className="w-3 h-3 animate-spin" />
@@ -199,19 +199,19 @@ const NoteDetailPage = () => {
             placeholder="Untitled"
             value={note.title}
             onChange={handleTitleChange}
-            className="w-full text-5xl font-bold text-gray-900 placeholder-gray-300 outline-none border-none bg-transparent mb-4"
+            className="w-full text-5xl font-bold text-slate-900 placeholder-slate-300 outline-none border-none bg-transparent mb-4"
             style={{ caretColor: '#6366f1' }}
           />
 
           {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-8" />
+          <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent mb-8" />
 
           {/* Content Textarea */}
           <textarea
             placeholder="Start writing..."
             value={note.content}
             onChange={handleContentChange}
-            className="w-full min-h-[60vh] text-lg text-gray-700 placeholder-gray-400 outline-none border-none bg-transparent resize-none leading-relaxed"
+            className="w-full min-h-[60vh] text-lg text-slate-700 placeholder-slate-400 outline-none border-none bg-transparent resize-none leading-relaxed"
             style={{
               caretColor: '#6366f1',
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'

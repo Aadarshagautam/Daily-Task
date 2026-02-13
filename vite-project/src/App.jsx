@@ -1,110 +1,117 @@
-import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 
-// Layout
+// Eager imports (needed immediately)
 import DashboardLayout from './components/DashboardLayout.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 
-// Auth (no layout)
-import Login from './Pages/Auth/Login.jsx'
-import EmailVerifty from './Pages/Auth/EmailVerifty.jsx'
-import ResetPassword from './Pages/Auth/ResetPassword.jsx'
+// Lazy-loaded pages
+const LandingPage = lazy(() => import('./Pages/LandingPage.jsx'))
+const Login = lazy(() => import('./Pages/Auth/Login.jsx'))
+const EmailVerify = lazy(() => import('./Pages/Auth/EmailVerifty.jsx'))
+const ResetPassword = lazy(() => import('./Pages/Auth/ResetPassword.jsx'))
+const CreatePages = lazy(() => import('./Pages/CreatePages.jsx'))
+const NoteDetailPage = lazy(() => import('./Pages/NoteDetailPage.jsx'))
+const Dashboard = lazy(() => import('./Pages/Dashboard.jsx'))
+const HomePages = lazy(() => import('./Pages/HomePages.jsx'))
+const TodoPage = lazy(() => import('./Pages/TodoPage.jsx'))
+const AccountingPage = lazy(() => import('./Pages/AccountingPage.jsx'))
+const InventoryPage = lazy(() => import('./Pages/InventoryPage.jsx'))
+const ReportsPage = lazy(() => import('./Pages/ReportsPage.jsx'))
+const PurchasePage = lazy(() => import('./Pages/PurchasePage.jsx'))
+const CustomersPage = lazy(() => import('./Pages/CustomersPage.jsx'))
+const InvoicesPage = lazy(() => import('./Pages/InvoicesPage.jsx'))
+const InvoiceFormPage = lazy(() => import('./Pages/InvoiceFormPage.jsx'))
+const InvoiceDetailPage = lazy(() => import('./Pages/InvoiceDetailPage.jsx'))
+const CRMPage = lazy(() => import('./Pages/CRMPage.jsx'))
+const LeadListPage = lazy(() => import('./Pages/crm/LeadListPage.jsx'))
+const LeadFormPage = lazy(() => import('./Pages/crm/LeadFormPage.jsx'))
+const LeadsKanbanPage = lazy(() => import('./Pages/crm/LeadsKanbanPage.jsx'))
+const AppSwitcher = lazy(() => import('./components/AppSwitcher.jsx'))
+const SettingsPage = lazy(() => import('./Pages/SettingsPage.jsx'))
+const POSDashboard = lazy(() => import('./features/pos/POSDashboard.jsx'))
+const ProductManagement = lazy(() => import('./features/pos/ProductManagement.jsx'))
+const CustomerManagement = lazy(() => import('./features/pos/CustomerManagement.jsx'))
+const BillingScreen = lazy(() => import('./features/pos/BillingScreen.jsx'))
+const SalesHistory = lazy(() => import('./features/pos/SalesHistory.jsx'))
+const PosInvoiceDetail = lazy(() => import('./features/pos/InvoiceDetail.jsx'))
 
-// Full-screen editors (no sidebar)
-import CreatePages from './Pages/CreatePages.jsx'
-import NoteDetailPage from './Pages/NoteDetailPage.jsx'
-
-// Pages rendered inside DashboardLayout
-import Dashboard from './Pages/Dashboard.jsx'
-import HomePages from './Pages/HomePages.jsx'
-import TodoPage from './Pages/TodoPage.jsx'
-import AccountingPage from './Pages/AccountingPage.jsx'
-import InventoryPage from './Pages/InventoryPage.jsx'
-import ReportsPage from './Pages/ReportsPage.jsx'
-import PurchasePage from './Pages/PurchasePage.jsx'
-import CustomersPage from './Pages/CustomersPage.jsx'
-import InvoicesPage from './Pages/InvoicesPage.jsx'
-import InvoiceFormPage from './Pages/InvoiceFormPage.jsx'
-import InvoiceDetailPage from './Pages/InvoiceDetailPage.jsx'
-import CRMPage from './Pages/CRMPage.jsx'
-import LeadListPage from './Pages/crm/LeadListPage.jsx'
-import LeadFormPage from './Pages/crm/LeadFormPage.jsx'
-import LeadsKanbanPage from './Pages/crm/LeadsKanbanPage.jsx'
-import AppSwitcher from './components/AppSwitcher.jsx'
-import SettingsPage from './Pages/SettingsPage.jsx'
-
-// POS Module
-import POSDashboard from './features/pos/POSDashboard.jsx'
-import ProductManagement from './features/pos/ProductManagement.jsx'
-import CustomerManagement from './features/pos/CustomerManagement.jsx'
-import BillingScreen from './features/pos/BillingScreen.jsx'
-import SalesHistory from './features/pos/SalesHistory.jsx'
-import PosInvoiceDetail from './features/pos/InvoiceDetail.jsx'
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-screen">
+    <div className="w-8 h-8 border-3 border-slate-200 border-t-slate-600 rounded-full animate-spin" />
+  </div>
+)
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Toaster position="top-right" />
-      <Routes>
-        {/* -- Auth pages (no layout) -- */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/email-verifty" element={<EmailVerifty />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Landing page */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* -- Full-screen editors (no sidebar) -- */}
-        <Route
-          path="/create"
-          element={
-            <ProtectedRoute>
-              <CreatePages />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notes/:id"
-          element={
-            <ProtectedRoute>
-              <NoteDetailPage />
-            </ProtectedRoute>
-          }
-        />
+          {/* Auth pages (no layout) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/email-verify" element={<EmailVerify />} />
+          <Route path="/email-verifty" element={<Navigate to="/email-verify" replace />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* -- All other pages: DashboardLayout provides Odoo sidebar + topbar -- */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/" element={<HomePages />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/todos" element={<TodoPage />} />
-          <Route path="/accounting" element={<AccountingPage />} />
-          <Route path="/inventory" element={<InventoryPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/purchases" element={<PurchasePage />} />
-          <Route path="/customers" element={<CustomersPage />} />
-          <Route path="/invoices" element={<InvoicesPage />} />
-          <Route path="/invoices/new" element={<InvoiceFormPage />} />
-          <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
-          <Route path="/invoices/:id/edit" element={<InvoiceFormPage />} />
-          <Route path="/crm" element={<CRMPage />} />
-          <Route path="/crm/leads" element={<LeadListPage />} />
-          <Route path="/crm/leads/new" element={<LeadFormPage />} />
-          <Route path="/crm/leads/:id/edit" element={<LeadFormPage />} />
-          <Route path="/crm/pipeline" element={<LeadsKanbanPage />} />
-          <Route path="/pos" element={<POSDashboard />} />
-          <Route path="/pos/products" element={<ProductManagement />} />
-          <Route path="/pos/customers" element={<CustomerManagement />} />
-          <Route path="/pos/billing" element={<BillingScreen />} />
-          <Route path="/pos/sales" element={<SalesHistory />} />
-          <Route path="/pos/sales/:id" element={<PosInvoiceDetail />} />
-          <Route path="/apps" element={<AppSwitcher />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Route>
-      </Routes>
+          {/* Full-screen editors (no sidebar) */}
+          <Route
+            path="/create"
+            element={
+              <ProtectedRoute>
+                <CreatePages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notes/:id"
+            element={
+              <ProtectedRoute>
+                <NoteDetailPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* All other pages: DashboardLayout provides sidebar + topbar */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/notes" element={<HomePages />} />
+            <Route path="/todos" element={<TodoPage />} />
+            <Route path="/accounting" element={<AccountingPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/purchases" element={<PurchasePage />} />
+            <Route path="/customers" element={<CustomersPage />} />
+            <Route path="/invoices" element={<InvoicesPage />} />
+            <Route path="/invoices/new" element={<InvoiceFormPage />} />
+            <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+            <Route path="/invoices/:id/edit" element={<InvoiceFormPage />} />
+            <Route path="/crm" element={<CRMPage />} />
+            <Route path="/crm/leads" element={<LeadListPage />} />
+            <Route path="/crm/leads/new" element={<LeadFormPage />} />
+            <Route path="/crm/leads/:id/edit" element={<LeadFormPage />} />
+            <Route path="/crm/pipeline" element={<LeadsKanbanPage />} />
+            <Route path="/pos" element={<POSDashboard />} />
+            <Route path="/pos/products" element={<ProductManagement />} />
+            <Route path="/pos/customers" element={<CustomerManagement />} />
+            <Route path="/pos/billing" element={<BillingScreen />} />
+            <Route path="/pos/sales" element={<SalesHistory />} />
+            <Route path="/pos/sales/:id" element={<PosInvoiceDetail />} />
+            <Route path="/apps" element={<AppSwitcher />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </div>
   )
 }

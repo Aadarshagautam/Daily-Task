@@ -87,11 +87,11 @@ const ResetPassword = () => {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="flex items-center justify-center min-h-screen px-4 bg-slate-50">
             {/* Back button */}
             <button
                 onClick={() => navigate('/login')}
-                className="absolute top-8 left-8 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                className="absolute top-8 left-8 flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
             >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="hidden sm:inline">Back to Login</span>
@@ -99,26 +99,26 @@ const ResetPassword = () => {
 
             {/* Step 1: Enter Email */}
             {!isEmailSent && (
-                <form onSubmit={onSubmitEmail} className='bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100'>
+                <form onSubmit={onSubmitEmail} className='bg-white p-8 rounded-2xl shadow-sm border border-slate-200 w-full max-w-md border border-slate-100'>
                     <div className="flex justify-center mb-6">
-                        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-4 rounded-full">
+                        <div className="bg-slate-900 p-4 rounded-full">
                             <Mail className="w-8 h-8 text-white" />
                         </div>
                     </div>
                     
-                    <h1 className='text-gray-900 text-3xl font-bold text-center mb-3'>Reset Password</h1>
-                    <p className='text-center mb-8 text-gray-600'>
+                    <h1 className='text-slate-900 text-3xl font-bold text-center mb-3'>Reset Password</h1>
+                    <p className='text-center mb-8 text-slate-600'>
                         Enter your registered email address and we'll send you a verification code
                     </p>
 
                     <div className='mb-6'>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
                         <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
                                 type="email"
                                 placeholder='Enter your email'
-                                className='w-full pl-11 pr-4 py-3 focus:ring-indigo-500 border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+                                className='w-full pl-11 pr-4 py-3 focus:ring-slate-400 border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all'
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 required
@@ -129,7 +129,7 @@ const ResetPassword = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className='w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
+                        className='w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
                     >
                         {loading ? 'Sending...' : 'Send Verification Code'}
                     </button>
@@ -138,16 +138,16 @@ const ResetPassword = () => {
 
             {/* Step 2: Enter OTP */}
             {!isOtpSubmitted && isEmailSent && (
-                <form onSubmit={onSubmitOtp} className='bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100'>
+                <form onSubmit={onSubmitOtp} className='bg-white p-8 rounded-2xl shadow-sm border border-slate-200 w-full max-w-md border border-slate-100'>
                     <div className="flex justify-center mb-6">
-                        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-4 rounded-full">
+                        <div className="bg-slate-900 p-4 rounded-full">
                             <Shield className="w-8 h-8 text-white" />
                         </div>
                     </div>
 
-                    <h1 className='text-gray-900 text-3xl font-bold text-center mb-3'>Enter Verification Code</h1>
-                    <p className='text-center mb-8 text-gray-600'>
-                        We've sent a 6-digit code to <span className="font-semibold text-indigo-600">{email}</span>
+                    <h1 className='text-slate-900 text-3xl font-bold text-center mb-3'>Enter Verification Code</h1>
+                    <p className='text-center mb-8 text-slate-600'>
+                        We've sent a 6-digit code to <span className="font-medium text-slate-600">{email}</span>
                     </p>
 
                     <div className='flex justify-center gap-2 mb-8' onPaste={handlePaste}>
@@ -157,7 +157,7 @@ const ResetPassword = () => {
                                 type="text"
                                 maxLength='1'
                                 required
-                                className='w-12 h-14 bg-gray-50 border-2 border-gray-300 text-gray-900 text-center text-xl font-semibold rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all'
+                                className='w-12 h-14 bg-slate-50 border-2 border-slate-300 text-slate-900 text-center text-xl font-semibold rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-slate-500 transition-all'
                                 ref={el => inputRef.current[index] = el}
                                 onInput={(e) => handleInput(e, index)}
                                 onKeyDown={(e) => handleKeyDown(e, index)}
@@ -167,7 +167,7 @@ const ResetPassword = () => {
 
                     <button
                         type="submit"
-                        className='w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300'
+                        className='w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg  transition-all duration-300'
                     >
                         Verify Code
                     </button>
@@ -175,7 +175,7 @@ const ResetPassword = () => {
                     <button
                         type="button"
                         onClick={() => setIsEmailSent(false)}
-                        className="w-full mt-4 text-indigo-600 hover:text-indigo-700 font-medium"
+                        className="w-full mt-4 text-slate-600 hover:text-slate-700 font-medium"
                     >
                         Change email address
                     </button>
@@ -184,39 +184,39 @@ const ResetPassword = () => {
 
             {/* Step 3: Enter New Password */}
             {isOtpSubmitted && isEmailSent && (
-                <form onSubmit={onSubmitNewPassword} className='bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100'>
+                <form onSubmit={onSubmitNewPassword} className='bg-white p-8 rounded-2xl shadow-sm border border-slate-200 w-full max-w-md border border-slate-100'>
                     <div className="flex justify-center mb-6">
-                        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-4 rounded-full">
+                        <div className="bg-slate-900 p-4 rounded-full">
                             <Lock className="w-8 h-8 text-white" />
                         </div>
                     </div>
 
-                    <h1 className='text-gray-900 text-3xl font-bold text-center mb-3'>Create New Password</h1>
-                    <p className='text-center mb-8 text-gray-600'>
+                    <h1 className='text-slate-900 text-3xl font-bold text-center mb-3'>Create New Password</h1>
+                    <p className='text-center mb-8 text-slate-600'>
                         Choose a strong password to secure your account
                     </p>
 
                     <div className='mb-6'>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">New Password</label>
                         <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
                                 type="password"
                                 placeholder='Enter new password'
-                                className='w-full pl-11 pr-4 py-3 text-gray-900  bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+                                className='w-full pl-11 pr-4 py-3 text-slate-900  bg-slate-50 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent transition-all'
                                 value={newPassword}
                                 onChange={e => setNewPassword(e.target.value)}
                                 required
                                 minLength={6}
                             />
                         </div>
-                        <p className="mt-2 text-xs text-gray-500">Must be at least 6 characters long</p>
+                        <p className="mt-2 text-xs text-slate-500">Must be at least 6 characters long</p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className='w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
+                        className='w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
                     >
                         {loading ? 'Resetting...' : 'Reset Password'}
                     </button>

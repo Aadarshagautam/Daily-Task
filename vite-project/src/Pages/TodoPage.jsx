@@ -117,7 +117,7 @@ const TodoPage = () => {
       case 'high': return 'text-red-600 bg-red-50 border-red-200'
       case 'medium': return 'text-amber-600 bg-amber-50 border-amber-200'
       case 'low': return 'text-green-600 bg-green-50 border-green-200'
-      default: return 'text-gray-600 bg-gray-50 border-gray-200'
+      default: return 'text-slate-600 bg-slate-50 border-slate-200'
     }
   }
 
@@ -125,55 +125,55 @@ const TodoPage = () => {
     return (
       <div className="ml-64 flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading tasks...</p>
+          <div className="w-16 h-16 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading tasks...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="ml-64 p-8 bg-gray-50 min-h-screen">
+    <div className="ml-64 p-8 bg-slate-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">To-Do List</h1>
-        <p className="text-gray-600">Stay organized and manage your tasks efficiently.</p>
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">To-Do List</h1>
+        <p className="text-slate-600">Stay organized and manage your tasks efficiently.</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <Check className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Total Tasks</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-sm text-slate-600">Total Tasks</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
               <Clock className="w-6 h-6 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Active</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
+              <p className="text-sm text-slate-600">Active</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.active}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <Check className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Completed</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
+              <p className="text-sm text-slate-600">Completed</p>
+              <p className="text-2xl font-bold text-slate-900">{stats.completed}</p>
             </div>
           </div>
         </div>
@@ -186,8 +186,8 @@ const TodoPage = () => {
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === 'all' 
-                ? 'bg-indigo-600 text-white' 
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                ? 'bg-slate-900 text-white' 
+                : 'bg-white text-slate-700 hover:bg-slate-50'
             }`}
           >
             All ({stats.total})
@@ -196,8 +196,8 @@ const TodoPage = () => {
             onClick={() => setFilter('active')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === 'active' 
-                ? 'bg-indigo-600 text-white' 
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                ? 'bg-slate-900 text-white' 
+                : 'bg-white text-slate-700 hover:bg-slate-50'
             }`}
           >
             Active ({stats.active})
@@ -206,8 +206,8 @@ const TodoPage = () => {
             onClick={() => setFilter('completed')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === 'completed' 
-                ? 'bg-indigo-600 text-white' 
-                : 'bg-white text-gray-700 hover:bg-gray-50'
+                ? 'bg-slate-900 text-white' 
+                : 'bg-white text-slate-700 hover:bg-slate-50'
             }`}
           >
             Completed ({stats.completed})
@@ -216,7 +216,7 @@ const TodoPage = () => {
 
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+          className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg transition-colors"
         >
           <Plus className="w-5 h-5" />
           Add Task
@@ -225,27 +225,27 @@ const TodoPage = () => {
 
       {/* Add Form */}
       {showAddForm && (
-        <div className="bg-white rounded-xl p-6 border border-gray-200 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Task</h3>
+        <div className="bg-white rounded-xl p-6 border border-slate-200 mb-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Create New Task</h3>
           <form onSubmit={handleCreateTodo} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Task Title *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Task Title *</label>
               <input
                 type="text"
                 value={newTodo.title}
                 onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                 placeholder="Enter task title"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
               <textarea
                 value={newTodo.description}
                 onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                 placeholder="Add details (optional)"
                 rows="3"
               />
@@ -253,11 +253,11 @@ const TodoPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Priority</label>
                 <select
                   value={newTodo.priority}
                   onChange={(e) => setNewTodo({ ...newTodo, priority: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -266,22 +266,22 @@ const TodoPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Due Date</label>
                 <input
                   type="date"
                   value={newTodo.dueDate}
                   onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Category</label>
                 <input
                   type="text"
                   value={newTodo.category}
                   onChange={(e) => setNewTodo({ ...newTodo, category: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
                   placeholder="e.g., Work, Personal"
                 />
               </div>
@@ -290,14 +290,14 @@ const TodoPage = () => {
             <div className="flex gap-3">
               <button
                 type="submit"
-                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition-colors"
               >
                 Create Task
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors"
+                className="px-6 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition-colors"
               >
                 Cancel
               </button>
@@ -308,10 +308,10 @@ const TodoPage = () => {
 
       {/* Todo List */}
       {filteredTodos.length === 0 ? (
-        <div className="bg-white rounded-xl p-12 text-center border border-gray-200">
-          <Check className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No tasks found</h3>
-          <p className="text-gray-600 mb-4">
+        <div className="bg-white rounded-xl p-12 text-center border border-slate-200">
+          <Check className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">No tasks found</h3>
+          <p className="text-slate-600 mb-4">
             {filter === 'completed' 
               ? 'No completed tasks yet. Keep working!' 
               : filter === 'active'
@@ -321,7 +321,7 @@ const TodoPage = () => {
           {filter === 'all' && (
             <button
               onClick={() => setShowAddForm(true)}
-              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+              className="px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-medium transition-colors"
             >
               Add Your First Task
             </button>
@@ -334,8 +334,8 @@ const TodoPage = () => {
               key={todo._id}
               className={`bg-white rounded-xl p-4 border transition-all ${
                 todo.completed 
-                  ? 'border-gray-200 opacity-60' 
-                  : 'border-gray-200 hover:shadow-md'
+                  ? 'border-slate-200 opacity-60' 
+                  : 'border-slate-200 hover:shadow-md'
               }`}
             >
               <div className="flex items-start gap-4">
@@ -344,8 +344,8 @@ const TodoPage = () => {
                   onClick={() => handleToggleTodo(todo._id)}
                   className={`mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors ${
                     todo.completed
-                      ? 'bg-green-500 border-green-500'
-                      : 'border-gray-300 hover:border-green-500'
+                      ? 'bg-slate-500 border-slate-500'
+                      : 'border-slate-300 hover:border-slate-500'
                   }`}
                 >
                   {todo.completed && <Check className="w-4 h-4 text-white" />}
@@ -353,11 +353,11 @@ const TodoPage = () => {
 
                 {/* Content */}
                 <div className="flex-1">
-                  <h3 className={`text-lg font-semibold mb-1 ${todo.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                  <h3 className={`text-lg font-semibold mb-1 ${todo.completed ? 'line-through text-slate-500' : 'text-slate-900'}`}>
                     {todo.title}
                   </h3>
                   {todo.description && (
-                    <p className="text-sm text-gray-600 mb-2">{todo.description}</p>
+                    <p className="text-sm text-slate-600 mb-2">{todo.description}</p>
                   )}
                   
                   <div className="flex flex-wrap items-center gap-2">
@@ -368,7 +368,7 @@ const TodoPage = () => {
                     </span>
 
                     {/* Category Badge */}
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-600 border border-indigo-200">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
                       {todo.category}
                     </span>
 
@@ -385,7 +385,7 @@ const TodoPage = () => {
                 {/* Delete Button */}
                 <button
                   onClick={() => handleDeleteTodo(todo._id)}
-                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>

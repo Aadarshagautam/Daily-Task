@@ -260,7 +260,7 @@ const AccountingPage = () => {
       <div className="lg:ml-64 flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-700">Loading your finances...</p>
+          <p className="text-lg font-medium text-slate-700">Loading your finances...</p>
         </div>
       </div>
     )
@@ -479,17 +479,17 @@ const AccountingPage = () => {
         {(showAddForm || editingId) && (
           <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-xl font-bold text-slate-900">
                 {editingId ? 'Edit Transaction' : 'New Transaction'}
               </h3>
-              <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
+              <button onClick={resetForm} className="text-slate-400 hover:text-slate-600">
                 <X className="w-6 h-6" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-3">
+                <label className="block text-sm font-bold text-slate-700 mb-3">
                   Type *
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -522,7 +522,7 @@ const AccountingPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Category *</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Category *</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -537,7 +537,7 @@ const AccountingPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Amount (\u20B9) *</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Amount (\u20B9) *</label>
                   <input
                     type="number"
                     value={formData.amount}
@@ -550,7 +550,7 @@ const AccountingPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Description *</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Description *</label>
                   <input
                     type="text"
                     value={formData.description}
@@ -562,7 +562,7 @@ const AccountingPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Date *</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Date *</label>
                   <input
                     type="date"
                     value={formData.date}
@@ -573,7 +573,7 @@ const AccountingPage = () => {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Payment Method</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">Payment Method</label>
                   <div className="grid grid-cols-4 gap-3">
                     {['cash', 'card', 'bank_transfer', 'other'].map(method => (
                       <button
@@ -800,7 +800,7 @@ const AccountingPage = () => {
   }
 
   return (
-    <div className="lg:ml-64 min-h-screen bg-gradient-to-b from-slate-50 via-slate-50 to-slate-100">
+    <div className="lg:ml-64 min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-6 py-4">

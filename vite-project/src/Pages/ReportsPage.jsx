@@ -125,15 +125,15 @@ const ReportsPage = () => {
   }
 
   const StatCard = ({ icon: Icon, label, value, subValue, color, bgColor }) => (
-    <div className="bg-white rounded-xl p-6 border border-gray-200">
+    <div className="bg-white rounded-xl p-6 border border-slate-200">
       <div className="flex items-start justify-between mb-4">
         <div className={`w-12 h-12 ${bgColor} rounded-lg flex items-center justify-center`}>
           <Icon className={`w-6 h-6 ${color}`} />
         </div>
       </div>
-      <p className="text-sm text-gray-600 mb-1">{label}</p>
-      <h3 className="text-3xl font-bold text-gray-900 mb-1">{value}</h3>
-      {subValue && <p className="text-sm text-gray-500">{subValue}</p>}
+      <p className="text-sm text-slate-600 mb-1">{label}</p>
+      <h3 className="text-3xl font-bold text-slate-900 mb-1">{value}</h3>
+      {subValue && <p className="text-sm text-slate-500">{subValue}</p>}
     </div>
   )
 
@@ -142,11 +142,11 @@ const ReportsPage = () => {
     const sortedData = Object.entries(data || {}).sort((a, b) => b[1] - a[1])
 
     return (
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+      <div className="bg-white rounded-xl p-6 border border-slate-200">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">{title}</h3>
         {sortedData.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <PieChart className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+          <div className="text-center py-8 text-slate-500">
+            <PieChart className="w-12 h-12 text-slate-300 mx-auto mb-2" />
             <p>No data available</p>
           </div>
         ) : (
@@ -156,18 +156,18 @@ const ReportsPage = () => {
               return (
                 <div key={category}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700">{category}</span>
+                    <span className="text-sm font-medium text-slate-700">{category}</span>
                     <span className={`text-sm font-semibold ${type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
                       {'\u20B9'}{amount.toLocaleString()}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-slate-200 rounded-full h-2">
                     <div 
                       className={`h-2 rounded-full ${type === 'income' ? 'bg-green-500' : 'bg-red-500'}`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">{percentage}% of total</p>
+                  <p className="text-xs text-slate-500 mt-1">{percentage}% of total</p>
                 </div>
               )
             })}
@@ -198,24 +198,24 @@ const ReportsPage = () => {
       <div className="ml-64 flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-pink-200 border-t-pink-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Generating reports...</p>
+          <p className="text-slate-600">Generating reports...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="ml-64 p-8 bg-gray-50 min-h-screen">
+    <div className="ml-64 p-8 bg-slate-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Business Reports</h1>
-            <p className="text-gray-600">Comprehensive insights into your business performance.</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Business Reports</h1>
+            <p className="text-slate-600">Comprehensive insights into your business performance.</p>
           </div>
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors"
+            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg transition-colors"
           >
             <Download className="w-5 h-5" />
             Export Report
@@ -224,26 +224,26 @@ const ReportsPage = () => {
       </div>
 
       {/* Date Range Selector */}
-      <div className="bg-white rounded-xl p-6 border border-gray-200 mb-8">
+      <div className="bg-white rounded-xl p-6 border border-slate-200 mb-8">
         <div className="flex items-center gap-4">
-          <Calendar className="w-5 h-5 text-gray-400" />
+          <Calendar className="w-5 h-5 text-slate-400" />
           <div className="flex items-center gap-4 flex-1">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Start Date</label>
               <input
                 type="date"
                 value={dateRange.startDate}
                 onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
               />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">End Date</label>
               <input
                 type="date"
                 value={dateRange.endDate}
                 onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:border-transparent"
               />
             </div>
           </div>
@@ -252,7 +252,7 @@ const ReportsPage = () => {
 
       {/* Financial Overview */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Financial Overview</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">Financial Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard
             icon={TrendingUp}
@@ -273,15 +273,15 @@ const ReportsPage = () => {
             label="Net Profit/Loss"
             value={`\u20B9${reportData.summary.balance.toLocaleString()}`}
             subValue={`${reportData.summary.balance >= 0 ? 'Profit' : 'Loss'}`}
-            color={reportData.summary.balance >= 0 ? 'text-indigo-600' : 'text-red-600'}
-            bgColor={reportData.summary.balance >= 0 ? 'bg-indigo-100' : 'bg-red-100'}
+            color={reportData.summary.balance >= 0 ? 'text-slate-600' : 'text-red-600'}
+            bgColor={reportData.summary.balance >= 0 ? 'bg-slate-100' : 'bg-red-100'}
           />
         </div>
       </div>
 
       {/* Category Breakdown */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Category Breakdown</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">Category Breakdown</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CategoryBreakdown
             title="Income by Category"
@@ -298,7 +298,7 @@ const ReportsPage = () => {
 
       {/* Inventory Overview */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Inventory Overview</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">Inventory Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatCard
             icon={Package}
@@ -333,14 +333,14 @@ const ReportsPage = () => {
 
       {/* Productivity Overview */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Productivity Overview</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">Productivity Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatCard
             icon={BarChart3}
             label="Total Tasks"
             value={todoStats.total}
-            color="text-indigo-600"
-            bgColor="bg-indigo-100"
+            color="text-slate-600"
+            bgColor="bg-slate-100"
           />
           <StatCard
             icon={TrendingUp}
@@ -368,29 +368,29 @@ const ReportsPage = () => {
 
       {/* Recent Transactions Summary */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Transactions</h2>
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">Recent Transactions</h2>
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
           {reportData.transactions.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+            <div className="text-center py-12 text-slate-500">
+              <BarChart3 className="w-12 h-12 text-slate-300 mx-auto mb-2" />
               <p>No transactions in selected date range</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Category</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Description</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-200">
                   {reportData.transactions.slice(0, 10).map((transaction) => (
-                    <tr key={transaction._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <tr key={transaction._id} className="hover:bg-slate-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                         {new Date(transaction.date).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -403,8 +403,8 @@ const ReportsPage = () => {
                           {transaction.type}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{transaction.category}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{transaction.description}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{transaction.category}</td>
+                      <td className="px-6 py-4 text-sm text-slate-900">{transaction.description}</td>
                       <td className={`px-6 py-4 whitespace-nowrap text-sm font-semibold text-right ${
                         transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                       }`}>
