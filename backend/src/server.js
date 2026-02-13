@@ -19,7 +19,6 @@ import inventoryRouter from "./modules/inventory/routes.js";
 import customerRouter from "./modules/customers/routes.js";
 import invoiceRouter from "./modules/invoices/routes.js";
 import crmRouter from "./modules/crm/routes.js";
-import leadsRouter from "./modules/leads/routes.js";
 import posRouter from "./modules/pos/routes.js";
 
 import { ConnectDB } from "./core/config/db.js";
@@ -94,7 +93,6 @@ app.use("/api/inventory", inventoryRouter);
 app.use("/api/customers", customerRouter);
 app.use("/api/invoices", invoiceRouter);
 app.use("/api/crm", crmRouter);
-app.use("/api/leads", leadsRouter);
 app.use("/api/pos", posRouter);
 
 // Health check

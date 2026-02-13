@@ -60,15 +60,15 @@ const CompanyTab = () => {
 
   useEffect(() => {
     axios.get(`${backendUrl}/api/org`).then(({ data }) => {
-      if (data.success && data.org) {
+      if (data.success && data.data) {
         setForm({
-          name: data.org.name || '',
-          phone: data.org.phone || '',
-          email: data.org.email || '',
-          gstin: data.org.gstin || '',
-          currency: data.org.currency || 'INR',
-          invoicePrefix: data.org.invoicePrefix || 'INV',
-          financialYearStart: data.org.financialYearStart || 'April',
+          name: data.data.name || '',
+          phone: data.data.phone || '',
+          email: data.data.email || '',
+          gstin: data.data.gstin || '',
+          currency: data.data.currency || 'INR',
+          invoicePrefix: data.data.invoicePrefix || 'INV',
+          financialYearStart: data.data.financialYearStart || 'April',
         })
       }
     }).catch(() => {})
@@ -143,7 +143,7 @@ const TeamTab = () => {
 
   useEffect(() => {
     axios.get(`${backendUrl}/api/org/members`).then(({ data }) => {
-      if (data.success) setMembers(data.members)
+      if (data.success) setMembers(data.data || [])
     }).catch(() => {}).finally(() => setLoading(false))
   }, [])
 

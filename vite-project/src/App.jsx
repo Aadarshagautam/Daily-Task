@@ -19,15 +19,11 @@ const TodoPage = lazy(() => import('./Pages/TodoPage.jsx'))
 const AccountingPage = lazy(() => import('./Pages/AccountingPage.jsx'))
 const InventoryPage = lazy(() => import('./Pages/InventoryPage.jsx'))
 const ReportsPage = lazy(() => import('./Pages/ReportsPage.jsx'))
-const PurchasePage = lazy(() => import('./Pages/PurchasePage.jsx'))
 const CustomersPage = lazy(() => import('./Pages/CustomersPage.jsx'))
 const InvoicesPage = lazy(() => import('./Pages/InvoicesPage.jsx'))
 const InvoiceFormPage = lazy(() => import('./Pages/InvoiceFormPage.jsx'))
 const InvoiceDetailPage = lazy(() => import('./Pages/InvoiceDetailPage.jsx'))
 const CRMPage = lazy(() => import('./Pages/CRMPage.jsx'))
-const LeadListPage = lazy(() => import('./Pages/crm/LeadListPage.jsx'))
-const LeadFormPage = lazy(() => import('./Pages/crm/LeadFormPage.jsx'))
-const LeadsKanbanPage = lazy(() => import('./Pages/crm/LeadsKanbanPage.jsx'))
 const AppSwitcher = lazy(() => import('./components/AppSwitcher.jsx'))
 const SettingsPage = lazy(() => import('./Pages/SettingsPage.jsx'))
 const POSDashboard = lazy(() => import('./features/pos/POSDashboard.jsx'))
@@ -90,17 +86,12 @@ const App = () => {
             <Route path="/accounting" element={<AccountingPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/purchases" element={<PurchasePage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/invoices" element={<InvoicesPage />} />
             <Route path="/invoices/new" element={<InvoiceFormPage />} />
             <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
             <Route path="/invoices/:id/edit" element={<InvoiceFormPage />} />
             <Route path="/crm" element={<CRMPage />} />
-            <Route path="/crm/leads" element={<LeadListPage />} />
-            <Route path="/crm/leads/new" element={<LeadFormPage />} />
-            <Route path="/crm/leads/:id/edit" element={<LeadFormPage />} />
-            <Route path="/crm/pipeline" element={<LeadsKanbanPage />} />
             <Route path="/pos" element={<POSDashboard />} />
             <Route path="/pos/products" element={<ProductManagement />} />
             <Route path="/pos/customers" element={<CustomerManagement />} />

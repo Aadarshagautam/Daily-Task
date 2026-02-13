@@ -37,7 +37,7 @@ const CRMPage = () => {
   const fetchLeads = async () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/crm`)
-      setLeads(Array.isArray(data) ? data : [])
+      setLeads(Array.isArray(data?.data) ? data.data : [])
     } catch (err) {
       toast.error('Failed to fetch leads')
     } finally {
@@ -48,7 +48,7 @@ const CRMPage = () => {
   const fetchStats = async () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/crm/stats`)
-      setStats(data)
+      setStats(data?.data || null)
     } catch (err) { /* silent */ }
   }
 

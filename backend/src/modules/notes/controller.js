@@ -19,6 +19,25 @@ export const getAllNotes = async (req, res) => {
   }
 };
 
+// Get a single note by id
+export const getNoteById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+    const ownerFilter = req.orgId ? { orgId: req.orgId } : { userId };
+
+    const note = await NoteModel.findOne({ _id: id, ...ownerFilter }).lean();
+    if (!note) {
+      return sendError(res, { status: 404, message: "Note not found" });
+    }
+
+    return sendSuccess(res, { data: note });
+  } catch (error) {
+    console.error("Error fetching note:", error);
+    return sendError(res, { status: 500, message: "Failed to fetch note" });
+  }
+};
+
 // Add new note
 export const addNote = async (req, res) => {
   try {

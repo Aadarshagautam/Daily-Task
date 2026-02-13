@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import {
   LayoutDashboard, StickyNote, CheckSquare, DollarSign, Package,
-  TrendingUp, ShoppingCart, Users, FileText, Kanban, Settings
+  TrendingUp, Users, FileText, Kanban, Settings
 } from 'lucide-react'
 
 const modules = [
@@ -15,7 +15,6 @@ const modules = [
   { icon: FileText, name: 'Invoicing', description: 'Create & send invoices', path: '/invoices', permission: 'invoices.read' },
   { icon: Users, name: 'Customers', description: 'Contact database', path: '/customers', permission: 'customers.read' },
   { icon: Kanban, name: 'CRM', description: 'Pipeline & leads', path: '/crm', permission: 'crm.read' },
-  { icon: ShoppingCart, name: 'Purchases', description: 'Purchase orders', path: '/purchases', permission: 'purchases.read' },
   { icon: TrendingUp, name: 'Reports', description: 'Business insights', path: '/reports', permission: 'reports.read' },
   { icon: Settings, name: 'Settings', description: 'Company & team', path: '/settings', permission: 'settings.read' },
 ]

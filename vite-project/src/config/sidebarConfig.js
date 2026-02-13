@@ -1,7 +1,5 @@
 import {
   Kanban,
-  List,
-  Columns3,
   Package,
   Users,
   FileText,
@@ -36,8 +34,6 @@ export const apps = [
     pathPrefixes: ['/crm'],
     menu: [
       { label: 'Pipeline', path: '/crm', icon: Kanban, exact: true },
-      { label: 'Leads', path: '/crm/leads', icon: List },
-      { label: 'Pipeline Board', path: '/crm/pipeline', icon: Columns3 },
     ],
   },
   {
@@ -84,11 +80,10 @@ export const apps = [
     icon: DollarSign,
     accent: 'emerald',
     basePath: '/accounting',
-    pathPrefixes: ['/accounting', '/reports', '/purchases'],
+    pathPrefixes: ['/accounting', '/reports'],
     menu: [
       { label: 'Transactions', path: '/accounting', icon: DollarSign },
       { label: 'Reports', path: '/reports', icon: TrendingUp },
-      { label: 'Purchases', path: '/purchases', icon: ShoppingCart },
     ],
   },
   {

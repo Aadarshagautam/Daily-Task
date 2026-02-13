@@ -112,12 +112,48 @@ async function seed() {
 
   // 6. Customers
   const customers = [
-    { name: "Priya Electronics", email: "priya@electronics.in", phone: "+91 98765 00001", company: "Priya Electronics Pvt Ltd", address: "45 SP Road, Bangalore" },
-    { name: "Sharma Textiles", email: "info@sharmatextiles.com", phone: "+91 98765 00002", company: "Sharma Textiles", address: "12 Gandhi Nagar, Delhi" },
-    { name: "Green Valley Farms", email: "contact@greenvalley.in", phone: "+91 98765 00003", company: "Green Valley Organics", address: "78 Farm Road, Pune" },
-    { name: "TechFlow Solutions", email: "hello@techflow.io", phone: "+91 98765 00004", company: "TechFlow Solutions", address: "Tower B, Cyber City, Gurugram" },
-    { name: "Coastal Traders", email: "sales@coastaltraders.com", phone: "+91 98765 00005", company: "Coastal Traders", address: "Marina Beach Road, Chennai" },
-    { name: "Mountain Brew Coffee", email: "orders@mountainbrew.in", phone: "+91 98765 00006", company: "Mountain Brew", address: "15 Mall Road, Shimla" },
+    {
+      name: "Priya Electronics",
+      email: "priya@electronics.in",
+      phone: "+91 98765 00001",
+      company: "Priya Electronics Pvt Ltd",
+      address: { street: "45 SP Road", city: "Bangalore", state: "Karnataka", pincode: "560001", country: "India" },
+    },
+    {
+      name: "Sharma Textiles",
+      email: "info@sharmatextiles.com",
+      phone: "+91 98765 00002",
+      company: "Sharma Textiles",
+      address: { street: "12 Gandhi Nagar", city: "Delhi", state: "Delhi", pincode: "110001", country: "India" },
+    },
+    {
+      name: "Green Valley Farms",
+      email: "contact@greenvalley.in",
+      phone: "+91 98765 00003",
+      company: "Green Valley Organics",
+      address: { street: "78 Farm Road", city: "Pune", state: "Maharashtra", pincode: "411001", country: "India" },
+    },
+    {
+      name: "TechFlow Solutions",
+      email: "hello@techflow.io",
+      phone: "+91 98765 00004",
+      company: "TechFlow Solutions",
+      address: { street: "Tower B, Cyber City", city: "Gurugram", state: "Haryana", pincode: "122001", country: "India" },
+    },
+    {
+      name: "Coastal Traders",
+      email: "sales@coastaltraders.com",
+      phone: "+91 98765 00005",
+      company: "Coastal Traders",
+      address: { street: "Marina Beach Road", city: "Chennai", state: "Tamil Nadu", pincode: "600001", country: "India" },
+    },
+    {
+      name: "Mountain Brew Coffee",
+      email: "orders@mountainbrew.in",
+      phone: "+91 98765 00006",
+      company: "Mountain Brew",
+      address: { street: "15 Mall Road", city: "Shimla", state: "Himachal Pradesh", pincode: "171001", country: "India" },
+    },
   ];
   await CustomerModel.deleteMany({ userId: uid, orgId: oid });
   const insertedCustomers = await CustomerModel.insertMany(customers.map((c) => ({ ...c, userId: uid, orgId: oid })));
