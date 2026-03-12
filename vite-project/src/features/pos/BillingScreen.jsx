@@ -288,9 +288,17 @@ export default function BillingScreen() {
   const availableTables = (tablesData?.data || []).filter((t) => t.status === "available" || t.status === "reserved");
 
   useEffect(() => {
-    if (!selectedCustomer && walkInCustomer) {
-      setSelectedCustomer(walkInCustomer);
+    if (selectedCustomer || !walkInCustomer) {
+      return undefined;
     }
+
+    const timeoutId = window.setTimeout(() => {
+      setSelectedCustomer((currentCustomer) => currentCustomer ?? walkInCustomer);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [selectedCustomer, walkInCustomer]);
 
   const resetBill = (nextCustomer = walkInCustomer || null) => {
