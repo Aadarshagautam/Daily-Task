@@ -41,28 +41,28 @@ const AppSwitcher = () => {
   return (
     <WorkspacePage>
       <PageHeader
-        eyebrow="Module Launcher"
+        eyebrow="More Tools"
         title={currentOrgName || 'My Business'}
         description={businessMeta.launcherDescription}
         badges={[businessMeta.productName, 'Nepal-ready operations', 'Low-training layout']}
         actions={
           <Link to="/dashboard" className="btn-secondary">
-            Back to command center
+            Back to dashboard
           </Link>
         }
       />
 
       <div className="grid gap-6 xl:grid-cols-[1.45fr,0.9fr]">
         <SectionCard
-          eyebrow="Primary Modules"
-          title="Daily work should stay inside a few obvious modules."
-          description="Open the area that matches how this business runs today. Keep billing, stock, finance, and support tools separated so staff need less training."
+          eyebrow="Main Business Menus"
+          title="Keep daily work inside a few clear menus."
+          description="Open the part of the software that matches how this business runs today. Keep billing, stock, expenses, and reports easy to find so staff need less training."
         >
           {visibleModules.length === 0 ? (
             <EmptyCard
               icon={LayoutDashboard}
-              title="No work areas available"
-              message="This user does not have access to any modules yet. Update workspace permissions first."
+              title="No menus available"
+              message="This user does not have access to any business menus yet. Update role permissions first."
             />
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -90,7 +90,7 @@ const AppSwitcher = () => {
                     </div>
                     <div className="mt-5 flex items-center justify-between gap-4">
                       <Link to={module.basePath} className="btn-primary">
-                        Open {module.name}
+                        Open menu
                       </Link>
                       <ArrowRight className="h-4 w-4 text-slate-400 transition group-hover:translate-x-0.5" />
                     </div>
@@ -103,9 +103,9 @@ const AppSwitcher = () => {
 
         <aside className="erp-stack">
           <SectionCard
-            eyebrow="Active Package"
-            title="The software package running on this workspace."
-            description="Keep the product setup aligned with the business you are operating today."
+            eyebrow="Business Type"
+            title="Current business software setup."
+            description="Keep the menu and screens aligned with the type of business you run today."
           >
             <div className={`rounded-3xl border p-5 ${softwareTone[businessType] || softwareTone.general}`}>
               <div className="flex items-center gap-4">
@@ -120,7 +120,7 @@ const AppSwitcher = () => {
             </div>
             <div className="mt-4 grid gap-3">
               <Link to="/settings" className="btn-secondary justify-between">
-                <span>Change business package</span>
+                <span>Change business type</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               {showSettings && (
@@ -132,7 +132,7 @@ const AppSwitcher = () => {
             </div>
             {businessType === 'general' && (
               <div className="erp-subtle mt-4 text-sm leading-6 text-stone-700">
-                Legacy Workspace is only kept for older accounts. Restaurant, Cafe, or Shop gives a cleaner Nepal-first workflow.
+                General Business is only kept for older accounts. Restaurant, Cafe, or Shop gives a cleaner Nepal-first menu.
               </div>
             )}
           </SectionCard>
@@ -141,7 +141,7 @@ const AppSwitcher = () => {
             <SectionCard
               eyebrow="Support Tools"
               title="Keep notes and tasks close, but out of the main sales path."
-              description="These tools help the team without getting in the way of sales or stock work."
+              description="These tools help the team without getting in the way of billing, stock, or customer work."
             >
               <div className="space-y-4">
                 {visibleTools.map(tool => {

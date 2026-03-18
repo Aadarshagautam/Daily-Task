@@ -18,6 +18,7 @@ const shiftSchema = new mongoose.Schema(
     salesByMethod: {
       cash: { type: Number, default: 0 },
       card: { type: Number, default: 0 },
+      bank_transfer: { type: Number, default: 0 },
       esewa: { type: Number, default: 0 },
       khalti: { type: Number, default: 0 },
       credit: { type: Number, default: 0 },

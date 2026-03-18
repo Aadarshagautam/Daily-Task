@@ -3,74 +3,42 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Bell,
   Building2,
-  ChevronRight,
   LayoutGrid,
   LogOut,
   Mail,
   Menu,
   Receipt,
   ShoppingCart,
+  Table2,
   User,
   X,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import AppContext from '../context/app-context.js'
-import { getActiveAppForBusiness, getAppsForBusiness, getBusinessMeta, isMenuItemActive } from '../config/businessConfigs'
+import {
+  getActiveAppForBusiness,
+  getAppsForBusiness,
+  getBusinessMeta,
+  getSidebarSectionsForBusiness,
+  isMenuItemActive,
+} from '../config/businessConfigs'
 import { getRoleMeta } from '../config/roleMeta.js'
 import api from '../lib/api.js'
 
-const accentClasses = {
-  amber: {
-    icon: 'bg-amber-300/15 text-amber-100',
-    active: 'border-amber-300/10 bg-amber-300/10',
-    accent: 'text-amber-100',
-  },
-  teal: {
-    icon: 'bg-emerald-300/15 text-emerald-100',
-    active: 'border-emerald-300/10 bg-emerald-300/10',
-    accent: 'text-emerald-100',
-  },
-  blue: {
-    icon: 'bg-sky-300/15 text-sky-100',
-    active: 'border-sky-300/10 bg-sky-300/10',
-    accent: 'text-sky-100',
-  },
-  rose: {
-    icon: 'bg-rose-300/15 text-rose-100',
-    active: 'border-rose-300/10 bg-rose-300/10',
-    accent: 'text-rose-100',
-  },
-  orange: {
-    icon: 'bg-orange-300/15 text-orange-100',
-    active: 'border-orange-300/10 bg-orange-300/10',
-    accent: 'text-orange-100',
-  },
-  emerald: {
-    icon: 'bg-emerald-300/15 text-emerald-100',
-    active: 'border-emerald-300/10 bg-emerald-300/10',
-    accent: 'text-emerald-100',
-  },
-  slate: {
-    icon: 'bg-white/10 text-white',
-    active: 'border-white/10 bg-white/8',
-    accent: 'text-white',
-  },
-}
-
 const getPrimaryActionForBusiness = (businessType) => {
   if (businessType === 'shop') {
-    return { label: 'Start billing', path: '/pos/billing', icon: ShoppingCart }
+    return { label: 'New sale', path: '/pos/billing', icon: ShoppingCart }
   }
 
   if (businessType === 'restaurant') {
-    return { label: 'Open service', path: '/pos/billing', icon: ShoppingCart }
+    return { label: 'Open tables', path: '/pos/tables', icon: Table2 }
   }
 
   if (businessType === 'cafe') {
-    return { label: 'Open counter', path: '/pos/billing', icon: ShoppingCart }
+    return { label: 'New order', path: '/pos/billing', icon: ShoppingCart }
   }
 
-  return { label: 'Open command center', path: '/dashboard', icon: Receipt }
+  return { label: 'Open dashboard', path: '/dashboard', icon: Receipt }
 }
 
 const DashboardLayout = () => {
@@ -82,7 +50,6 @@ const DashboardLayout = () => {
   return (
     <>
       <Sidebar
-        activeApp={activeApp}
         pathname={location.pathname}
         isOpen={sidebarOpen}
         closeSidebar={() => setSidebarOpen(false)}
@@ -158,7 +125,7 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-900">CommerceOS</p>
-              <p className="text-xs text-slate-500">Nepal business suite</p>
+              <p className="text-xs text-slate-500">Nepal business software</p>
             </div>
           </Link>
 
@@ -196,10 +163,10 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
               <Link
                 to="/apps"
                 className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-                title="Open work areas"
+                title="Open more tools"
               >
                 <LayoutGrid className="h-5 w-5" />
-                <span className="hidden md:inline">Modules</span>
+                <span className="hidden md:inline">More tools</span>
               </Link>
 
               <button className="relative rounded-2xl border border-slate-200 bg-white p-2 text-slate-600 transition hover:bg-slate-50">
@@ -218,7 +185,7 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
                   <div className="hidden min-w-0 text-left md:block">
                     <p className="max-w-[8rem] truncate text-sm font-medium text-slate-900">{userData?.username || 'User'}</p>
                     <p className="max-w-[8rem] truncate text-xs text-slate-500">
-                      {roleMeta.label} · {currentOrgName || 'Workspace'}
+                      {roleMeta.label} · {currentOrgName || 'Business'}
                     </p>
                   </div>
                 </button>
@@ -281,26 +248,27 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
   )
 }
 
-const Sidebar = ({ activeApp, pathname, isOpen, closeSidebar, businessType }) => {
+const Sidebar = ({ pathname, isOpen, closeSidebar, businessType }) => {
   const navigate = useNavigate()
   const { hasPermission, userRole } = useContext(AppContext)
   const apps = getAppsForBusiness(businessType)
   const businessMeta = getBusinessMeta(businessType)
+  const sidebarSections = getSidebarSectionsForBusiness(businessType)
   const roleMeta = getRoleMeta(userRole)
   const primaryAction = getPrimaryActionForBusiness(businessType)
   const PrimaryActionIcon = primaryAction.icon
 
-  const visibleApps = apps.filter(app => app.id !== 'settings').filter(app => !app.permission || hasPermission(app.permission))
   const settingsApp = apps.find(app => app.id === 'settings')
   const SettingsIcon = settingsApp?.icon
   const showSettings = settingsApp && (!settingsApp.permission || hasPermission(settingsApp.permission))
+  const visibleSections = sidebarSections
+    .map(section => ({
+      ...section,
+      items: section.items.filter(item => !item.permission || hasPermission(item.permission)),
+    }))
+    .filter(section => section.items.length > 0)
 
-  const handleAppClick = app => {
-    navigate(app.basePath)
-    closeSidebar()
-  }
-
-  const handleMenuClick = path => {
+  const handleMenuClick = (path) => {
     navigate(path)
     closeSidebar()
   }
@@ -319,7 +287,7 @@ const Sidebar = ({ activeApp, pathname, isOpen, closeSidebar, businessType }) =>
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-white">CommerceOS</p>
-              <p className="truncate text-xs text-white/55">Simple ERP for Nepal businesses</p>
+              <p className="truncate text-xs text-white/55">Nepal business software</p>
             </div>
           </Link>
         </div>
@@ -345,75 +313,57 @@ const Sidebar = ({ activeApp, pathname, isOpen, closeSidebar, businessType }) =>
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <div className="erp-sidebar-section">Modules</div>
-          <div className="mt-3 space-y-1.5">
-            {visibleApps.map(app => {
-              const Icon = app.icon
-              const accent = accentClasses[app.accent] || accentClasses.slate
-              const visibleMenu = app.menu.filter(item => !item.permission || hasPermission(item.permission))
-              const isActive = activeApp?.id === app.id
+          {visibleSections.map(section => (
+            <div key={section.title} className="mb-5">
+              <div className="erp-sidebar-section">{section.title}</div>
+              <div className="mt-3 space-y-1.5">
+                {section.items.map(item => {
+                  const ItemIcon = item.icon
+                  const isActive = isMenuItemActive(item, pathname)
 
-              return (
-                <div key={app.id}>
-                  <button
-                    onClick={() => handleAppClick(app)}
-                    className={`erp-sidebar-item ${isActive ? `erp-sidebar-item-active ${accent.active}` : ''}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${isActive ? accent.icon : 'bg-white/8 text-white/72'}`}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className={`text-sm font-semibold ${isActive ? accent.accent : 'text-white'}`}>{app.name}</p>
-                          {visibleMenu.length > 1 ? (
-                            <ChevronRight className={`ml-auto h-4 w-4 transition ${isActive ? 'rotate-90 text-white/55' : 'text-white/35'}`} />
-                          ) : null}
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => handleMenuClick(item.path)}
+                      className={`erp-sidebar-item ${isActive ? 'erp-sidebar-item-active border-white/10 bg-white/10' : ''}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
+                            isActive ? 'bg-white text-slate-900' : 'bg-white/8 text-white/80'
+                          }`}
+                        >
+                          <ItemIcon className="h-5 w-5" />
                         </div>
-                        <p className="mt-1 text-xs leading-5 text-white/58">{app.description}</p>
+                        <span className={`truncate text-sm font-semibold ${isActive ? 'text-white' : 'text-white/88'}`}>
+                          {item.label}
+                        </span>
                       </div>
-                    </div>
-                  </button>
-
-                  {isActive && visibleMenu.length > 0 ? (
-                    <div className="mt-1 space-y-1 pl-14 pr-1">
-                      {visibleMenu.map(item => {
-                        const ItemIcon = item.icon
-                        const menuActive = isMenuItemActive(item, pathname)
-
-                        return (
-                          <button
-                            key={item.path}
-                            onClick={() => handleMenuClick(item.path)}
-                            className={`erp-sidebar-subitem ${menuActive ? 'erp-sidebar-subitem-active' : ''}`}
-                          >
-                            <ItemIcon className="h-4 w-4 shrink-0" />
-                            <span className="truncate">{item.label}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  ) : null}
-                </div>
-              )
-            })}
-          </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {showSettings ? (
           <div className="border-t border-white/10 px-3 py-3">
             <button
-              onClick={() => handleAppClick(settingsApp)}
-              className={`erp-sidebar-item ${activeApp?.id === 'settings' ? 'erp-sidebar-item-active border-white/10 bg-white/10' : ''}`}
+              onClick={() => handleMenuClick(settingsApp.basePath)}
+              className={`erp-sidebar-item ${pathname.startsWith('/settings') ? 'erp-sidebar-item-active border-white/10 bg-white/10' : ''}`}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/8 text-white/80">
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
+                    pathname.startsWith('/settings') ? 'bg-white text-slate-900' : 'bg-white/8 text-white/80'
+                  }`}
+                >
                   {SettingsIcon ? <SettingsIcon className="h-5 w-5" /> : null}
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Settings</p>
-                  <p className="text-xs text-white/55">Company, branches, and staff access</p>
+                  <p className="text-xs text-white/55">Business settings and staff access</p>
                 </div>
               </div>
             </button>

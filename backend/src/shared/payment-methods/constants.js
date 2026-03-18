@@ -13,6 +13,7 @@ export const PAYMENT_METHOD_VALUES = Object.freeze([
 export const POS_PAYMENT_METHOD_VALUES = Object.freeze([
   "cash",
   "card",
+  "bank_transfer",
   "esewa",
   "khalti",
   "credit",

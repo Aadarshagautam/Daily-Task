@@ -1,6 +1,7 @@
 import React from "react";
 import {
   PAYMENT_METHOD_LABELS,
+  TAX_REGISTRATION_LABEL,
   formatDateTimeNepal,
   formatShortCurrencyNpr,
 } from "../../../utils/nepal.js";
@@ -8,7 +9,7 @@ import {
 const formatMoney = (value) => formatShortCurrencyNpr(Number(value || 0));
 
 const getCustomerSnapshot = (sale) => ({
-  name: sale.customerName || sale.customerId?.name || "Walk-in",
+  name: sale.customerName || sale.customerId?.name || "Walk-in customer",
   phone: sale.customerPhone || sale.customerId?.phone || "",
   email: sale.customerEmail || sale.customerId?.email || "",
   address: sale.customerAddressText || sale.customerId?.addressText || "",
@@ -24,276 +25,427 @@ const getPaymentLines = (sale) => {
     return [];
   }
 
-  return [{
-    method: sale.paymentMethod,
-    label: PAYMENT_METHOD_LABELS[sale.paymentMethod] || sale.paymentMethod,
-    amount: sale.receivedAmount || sale.paidAmount || sale.grandTotal || 0,
-  }];
+  return [
+    {
+      method: sale.paymentMethod,
+      label: PAYMENT_METHOD_LABELS[sale.paymentMethod] || sale.paymentMethod,
+      amount: sale.receivedAmount || sale.paidAmount || sale.grandTotal || 0,
+    },
+  ];
 };
 
 const getPaymentLabel = (payment) =>
   payment.label || PAYMENT_METHOD_LABELS[payment.method] || payment.method || "Cash";
 
-const PrintableInvoice = ({ sale }) => {
+const getPaymentModeLabel = (sale) =>
+  sale.paymentMode === "mixed"
+    ? "Split payment"
+    : PAYMENT_METHOD_LABELS[sale.paymentMode || sale.paymentMethod] ||
+      sale.paymentMode ||
+      sale.paymentMethod ||
+      "Cash";
+
+const getOrderTypeLabel = (value) => {
+  if (value === "dine-in") return "Dine-in";
+  if (value === "delivery") return "Delivery";
+  return "Counter";
+};
+
+const formatStatusLabel = (value) => {
+  if (!value) return "Completed";
+  return String(value)
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+};
+
+const getAddressLine = (address) =>
+  [
+    address?.street,
+    address?.city,
+    address?.state,
+    address?.pincode,
+    address?.country,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+const getBusinessSnapshot = (organization, currentOrgName, branchName) => ({
+  name: organization?.name || currentOrgName || "Your Business",
+  branchName: branchName || "",
+  phone: organization?.phone || "",
+  email: organization?.email || "",
+  taxNumber: organization?.gstin || "",
+  addressLine: getAddressLine(organization?.address),
+});
+
+const getDiscountRows = (sale) => {
+  const rows = [
+    { label: "Item discount", value: Number(sale.itemDiscountTotal || 0) },
+    { label: "Bill discount", value: Number(sale.overallDiscount || 0) },
+    { label: "Loyalty discount", value: Number(sale.loyaltyDiscount || 0) },
+  ].filter((row) => row.value > 0);
+
+  if (rows.length === 0 && Number(sale.discountTotal || 0) > 0) {
+    return [{ label: "Discount", value: Number(sale.discountTotal || 0) }];
+  }
+
+  return rows;
+};
+
+const DetailRow = ({ label, value, emphasized = false }) => (
+  <div className="flex items-start justify-between gap-4 text-sm">
+    <span className="text-slate-500">{label}</span>
+    <span className={`text-right ${emphasized ? "font-semibold text-slate-900" : "text-slate-700"}`}>
+      {value}
+    </span>
+  </div>
+);
+
+const TotalRow = ({ label, value, tone = "default", strong = false }) => {
+  const colorClass =
+    tone === "success"
+      ? "text-emerald-700"
+      : tone === "warning"
+        ? "text-amber-700"
+        : tone === "danger"
+          ? "text-rose-600"
+          : "text-slate-900";
+
+  return (
+    <div className={`flex items-center justify-between gap-4 ${strong ? "text-base font-bold" : "text-sm"}`}>
+      <span className={strong ? "text-slate-900" : "text-slate-500"}>{label}</span>
+      <span className={`tabular-nums ${colorClass}`}>{value}</span>
+    </div>
+  );
+};
+
+const PrintableInvoice = ({
+  sale,
+  organization,
+  currentOrgName,
+  branchName,
+  operatorName,
+}) => {
   if (!sale) return null;
 
+  const items = Array.isArray(sale.items) ? sale.items : [];
   const customer = getCustomerSnapshot(sale);
   const paymentLines = getPaymentLines(sale);
+  const business = getBusinessSnapshot(organization, currentOrgName, branchName);
+  const paymentModeLabel = getPaymentModeLabel(sale);
+  const discountRows = getDiscountRows(sale);
   const isWalkIn = customer.type === "walk_in" && !sale.customerId;
-  const paymentModeLabel =
-    sale.paymentMode === "mixed"
-      ? "Split payment"
-      : PAYMENT_METHOD_LABELS[sale.paymentMode || sale.paymentMethod] ||
-        sale.paymentMode ||
-        sale.paymentMethod ||
-        "Cash";
+  const taxLabel = Number(sale.taxTotal || 0) > 0 || business.taxNumber ? "VAT" : "Tax";
+  const operatorLabel = sale.orderType === "dine-in" ? "Served by" : "Cashier";
+  const receiptTitle = sale.status === "refund" ? "Refund receipt" : "Sales receipt";
 
   return (
     <>
-      <div className="rounded-xl border border-gray-200 bg-white p-8 print:border-0 print:p-4 print:shadow-none">
-        <div className="mb-8 flex items-start justify-between gap-6 print:mb-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gray-500">POS receipt</p>
-            <h1 className="mt-2 text-2xl font-bold text-gray-900 print:text-xl">
-              {sale.invoiceNo || "Receipt"}
-            </h1>
-            <p className="mt-2 text-sm text-gray-500">
-              {sale.orderType === "dine-in"
-                ? "Dine-in bill"
-                : sale.orderType === "delivery"
-                  ? "Delivery bill"
-                  : "Counter bill"}
+      <style>
+        {`
+          @page {
+            size: 80mm auto;
+            margin: 6mm;
+          }
+
+          @media print {
+            body {
+              background: #ffffff;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+
+            .receipt-print-shell {
+              width: 100%;
+              margin: 0;
+              padding: 0;
+            }
+          }
+        `}
+      </style>
+
+      <div className="receipt-print-shell">
+        <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8 print:hidden">
+          <div className="border-b border-slate-200 pb-6 text-center">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-500">
+              Nepal-ready billing receipt
             </p>
+            <h1 className="mt-3 text-3xl font-bold text-slate-950">{business.name}</h1>
+            {business.branchName ? (
+              <p className="mt-2 text-sm font-medium text-amber-700">{business.branchName}</p>
+            ) : null}
+            {business.addressLine ? (
+              <p className="mt-2 text-sm text-slate-600">{business.addressLine}</p>
+            ) : null}
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-slate-600">
+              {business.phone ? <span>{business.phone}</span> : null}
+              {business.email ? <span>{business.email}</span> : null}
+              {business.taxNumber ? <span>{TAX_REGISTRATION_LABEL}: {business.taxNumber}</span> : null}
+            </div>
           </div>
-          <div className="text-right text-sm text-gray-600">
-            <p>{formatDateTimeNepal(sale.createdAt)}</p>
-            <p className="mt-1 uppercase tracking-wide text-gray-400">Status: {sale.status}</p>
-            {sale.tableNumber ? <p className="mt-1">Table #{sale.tableNumber}</p> : null}
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+            <section className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                Bill details
+              </p>
+              <div className="mt-4 space-y-3">
+                <DetailRow label="Receipt" value={sale.invoiceNo || "Receipt"} emphasized />
+                <DetailRow label="Date & time" value={formatDateTimeNepal(sale.createdAt)} />
+                <DetailRow label="Service" value={getOrderTypeLabel(sale.orderType)} />
+                <DetailRow label="Status" value={formatStatusLabel(sale.status)} />
+                {sale.tableNumber ? <DetailRow label="Table" value={`#${sale.tableNumber}`} /> : null}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-amber-200 bg-amber-50/80 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">
+                Customer & settlement
+              </p>
+              <div className="mt-4 space-y-3">
+                <DetailRow label="Customer" value={customer.name} emphasized />
+                {customer.phone ? <DetailRow label="Phone" value={customer.phone} /> : null}
+                <DetailRow label="Payment" value={paymentModeLabel} />
+                <DetailRow label={operatorLabel} value={operatorName || "Operator"} />
+                {!isWalkIn && customer.address ? (
+                  <DetailRow label="Address" value={customer.address} />
+                ) : null}
+              </div>
+            </section>
+          </div>
+
+          <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+            <div className="grid grid-cols-[minmax(0,1.8fr)_80px_110px_110px] gap-3 border-b border-slate-200 bg-slate-100 px-5 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              <span>Item</span>
+              <span className="text-right">Qty</span>
+              <span className="text-right">Rate</span>
+              <span className="text-right">Amount</span>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {items.map((item, index) => (
+                <div
+                  key={`${item.productId || item.nameSnapshot}-${index}`}
+                  className="grid grid-cols-[minmax(0,1.8fr)_80px_110px_110px] gap-3 px-5 py-4 text-sm"
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-900">{item.nameSnapshot}</p>
+                    {item.skuSnapshot ? <p className="mt-1 text-xs text-slate-400">{item.skuSnapshot}</p> : null}
+                    {item.modifiers?.length > 0 ? (
+                      <p className="mt-1 text-xs text-amber-700">
+                        {item.modifiers.map((modifier) => modifier.option).join(", ")}
+                      </p>
+                    ) : null}
+                    {item.notes ? <p className="mt-1 text-xs italic text-rose-500">{item.notes}</p> : null}
+                  </div>
+                  <div className="text-right font-medium tabular-nums text-slate-700">{item.qty}</div>
+                  <div className="text-right tabular-nums text-slate-700">
+                    <p>{formatMoney(item.price)}</p>
+                    {item.discount > 0 ? (
+                      <p className="mt-1 text-xs text-rose-500">Disc. {formatMoney(item.discount)}</p>
+                    ) : null}
+                    {item.tax > 0 ? (
+                      <p className="mt-1 text-xs text-slate-400">{taxLabel} {formatMoney(item.tax)}</p>
+                    ) : null}
+                  </div>
+                  <div className="text-right font-semibold tabular-nums text-slate-900">
+                    {formatMoney(item.lineTotal)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_22rem]">
+            <section className="rounded-3xl border border-slate-200 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                Payment summary
+              </p>
+              <div className="mt-4 space-y-3 text-sm">
+                <DetailRow label="Primary method" value={paymentModeLabel} />
+                <DetailRow label="Received" value={formatMoney(sale.receivedAmount || sale.paidAmount)} />
+                {paymentLines.length > 1
+                  ? paymentLines.map((payment, index) => (
+                      <DetailRow
+                        key={`${payment.method}-${index}`}
+                        label={getPaymentLabel(payment)}
+                        value={formatMoney(payment.amount)}
+                      />
+                    ))
+                  : null}
+                <DetailRow label={operatorLabel} value={operatorName || "Operator"} />
+                {sale.notes ? <DetailRow label="Note" value={sale.notes} /> : null}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">
+                Totals
+              </p>
+              <div className="mt-4 space-y-3">
+                <TotalRow label="Subtotal" value={formatMoney(sale.subTotal)} />
+                {discountRows.map((row) => (
+                  <TotalRow
+                    key={row.label}
+                    label={row.label}
+                    value={`- ${formatMoney(row.value)}`}
+                    tone="danger"
+                  />
+                ))}
+                <TotalRow label={taxLabel} value={formatMoney(sale.taxTotal)} />
+                <div className="border-t border-white/15 pt-3">
+                  <TotalRow label="Grand total" value={formatMoney(sale.grandTotal)} strong />
+                </div>
+                <TotalRow label="Paid" value={formatMoney(sale.paidAmount)} tone="success" />
+                {sale.changeAmount > 0 ? (
+                  <TotalRow label="Change" value={formatMoney(sale.changeAmount)} tone="success" />
+                ) : null}
+                {sale.dueAmount > 0 ? (
+                  <TotalRow label="Due" value={formatMoney(sale.dueAmount)} tone="warning" />
+                ) : null}
+              </div>
+            </section>
+          </div>
+
+          <div className="mt-6 border-t border-slate-200 pt-4 text-center text-sm text-slate-500">
+            <p className="font-medium text-slate-700">
+              {sale.status === "refund" ? "Refund processed for this bill." : "Thank you for your business."}
+            </p>
+            <p className="mt-1">Please keep this receipt for your record.</p>
           </div>
         </div>
 
-        <div className="mb-6 grid gap-4 md:grid-cols-2">
-          <div className="rounded-xl bg-gray-50 p-4 print:border print:border-gray-200 print:bg-transparent">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500">Customer</p>
-            <p className="mt-2 text-sm font-semibold text-gray-900">{customer.name}</p>
-            {!isWalkIn && customer.phone ? <p className="mt-1 text-sm text-gray-600">{customer.phone}</p> : null}
-            {!isWalkIn && customer.email ? <p className="text-sm text-gray-600">{customer.email}</p> : null}
-            {!isWalkIn && customer.address ? <p className="text-sm text-gray-600">{customer.address}</p> : null}
-            <p className="mt-2 text-xs uppercase tracking-wide text-gray-400">
-              {String(customer.type || "walk_in").replace(/_/g, " ")}
+        <div className="mx-auto hidden w-full max-w-[76mm] font-mono text-[11px] leading-5 text-slate-950 print:block">
+          <div className="text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+              {receiptTitle}
             </p>
+            <p className="mt-1 text-sm font-bold">{business.name}</p>
+            {business.branchName ? <p>{business.branchName}</p> : null}
+            {business.addressLine ? <p className="whitespace-normal break-words">{business.addressLine}</p> : null}
+            {business.phone ? <p>{business.phone}</p> : null}
+            {business.taxNumber ? <p>{TAX_REGISTRATION_LABEL}: {business.taxNumber}</p> : null}
           </div>
 
-          <div className="rounded-xl bg-slate-900 p-4 text-white print:border print:border-gray-200 print:bg-white print:text-gray-900">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70 print:text-gray-500">
-              Settlement
-            </p>
-            <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <p className="text-white/60 print:text-gray-500">Payment</p>
-                <p className="font-semibold">{paymentModeLabel}</p>
+          <div className="mt-3 border-y border-dashed border-slate-400 py-2">
+            <div className="flex items-start justify-between gap-4">
+              <span>Bill no</span>
+              <span className="text-right">{sale.invoiceNo || "Receipt"}</span>
+            </div>
+            <div className="flex items-start justify-between gap-4">
+              <span>Date</span>
+              <span className="text-right">{formatDateTimeNepal(sale.createdAt)}</span>
+            </div>
+            <div className="flex items-start justify-between gap-4">
+              <span>Service</span>
+              <span className="text-right">{getOrderTypeLabel(sale.orderType)}</span>
+            </div>
+            {sale.tableNumber ? (
+              <div className="flex items-start justify-between gap-4">
+                <span>Table</span>
+                <span className="text-right">#{sale.tableNumber}</span>
               </div>
-              <div>
-                <p className="text-white/60 print:text-gray-500">Received</p>
-                <p className="font-semibold">{formatMoney(sale.receivedAmount || sale.paidAmount)}</p>
+            ) : null}
+            <div className="flex items-start justify-between gap-4">
+              <span>Customer</span>
+              <span className="text-right">{customer.name}</span>
+            </div>
+            {customer.phone ? (
+              <div className="flex items-start justify-between gap-4">
+                <span>Phone</span>
+                <span className="text-right">{customer.phone}</span>
               </div>
-              <div>
-                <p className="text-white/60 print:text-gray-500">Paid</p>
-                <p className="font-semibold">{formatMoney(sale.paidAmount)}</p>
+            ) : null}
+            <div className="flex items-start justify-between gap-4">
+              <span>Payment</span>
+              <span className="text-right">{paymentModeLabel}</span>
+            </div>
+            <div className="flex items-start justify-between gap-4">
+              <span>{operatorLabel}</span>
+              <span className="text-right">{operatorName || "Operator"}</span>
+            </div>
+          </div>
+
+          <div className="mt-3 space-y-3">
+            {items.map((item, index) => (
+              <div key={`${item.productId || item.nameSnapshot}-${index}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <span className="max-w-[68%] whitespace-normal break-words font-semibold">
+                    {item.nameSnapshot}
+                  </span>
+                  <span className="text-right font-semibold">{formatMoney(item.lineTotal)}</span>
+                </div>
+                <div className="text-[10px] text-slate-600">
+                  {item.qty} x {formatMoney(item.price)}
+                </div>
+                {item.modifiers?.length > 0 ? (
+                  <div className="text-[10px] text-slate-600">
+                    {item.modifiers.map((modifier) => modifier.option).join(", ")}
+                  </div>
+                ) : null}
+                {item.notes ? <div className="text-[10px] italic text-slate-600">{item.notes}</div> : null}
               </div>
-              <div>
-                <p className="text-white/60 print:text-gray-500">Due</p>
-                <p className="font-semibold">{formatMoney(sale.dueAmount)}</p>
+            ))}
+          </div>
+
+          <div className="mt-3 space-y-1 border-y border-dashed border-slate-400 py-2">
+            <div className="flex items-start justify-between gap-4">
+              <span>Subtotal</span>
+              <span>{formatMoney(sale.subTotal)}</span>
+            </div>
+            {discountRows.map((row) => (
+              <div key={row.label} className="flex items-start justify-between gap-4">
+                <span>{row.label}</span>
+                <span>- {formatMoney(row.value)}</span>
               </div>
+            ))}
+            <div className="flex items-start justify-between gap-4">
+              <span>{taxLabel}</span>
+              <span>{formatMoney(sale.taxTotal)}</span>
+            </div>
+            <div className="mt-1 flex items-start justify-between gap-4 border-t border-dashed border-slate-400 pt-1 font-bold">
+              <span>TOTAL</span>
+              <span>{formatMoney(sale.grandTotal)}</span>
+            </div>
+            <div className="flex items-start justify-between gap-4">
+              <span>Paid</span>
+              <span>{formatMoney(sale.paidAmount)}</span>
             </div>
             {sale.changeAmount > 0 ? (
-              <p className="mt-3 text-sm font-semibold text-emerald-300 print:text-emerald-600">
-                Change: {formatMoney(sale.changeAmount)}
-              </p>
+              <div className="flex items-start justify-between gap-4">
+                <span>Change</span>
+                <span>{formatMoney(sale.changeAmount)}</span>
+              </div>
+            ) : null}
+            {sale.dueAmount > 0 ? (
+              <div className="flex items-start justify-between gap-4">
+                <span>Due</span>
+                <span>{formatMoney(sale.dueAmount)}</span>
+              </div>
             ) : null}
           </div>
-        </div>
 
-        <table className="mb-6 w-full text-sm">
-          <thead>
-            <tr className="border-b-2 border-gray-200">
-              <th className="py-2 text-left font-medium text-gray-600">Item</th>
-              <th className="py-2 text-right font-medium text-gray-600">Qty</th>
-              <th className="py-2 text-right font-medium text-gray-600">Rate</th>
-              <th className="py-2 text-right font-medium text-gray-600">Total</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {sale.items.map((item, index) => (
-              <tr key={`${item.productId || item.nameSnapshot}-${index}`}>
-                <td className="py-3">
-                  <p className="font-medium text-gray-900">{item.nameSnapshot}</p>
-                  {item.skuSnapshot ? <p className="text-xs text-gray-400">{item.skuSnapshot}</p> : null}
-                  {item.modifiers?.length > 0 ? (
-                    <p className="text-xs text-indigo-600">
-                      {item.modifiers.map((modifier) => modifier.option).join(", ")}
-                    </p>
-                  ) : null}
-                  {item.notes ? <p className="text-xs italic text-rose-500">{item.notes}</p> : null}
-                </td>
-                <td className="py-3 text-right">{item.qty}</td>
-                <td className="py-3 text-right">
-                  <p>{formatMoney(item.price)}</p>
-                  {item.discount > 0 ? <p className="text-xs text-red-500">Disc. {formatMoney(item.discount)}</p> : null}
-                  {item.tax > 0 ? <p className="text-xs text-gray-400">VAT {formatMoney(item.tax)}</p> : null}
-                </td>
-                <td className="py-3 text-right font-medium">{formatMoney(item.lineTotal)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div className="ml-auto max-w-sm space-y-2 border-t-2 border-gray-200 pt-4 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Subtotal</span>
-            <span>{formatMoney(sale.subTotal)}</span>
-          </div>
-          {sale.itemDiscountTotal > 0 ? (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Item discount</span>
-              <span className="text-red-500">- {formatMoney(sale.itemDiscountTotal)}</span>
-            </div>
-          ) : null}
-          {sale.overallDiscount > 0 ? (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Overall discount</span>
-              <span className="text-red-500">- {formatMoney(sale.overallDiscount)}</span>
-            </div>
-          ) : null}
-          {sale.loyaltyDiscount > 0 ? (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Loyalty discount</span>
-              <span className="text-purple-600">- {formatMoney(sale.loyaltyDiscount)}</span>
-            </div>
-          ) : null}
-          <div className="flex justify-between">
-            <span className="text-gray-600">VAT</span>
-            <span>{formatMoney(sale.taxTotal)}</span>
-          </div>
-          <div className="flex justify-between border-t border-gray-200 pt-2 text-base font-bold">
-            <span>Grand total</span>
-            <span>{formatMoney(sale.grandTotal)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Paid</span>
-            <span className="font-medium text-emerald-600">{formatMoney(sale.paidAmount)}</span>
-          </div>
-          {sale.dueAmount > 0 ? (
-            <div className="flex justify-between">
-              <span className="text-gray-600">Due</span>
-              <span className="font-medium text-amber-600">{formatMoney(sale.dueAmount)}</span>
-            </div>
-          ) : null}
-        </div>
-
-        {paymentLines.length > 0 || sale.notes ? (
-          <div className="mt-6 border-t border-gray-100 pt-4 text-sm text-gray-600">
-            {paymentLines.map((payment, index) => (
-              <div key={`${payment.method}-${index}`} className="flex justify-between">
-                <span>{getPaymentLabel(payment)}</span>
-                <span>{formatMoney(payment.amount)}</span>
-              </div>
-            ))}
-            {sale.notes ? <p className="mt-3">Notes: {sale.notes}</p> : null}
-          </div>
-        ) : null}
-
-        <div className="mt-8 border-t border-gray-200 pt-4 text-center text-xs text-gray-400">
-          <p>Thank you for your purchase.</p>
-        </div>
-      </div>
-
-      <div className="page-break-before mt-8 hidden print:block">
-        <div className="mx-auto max-w-[80mm] font-mono text-[11px] leading-5">
-          <div className="text-center">
-            <p className="text-sm font-bold">RECEIPT</p>
-            <p>{sale.invoiceNo}</p>
-            <p>{formatDateTimeNepal(sale.createdAt)}</p>
-          </div>
-
-          <hr className="my-2 border-dashed" />
-          <p>{isWalkIn ? "Walk-in customer" : customer.name}</p>
-          {!isWalkIn && customer.phone ? <p>{customer.phone}</p> : null}
-          {sale.tableNumber ? <p>Table #{sale.tableNumber}</p> : null}
-
-          <hr className="my-2 border-dashed" />
-          {sale.items.map((item, index) => (
-            <div key={`${item.productId || item.nameSnapshot}-${index}`} className="mb-2">
-              <div className="flex justify-between gap-2">
-                <span className="max-w-[58%] truncate">{item.nameSnapshot}</span>
-                <span>{formatMoney(item.lineTotal)}</span>
-              </div>
-              <div className="text-[10px] text-gray-600">
-                {item.qty} x {formatMoney(item.price)}
-                {item.modifiers?.length > 0
-                  ? ` | ${item.modifiers.map((modifier) => modifier.option).join(", ")}`
-                  : ""}
-              </div>
-            </div>
-          ))}
-
-          <hr className="my-2 border-dashed" />
-          <div className="flex justify-between">
-            <span>Subtotal</span>
-            <span>{formatMoney(sale.subTotal)}</span>
-          </div>
-          {sale.discountTotal > 0 ? (
-            <div className="flex justify-between">
-              <span>Discount</span>
-              <span>- {formatMoney(sale.discountTotal)}</span>
-            </div>
-          ) : null}
-          <div className="flex justify-between">
-            <span>VAT</span>
-            <span>{formatMoney(sale.taxTotal)}</span>
-          </div>
-          <div className="mt-1 flex justify-between border-t border-dashed pt-1 font-bold">
-            <span>TOTAL</span>
-            <span>{formatMoney(sale.grandTotal)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Paid</span>
-            <span>{formatMoney(sale.paidAmount)}</span>
-          </div>
-          {sale.changeAmount > 0 ? (
-            <div className="flex justify-between">
-              <span>Change</span>
-              <span>{formatMoney(sale.changeAmount)}</span>
-            </div>
-          ) : null}
-          {sale.dueAmount > 0 ? (
-            <div className="flex justify-between">
-              <span>Due</span>
-              <span>{formatMoney(sale.dueAmount)}</span>
-            </div>
-          ) : null}
-
-          {paymentLines.length > 0 ? (
-            <>
-              <hr className="my-2 border-dashed" />
+          {paymentLines.length > 1 ? (
+            <div className="mt-3 border-b border-dashed border-slate-400 pb-2">
               {paymentLines.map((payment, index) => (
-                <div key={`${payment.method}-${index}`} className="flex justify-between">
+                <div key={`${payment.method}-${index}`} className="flex items-start justify-between gap-4">
                   <span>{getPaymentLabel(payment)}</span>
                   <span>{formatMoney(payment.amount)}</span>
                 </div>
               ))}
-            </>
+            </div>
           ) : null}
 
           {sale.notes ? (
-            <>
-              <hr className="my-2 border-dashed" />
-              <p>Note: {sale.notes}</p>
-            </>
+            <div className="mt-3">
+              <p className="font-semibold">Note</p>
+              <p className="whitespace-normal break-words">{sale.notes}</p>
+            </div>
           ) : null}
 
-          <hr className="my-2 border-dashed" />
-          <p className="text-center">Thank you</p>
+          <div className="mt-4 text-center">
+            <p>{sale.status === "refund" ? "Refund completed" : "Thank you for visiting"}</p>
+            <p className="text-[10px] text-slate-500">Please keep this bill for record.</p>
+          </div>
         </div>
       </div>
     </>

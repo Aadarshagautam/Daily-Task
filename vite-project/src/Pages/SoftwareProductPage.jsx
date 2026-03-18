@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowRight, Check, Download } from 'lucide-react'
+import MarketingSection from '../components/marketing/MarketingSection.jsx'
 import MarketingShell from '../components/MarketingShell.jsx'
 import { getSoftwareSignupPath, softwareBySlug, staffRoles } from '../data/softwareCatalog.js'
 
@@ -12,13 +13,13 @@ const SoftwareProductPage = () => {
     return (
       <MarketingShell>
         <div className="mx-auto max-w-4xl px-4 py-24 text-center sm:px-6">
-          <p className="section-kicker">Software Not Found</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">This software page does not exist.</h1>
+          <p className="section-kicker">Page Not Found</p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">This business page does not exist.</h1>
           <p className="mt-4 text-base leading-7 text-slate-600">
-            Go back to the main software page and choose restaurant, cafe, or shop software.
+            Go back to the homepage and choose the business type that matches your shop, cafe, or restaurant.
           </p>
           <Link to="/" className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
-            Back to software store
+            Back to homepage
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -49,7 +50,7 @@ const SoftwareProductPage = () => {
                   to={getSoftwareSignupPath(product.slug, recommendedPlan.planKey)}
                   className={`rounded-2xl px-6 py-3.5 text-center text-sm font-semibold text-white transition ${product.button}`}
                 >
-                  Buy {product.shortName} software
+                  Start {product.shortName} trial
                 </Link>
                 <a
                   href={product.downloadFile}
@@ -63,7 +64,7 @@ const SoftwareProductPage = () => {
                   to="/login"
                   className="rounded-2xl border border-slate-200 px-6 py-3.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-white"
                 >
-                  Use web version
+                  Already using it? Log in
                 </Link>
               </div>
             </div>
@@ -72,7 +73,7 @@ const SoftwareProductPage = () => {
               <div className={`inline-flex rounded-3xl bg-gradient-to-br p-5 text-white ${product.gradient}`}>
                 <HeroIcon className="h-8 w-8" />
               </div>
-              <p className="mt-6 text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Why buy this</p>
+              <p className="mt-6 text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Why this fits</p>
               <div className="mt-4 space-y-4">
                 {product.advantages.map(item => (
                   <div key={item} className="flex gap-3 text-sm leading-7 text-slate-600">
@@ -86,16 +87,12 @@ const SoftwareProductPage = () => {
         </div>
       </section>
 
-      <section className="bg-white py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="max-w-3xl">
-            <p className="section-kicker">Work Areas</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-              Features included in {product.title}
-            </h2>
-          </div>
-
-          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <MarketingSection
+        className="bg-white py-20"
+        eyebrow="Main Tools"
+        title={`What you can do with ${product.title}`}
+      >
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {product.modules.map(module => {
               const ModuleIcon = module.icon
 
@@ -109,20 +106,15 @@ const SoftwareProductPage = () => {
                 </div>
               )
             })}
-          </div>
         </div>
-      </section>
+      </MarketingSection>
 
-      <section className="bg-slate-50 py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="max-w-3xl">
-            <p className="section-kicker">Role Access</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-              Managers, accountants, and cashiers can all use {product.shortName.toLowerCase()} software.
-            </h2>
-          </div>
-
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+      <MarketingSection
+        className="bg-slate-50 py-20"
+        eyebrow="Staff Access"
+        title={`Different staff can use ${product.shortName.toLowerCase()} software without extra confusion.`}
+      >
+        <div className="grid gap-6 md:grid-cols-3">
             {staffRoles.map(role => {
               const RoleIcon = role.icon
               const roleItems = product.roleHighlights[role.key] || []
@@ -146,18 +138,17 @@ const SoftwareProductPage = () => {
                 </div>
               )
             })}
-          </div>
         </div>
-      </section>
+      </MarketingSection>
 
       <section className="bg-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className={`rounded-[32px] border p-8 sm:p-10 ${product.border} ${product.surface}`}>
             <div className="grid gap-10 lg:grid-cols-[1fr,0.9fr]">
               <div>
-                <p className="section-kicker">Branch Support</p>
+                <p className="section-kicker">Grow Later</p>
                 <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-                  {product.title} also supports multi-branch operations.
+                  {product.title} can grow with more branches later.
                 </h2>
                 <div className="mt-6 space-y-4">
                   {product.branchHighlights.map(item => (
@@ -206,10 +197,10 @@ const SoftwareProductPage = () => {
       <section className="bg-slate-50 py-20">
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-            Ready to buy or download {product.title.toLowerCase()}?
+            Ready to try {product.title.toLowerCase()}?
           </h2>
           <p className="mt-4 text-base leading-7 text-slate-600">
-            Buy the software, download the guide, then sign in to start using the cloud version with your staff and branches.
+            Start with a trial, review the guide, and then use it with your staff when the business is ready.
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -217,7 +208,7 @@ const SoftwareProductPage = () => {
               to={getSoftwareSignupPath(product.slug, recommendedPlan.planKey)}
               className={`rounded-2xl px-6 py-3.5 text-sm font-semibold text-white transition ${product.button}`}
             >
-              Buy {product.shortName} software
+              Start free trial
             </Link>
             <a
               href={product.downloadFile}

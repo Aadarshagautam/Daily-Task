@@ -10,15 +10,18 @@ import {
   Monitor,
   Package,
   Receipt,
+  ShoppingCart,
   TrendingDown,
   TrendingUp,
   Users,
+  Wallet,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { posCustomerApi, posSaleApi } from '../api/posApi'
+import { posCustomerApi, posKdsApi, posSaleApi, posTableApi } from '../api/posApi'
 import StatePanel from '../components/StatePanel.jsx'
 import { getBusinessMeta } from '../config/businessConfigs.js'
 import AppContext from '../context/app-context.js'
+import { purchaseApi } from '../lib/purchaseApi.js'
 import api from '../lib/api.js'
 
 const formatCurrency = value =>
@@ -36,6 +39,78 @@ const getSettledData = (result, fallback) => {
   if (value?.data !== undefined) return value.data
 
   return fallback
+}
+
+const isSameDay = (value) => {
+  if (!value) return false
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return false
+
+  const now = new Date()
+  return (
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear()
+  )
+}
+
+const getDueAmount = (customer) =>
+  Math.max(
+    0,
+    Number(
+      customer?.creditBalance ??
+        customer?.balanceDue ??
+        customer?.totalDue ??
+        customer?.dueAmount ??
+        0
+    ) || 0
+  )
+
+const getPurchaseDate = (purchase) => purchase?.purchaseDate || purchase?.createdAt
+
+const getTableServiceState = (table) => {
+  if (table?.status === 'available') return 'free'
+  if (table?.status === 'reserved') return 'reserved'
+  if (table?.status === 'cleaning') return 'cleaning'
+  if (table?.status === 'occupied' && table?.currentOrderId?.orderStatus === 'served') return 'billing'
+  if (table?.status === 'occupied') return 'occupied'
+  return 'free'
+}
+
+const ownerCardToneMap = {
+  emerald: {
+    border: 'border-emerald-200 hover:border-emerald-300',
+    icon: 'bg-emerald-50 text-emerald-700',
+  },
+  rose: {
+    border: 'border-rose-200 hover:border-rose-300',
+    icon: 'bg-rose-50 text-rose-700',
+  },
+  amber: {
+    border: 'border-amber-200 hover:border-amber-300',
+    icon: 'bg-amber-50 text-amber-700',
+  },
+  blue: {
+    border: 'border-sky-200 hover:border-sky-300',
+    icon: 'bg-sky-50 text-sky-700',
+  },
+  slate: {
+    border: 'border-slate-200 hover:border-slate-300',
+    icon: 'bg-slate-100 text-slate-700',
+  },
+  teal: {
+    border: 'border-teal-200 hover:border-teal-300',
+    icon: 'bg-teal-50 text-teal-700',
+  },
+}
+
+const insightToneMap = {
+  emerald: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+  rose: 'border-rose-200 bg-rose-50 text-rose-900',
+  amber: 'border-amber-200 bg-amber-50 text-amber-900',
+  blue: 'border-sky-200 bg-sky-50 text-sky-900',
+  slate: 'border-slate-200 bg-slate-50 text-slate-900',
+  teal: 'border-teal-200 bg-teal-50 text-teal-900',
 }
 
 const businessModes = [
@@ -110,9 +185,53 @@ const getRoleExperience = (role, businessType, businessMeta) => {
   )
 }
 
+const OwnerMetricCard = ({ title, value, detail, icon: Icon, tone = 'slate', link, ctaLabel = 'Open details' }) => {
+  const palette = ownerCardToneMap[tone] || ownerCardToneMap.slate
+  const content = (
+    <div className={`group rounded-[28px] border bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md ${palette.border}`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{title}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{detail}</p>
+        </div>
+        {Icon ? (
+          <div className={`rounded-2xl p-3 ${palette.icon}`}>
+            <Icon className="h-5 w-5" />
+          </div>
+        ) : null}
+      </div>
+      {link ? (
+        <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
+          {ctaLabel}
+          <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </div>
+      ) : null}
+    </div>
+  )
+
+  return link ? <Link to={link}>{content}</Link> : content
+}
+
+const QuickInsightCard = ({ title, value, detail, tone = 'slate', path }) => {
+  const className = insightToneMap[tone] || insightToneMap.slate
+  const content = (
+    <div className={`rounded-3xl border p-5 transition ${path ? 'hover:-translate-y-0.5 hover:shadow-sm' : ''} ${className}`}>
+      <p className="text-sm font-semibold">{title}</p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
+      <p className="mt-2 text-sm leading-6 opacity-80">{detail}</p>
+    </div>
+  )
+
+  return path ? <Link to={path}>{content}</Link> : content
+}
+
 const Dashboard = () => {
   const { currentOrgName, orgBusinessType, userData, userRole, hasPermission } = useContext(AppContext)
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
+  const [partialLoad, setPartialLoad] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
   const [overview, setOverview] = useState({
     sales: {},
     people: [],
@@ -120,7 +239,19 @@ const Dashboard = () => {
     leads: {},
     finance: {},
     lowStock: [],
+    purchases: [],
+    tables: [],
+    kitchen: [],
     transactions: [],
+    availability: {
+      sales: true,
+      customers: true,
+      finance: true,
+      inventory: true,
+      purchases: true,
+      tables: true,
+      kitchen: true,
+    },
   })
 
   const businessType = orgBusinessType || 'general'
@@ -129,11 +260,15 @@ const Dashboard = () => {
   const isRestaurant = businessType === 'restaurant'
   const businessMeta = getBusinessMeta(businessType)
   const peoplePath = isShop || isLegacyWorkspace ? '/customers' : '/pos/customers'
-  const peopleLabel = isRestaurant ? 'Guests' : businessType === 'cafe' ? 'Regulars' : 'Customer base'
   const roleExperience = getRoleExperience(userRole, businessType, businessMeta)
-  const showFinance = isLegacyWorkspace && hasPermission('accounting.read')
+  const showFinance = hasPermission('accounting.read')
   const showInvoices = (isLegacyWorkspace || isShop) && hasPermission('invoices.read')
   const showCrm = isLegacyWorkspace && hasPermission('crm.read')
+  const canReadCustomers = (isLegacyWorkspace || isShop) ? hasPermission('customers.read') : hasPermission('pos.customers.read')
+  const canReadInventory = hasPermission('inventory.read')
+  const canReadPurchases = hasPermission('purchases.read')
+  const canReadTables = (isRestaurant || isLegacyWorkspace) && hasPermission('pos.tables.read')
+  const canReadKitchen = (isRestaurant || isLegacyWorkspace) && hasPermission('pos.kitchen.read')
   const todayFocusCount = (overview.leads?.byStage?.proposal?.count || 0) + (overview.leads?.byStage?.negotiation?.count || 0)
   const headline =
     businessType === 'restaurant'
@@ -148,15 +283,20 @@ const Dashboard = () => {
     const loadOverview = async () => {
       try {
         setLoading(true)
+        setLoadFailed(false)
+        setPartialLoad(false)
 
         const results = await Promise.allSettled([
           posSaleApi.stats(),
-          isLegacyWorkspace || isShop ? api.get('/customers') : posCustomerApi.list(),
+          canReadCustomers ? (isLegacyWorkspace || isShop ? api.get('/customers') : posCustomerApi.list()) : Promise.resolve({ data: { data: [] } }),
           showInvoices ? api.get('/invoices/stats') : Promise.resolve({ data: { data: {} } }),
           showCrm ? api.get('/crm/stats') : Promise.resolve({ data: { data: {} } }),
           showFinance ? api.get('/transactions/summary') : Promise.resolve({ data: { data: {} } }),
           showFinance ? api.get('/transactions') : Promise.resolve({ data: { data: [] } }),
-          api.get('/inventory/low-stock'),
+          canReadInventory ? api.get('/inventory/low-stock') : Promise.resolve({ data: { data: [] } }),
+          canReadPurchases ? purchaseApi.list() : Promise.resolve({ data: { data: [] } }),
+          canReadTables ? posTableApi.list() : Promise.resolve({ data: { data: [] } }),
+          canReadKitchen ? posKdsApi.list() : Promise.resolve({ data: { data: [] } }),
         ])
 
         const sales = getSettledData(results[0], {})
@@ -166,6 +306,17 @@ const Dashboard = () => {
         const finance = getSettledData(results[4], {})
         const transactions = getSettledData(results[5], [])
         const lowStock = getSettledData(results[6], [])
+        const purchases = getSettledData(results[7], [])
+        const tables = getSettledData(results[8], [])
+        const kitchen = getSettledData(results[9], [])
+
+        const failedIndexes = results
+          .map((result, index) => (result.status === 'rejected' ? index : null))
+          .filter((index) => index !== null)
+        const criticalFailed = [0, 6, 7].every((index) => failedIndexes.includes(index))
+
+        setLoadFailed(criticalFailed)
+        setPartialLoad(!criticalFailed && failedIndexes.length > 0)
 
         setOverview({
           sales,
@@ -174,71 +325,139 @@ const Dashboard = () => {
           leads,
           finance,
           lowStock: Array.isArray(lowStock) ? lowStock : [],
+          purchases: Array.isArray(purchases) ? purchases : [],
+          tables: Array.isArray(tables) ? tables : [],
+          kitchen: Array.isArray(kitchen) ? kitchen : [],
           transactions: Array.isArray(transactions) ? transactions : [],
+          availability: {
+            sales: results[0]?.status === 'fulfilled',
+            customers: canReadCustomers ? results[1]?.status === 'fulfilled' : false,
+            finance: showFinance ? results[4]?.status === 'fulfilled' && results[5]?.status === 'fulfilled' : false,
+            inventory: canReadInventory ? results[6]?.status === 'fulfilled' : false,
+            purchases: canReadPurchases ? results[7]?.status === 'fulfilled' : false,
+            tables: canReadTables ? results[8]?.status === 'fulfilled' : false,
+            kitchen: canReadKitchen ? results[9]?.status === 'fulfilled' : false,
+          },
         })
 
-        if (results.every(result => result.status === 'rejected')) toast.error('Unable to load command center data')
+        if (criticalFailed) toast.error('Unable to load owner dashboard data')
       } catch {
-        toast.error('Unable to load command center data')
+        setLoadFailed(true)
+        toast.error('Unable to load owner dashboard data')
       } finally {
         setLoading(false)
       }
     }
 
     loadOverview()
-  }, [isLegacyWorkspace, isShop, showCrm, showFinance, showInvoices])
+  }, [
+    canReadCustomers,
+    canReadInventory,
+    canReadKitchen,
+    canReadPurchases,
+    canReadTables,
+    isLegacyWorkspace,
+    isShop,
+    reloadKey,
+    showCrm,
+    showFinance,
+    showInvoices,
+  ])
 
-  const topCards = [
+  const todayExpenseEntries = overview.transactions.filter((transaction) => transaction?.type === 'expense' && isSameDay(transaction?.date || transaction?.createdAt))
+  const todayExpenseTotal = todayExpenseEntries.reduce((sum, transaction) => sum + (Number(transaction?.amount) || 0), 0)
+  const dueCustomers = overview.people.filter((customer) => getDueAmount(customer) > 0)
+  const dueCustomerTotal = dueCustomers.reduce((sum, customer) => sum + getDueAmount(customer), 0)
+  const todayPurchases = overview.purchases.filter((purchase) => isSameDay(getPurchaseDate(purchase)))
+  const todayPurchaseTotal = todayPurchases.reduce((sum, purchase) => sum + (Number(purchase?.totalAmount) || 0), 0)
+  const todayPurchaseSuppliers = new Set(todayPurchases.map((purchase) => purchase?.supplierName).filter(Boolean))
+  const unpaidPurchases = overview.purchases.filter((purchase) => ['pending', 'partial'].includes(purchase?.paymentStatus))
+  const unpaidPurchaseTotal = unpaidPurchases.reduce((sum, purchase) => sum + (Number(purchase?.outstandingAmount) || 0), 0)
+  const lowStockPreview = overview.lowStock
+    .slice(0, 2)
+    .map((item) => item?.name || item?.productName || item?.product?.name || item?.sku)
+    .filter(Boolean)
+    .join(', ')
+  const openTables = overview.tables.filter((table) => ['occupied', 'billing'].includes(getTableServiceState(table)))
+  const billingReadyTables = overview.tables.filter((table) => getTableServiceState(table) === 'billing')
+  const reservedTables = overview.tables.filter((table) => getTableServiceState(table) === 'reserved')
+  const pendingKitchenOrders = overview.kitchen.filter((order) => ['pending', 'preparing'].includes(order?.orderStatus))
+  const readyKitchenOrders = overview.kitchen.filter((order) => order?.orderStatus === 'ready')
+  const ownerCards = [
     {
-      title: 'Today revenue',
-      value: formatCurrency(overview.sales?.todayRevenue),
-      detail: `${overview.sales?.todaySales || 0} sales closed today`,
+      title: 'Today Sales',
+      value: overview.availability.sales ? formatCurrency(overview.sales?.todayRevenue) : '--',
+      detail: overview.availability.sales
+        ? `${overview.sales?.todaySales || 0} bills closed today${overview.sales?.todayAverageSale ? ` · Avg ${formatCurrency(overview.sales?.todayAverageSale)}` : ''}`
+        : 'Live sales totals could not be loaded right now.',
       icon: DollarSign,
-      tone: 'bg-emerald-50 text-emerald-700',
-      link: '/pos/sales',
+      tone: 'emerald',
+      link: overview.availability.sales ? '/pos/sales' : '',
+      ctaLabel: 'Open sales',
     },
     {
-      title: peopleLabel,
-      value: overview.people.length,
-      detail: isShop ? 'Customer accounts ready for due follow-up' : 'Profiles ready for fast repeat billing',
+      title: 'Today Expenses',
+      value: overview.availability.finance ? formatCurrency(todayExpenseTotal) : '--',
+      detail: overview.availability.finance
+        ? todayExpenseEntries.length > 0
+          ? `${todayExpenseEntries.length} expense ${todayExpenseEntries.length === 1 ? 'entry' : 'entries'} recorded today`
+          : 'No expense has been recorded today.'
+        : 'Expense visibility is available in accounting-enabled access.',
+      icon: TrendingDown,
+      tone: 'rose',
+      link: overview.availability.finance ? '/accounting' : '',
+      ctaLabel: 'Open expenses',
+    },
+    {
+      title: 'Cash in Hand',
+      value: overview.availability.finance ? formatCurrency(overview.finance?.balance) : '--',
+      detail: overview.availability.finance
+        ? `${formatCurrency(overview.finance?.totalIncome)} in vs ${formatCurrency(overview.finance?.totalExpense)} out across recorded entries`
+        : 'Recorded cash position will appear when accounting data is available.',
+      icon: Wallet,
+      tone: 'slate',
+      link: overview.availability.finance ? '/accounting' : '',
+      ctaLabel: 'Open accounting',
+    },
+    {
+      title: 'Due Customers',
+      value: overview.availability.customers ? dueCustomers.length : '--',
+      detail: overview.availability.customers
+        ? dueCustomers.length > 0
+          ? `${formatCurrency(dueCustomerTotal)} waiting to collect`
+          : 'No customer due is waiting right now.'
+        : 'Customer due visibility is not available in this view.',
       icon: Users,
-      tone: 'bg-blue-50 text-blue-700',
-      link: peoplePath,
+      tone: 'blue',
+      link: overview.availability.customers ? peoplePath : '',
+      ctaLabel: 'Open customers',
     },
     {
-      title: 'Low stock',
-      value: overview.lowStock.length,
-      detail: overview.lowStock.length > 0 ? 'Critical products need replenishment' : 'Stock levels look healthy',
+      title: 'Low Stock Items',
+      value: overview.availability.inventory ? overview.lowStock.length : '--',
+      detail: overview.availability.inventory
+        ? overview.lowStock.length > 0
+          ? `Restock ${lowStockPreview || 'critical items'} soon`
+          : 'Stock levels look healthy for now.'
+        : 'Stock alerts are not available in this view.',
       icon: Package,
-      tone: 'bg-amber-50 text-amber-700',
-      link: '/inventory',
+      tone: 'amber',
+      link: overview.availability.inventory ? '/inventory' : '',
+      ctaLabel: 'Open inventory',
     },
-    isLegacyWorkspace
-      ? {
-          title: 'Net cash position',
-          value: formatCurrency(overview.finance?.balance),
-          detail: `${formatCurrency(overview.finance?.totalIncome)} income vs ${formatCurrency(overview.finance?.totalExpense)} expense`,
-          icon: Receipt,
-          tone: 'bg-slate-100 text-slate-700',
-          link: '/accounting',
-        }
-      : isShop
-        ? {
-            title: 'Outstanding invoices',
-            value: formatCurrency(overview.invoices?.unpaidAmount),
-            detail: `${overview.invoices?.overdueCount || 0} overdue invoices`,
-            icon: FileText,
-            tone: 'bg-slate-100 text-slate-700',
-            link: '/invoices',
-          }
-        : {
-            title: 'Shift close',
-            value: `${overview.sales?.todaySales || 0} sales`,
-            detail: 'Reconcile cash, wallets, and service totals before sign-off.',
-            icon: Receipt,
-            tone: 'bg-slate-100 text-slate-700',
-            link: '/pos/shifts',
-          },
+    {
+      title: 'Purchases Today',
+      value: overview.availability.purchases ? formatCurrency(todayPurchaseTotal) : '--',
+      detail: overview.availability.purchases
+        ? todayPurchases.length > 0
+          ? `${todayPurchases.length} purchase ${todayPurchases.length === 1 ? 'entry' : 'entries'} from ${todayPurchaseSuppliers.size || 1} supplier${todayPurchaseSuppliers.size === 1 ? '' : 's'}`
+          : 'No stock-in purchase has been recorded today.'
+        : 'Purchase visibility is not available in this view.',
+      icon: ShoppingCart,
+      tone: 'teal',
+      link: overview.availability.purchases ? '/purchases' : '',
+      ctaLabel: 'Open purchases',
+    },
   ]
 
   const operationalCards =
@@ -263,78 +482,81 @@ const Dashboard = () => {
             { title: 'Day close', metric: `${overview.sales?.todaySales || 0} sales`, summary: 'Shifts, wallet totals, and service summaries stay ready for sign-off.', icon: Receipt, tone: 'bg-amber-50 text-amber-700 border-amber-200', path: '/pos/shifts' },
           ]
 
-  const focusItems =
-    isLegacyWorkspace
-      ? [
-          {
-            title: 'Low stock',
-            value: `${overview.lowStock.length} items below threshold`,
-            detail: overview.lowStock.length > 0 ? 'Review replenishment before the next rush.' : 'Stock levels are healthy.',
-            tone: overview.lowStock.length > 0 ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200',
-            path: '/inventory',
-          },
-          {
-            title: 'Hot pipeline',
-            value: `${todayFocusCount} deals in proposal or negotiation`,
-            detail: 'Keep follow-ups tight so leads convert into active customers.',
-            tone: 'text-rose-700 bg-rose-50 border-rose-200',
-            path: '/crm',
-          },
-          {
-            title: 'Cash watch',
-            value: `${formatCurrency(overview.finance?.balance)} current balance`,
-            detail: 'Track daily inflow and expense before closing the shift.',
-            tone: 'text-slate-700 bg-slate-100 border-slate-200',
-            path: '/accounting',
-          },
-        ]
-      : isShop
-        ? [
-            {
-              title: 'Low stock',
-              value: `${overview.lowStock.length} items below threshold`,
-              detail: overview.lowStock.length > 0 ? 'Replenish products before the next sales cycle.' : 'Stock levels are healthy.',
-              tone: overview.lowStock.length > 0 ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200',
-              path: '/inventory',
-            },
-            {
-              title: 'Collections',
-              value: `${formatCurrency(overview.invoices?.unpaidAmount)} due`,
-              detail: `${overview.invoices?.overdueCount || 0} overdue invoices still need follow-up.`,
-              tone: 'text-blue-700 bg-blue-50 border-blue-200',
-              path: '/invoices',
-            },
-            {
-              title: 'Customer watch',
-              value: `${overview.people.length} accounts active`,
-              detail: 'Keep balances and repeat buyers close to the next sale.',
-              tone: 'text-slate-700 bg-slate-100 border-slate-200',
-              path: '/customers',
-            },
-          ]
-        : [
-            {
-              title: 'Low stock',
-              value: `${overview.lowStock.length} items below threshold`,
-              detail: overview.lowStock.length > 0 ? 'Review replenishment before the next rush.' : 'Stock levels are healthy.',
-              tone: overview.lowStock.length > 0 ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200',
-              path: '/inventory',
-            },
-            {
-              title: isRestaurant ? 'Guest book' : 'Regulars',
-              value: `${overview.people.length} profiles ready`,
-              detail: 'Keep repeat visitors, loyalty, and quick lookup close to billing.',
-              tone: 'text-blue-700 bg-blue-50 border-blue-200',
-              path: '/pos/customers',
-            },
-            {
-              title: 'Day close',
-              value: `${overview.sales?.todaySales || 0} sales to reconcile`,
-              detail: 'Match cash, wallets, and shift totals before the last handover.',
-              tone: 'text-slate-700 bg-slate-100 border-slate-200',
-              path: '/pos/shifts',
-            },
-          ]
+  const focusItems = [
+    {
+      title: 'Average bill today',
+      value: overview.availability.sales ? formatCurrency(overview.sales?.todayAverageSale) : '--',
+      detail: overview.availability.sales
+        ? `${overview.sales?.todaySales || 0} completed bill${overview.sales?.todaySales === 1 ? '' : 's'} today`
+        : 'Average sale will appear when billing data is available.',
+      tone: 'emerald',
+      path: overview.availability.sales ? '/pos/sales' : '',
+    },
+    {
+      title: 'Collection watch',
+      value: overview.availability.customers ? formatCurrency(dueCustomerTotal) : '--',
+      detail: overview.availability.customers
+        ? dueCustomers.length > 0
+          ? `${dueCustomers.length} customer${dueCustomers.length === 1 ? '' : 's'} still have due balances`
+          : 'No due follow-up is pending right now.'
+        : 'Customer balance visibility is not available in this view.',
+      tone: 'blue',
+      path: overview.availability.customers ? peoplePath : '',
+    },
+    {
+      title: 'Purchase follow-up',
+      value: overview.availability.purchases ? formatCurrency(unpaidPurchaseTotal) : '--',
+      detail: overview.availability.purchases
+        ? unpaidPurchases.length > 0
+          ? `${unpaidPurchases.length} supplier purchase${unpaidPurchases.length === 1 ? '' : 's'} still unpaid`
+          : 'All recorded purchases are settled.'
+        : 'Purchase follow-up will appear when purchase access is available.',
+      tone: 'slate',
+      path: overview.availability.purchases ? '/purchases' : '',
+    },
+    {
+      title: 'Restock watch',
+      value: overview.availability.inventory ? `${overview.lowStock.length} items` : '--',
+      detail: overview.availability.inventory
+        ? overview.lowStock.length > 0
+          ? `${lowStockPreview || 'Critical items'} need attention soon`
+          : 'No low-stock alert is active right now.'
+        : 'Inventory alerts are not available in this view.',
+      tone: overview.lowStock.length > 0 ? 'amber' : 'emerald',
+      path: overview.availability.inventory ? '/inventory' : '',
+    },
+    ...(showCrm
+      ? [{
+          title: 'Pipeline focus',
+          value: `${todayFocusCount}`,
+          detail: todayFocusCount > 0 ? 'Deals are sitting in proposal or negotiation.' : 'No urgent proposal follow-up is pending.',
+          tone: 'rose',
+          path: '/crm',
+        }]
+      : []),
+    ...(canReadTables && overview.availability.tables
+      ? [{
+          title: 'Open tables',
+          value: `${openTables.length}`,
+          detail: billingReadyTables.length > 0
+            ? `${billingReadyTables.length} table${billingReadyTables.length === 1 ? '' : 's'} ready for bill close`
+            : `${reservedTables.length} reserved for upcoming service`,
+          tone: 'amber',
+          path: '/pos/tables',
+        }]
+      : []),
+    ...(canReadKitchen && overview.availability.kitchen
+      ? [{
+          title: 'Pending kitchen',
+          value: `${pendingKitchenOrders.length}`,
+          detail: readyKitchenOrders.length > 0
+            ? `${readyKitchenOrders.length} order${readyKitchenOrders.length === 1 ? '' : 's'} ready to serve`
+            : 'Kitchen board is clear for now.',
+          tone: 'rose',
+          path: '/pos/kds',
+        }]
+      : []),
+  ].slice(0, canReadKitchen || canReadTables ? 6 : 5)
 
   const supportAction =
     isLegacyWorkspace
@@ -342,6 +564,25 @@ const Dashboard = () => {
       : isShop
         ? { label: 'Review collections', path: '/invoices', description: 'Follow overdue invoices and customer dues.' }
         : { label: 'Close the day', path: '/pos/shifts', description: 'Review shift totals, wallets, and handover before sign-off.' }
+
+  const stockAction = {
+    label: 'Check stock',
+    path: '/inventory',
+    description: 'Watch critical items before the next rush.',
+  }
+
+  const heroActions = [
+    {
+      ...roleExperience.primaryAction,
+      description: 'Jump into the highest-priority workspace for your role.',
+    },
+    {
+      ...roleExperience.secondaryAction,
+      description: 'Keep the next operational decision obvious.',
+    },
+    ...(isLegacyWorkspace ? [stockAction] : []),
+    supportAction,
+  ].filter((action, index, items) => action?.path && items.findIndex(item => item.path === action.path) === index)
 
   const snapshotRows =
     isShop
@@ -359,7 +600,25 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="page-shell">
-        <StatePanel tone="teal" title="Loading command center" message="Collecting sales, stock, customer, and finance data for the current workspace." />
+        <StatePanel tone="teal" title="Loading owner dashboard" message="Collecting sales, expenses, stock alerts, purchases, and customer due signals for the current workspace." />
+      </div>
+    )
+  }
+
+  if (loadFailed) {
+    return (
+      <div className="page-shell">
+        <StatePanel
+          tone="amber"
+          icon={AlertTriangle}
+          title="Owner dashboard is not ready yet"
+          message="The main owner metrics could not be loaded right now. Try refreshing the dashboard in a moment."
+          action={(
+            <button type="button" onClick={() => setReloadKey((value) => value + 1)} className="btn-secondary">
+              Retry dashboard
+            </button>
+          )}
+        />
       </div>
     )
   }
@@ -385,76 +644,60 @@ const Dashboard = () => {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 xl:w-[28rem]">
-            <Link to={roleExperience.primaryAction.path} className="action-tile">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">{roleExperience.primaryAction.label}</p>
-                <p className="mt-1 text-sm text-slate-500">Jump into the highest-priority workspace for your role.</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-slate-400" />
-            </Link>
-
-            <Link to={roleExperience.secondaryAction.path} className="action-tile">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">{roleExperience.secondaryAction.label}</p>
-                <p className="mt-1 text-sm text-slate-500">Keep the next operational decision obvious.</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-slate-400" />
-            </Link>
-
-            <Link to="/inventory" className="action-tile">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">Check stock</p>
-                <p className="mt-1 text-sm text-slate-500">Watch critical items before the next rush.</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-slate-400" />
-            </Link>
-
-            <Link to={supportAction.path} className="action-tile">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">{supportAction.label}</p>
-                <p className="mt-1 text-sm text-slate-500">{supportAction.description}</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-slate-400" />
-            </Link>
+            {heroActions.map(action => (
+              <Link key={action.path} to={action.path} className="action-tile">
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">{action.label}</p>
+                  <p className="mt-1 text-sm text-slate-500">{action.description}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-slate-400" />
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-4">
-        {topCards.map(card => {
-          const Icon = card.icon
+      <section className="panel p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="section-kicker">Owner Snapshot</p>
+            <h2 className="mt-2 section-heading">See today&apos;s business health in one quick scan.</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Keep sales, expenses, cash, due follow-up, stock risk, and supplier buying visible before the day gets busy.
+            </p>
+          </div>
+          <div className={`rounded-2xl border px-4 py-3 text-sm ${partialLoad ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>
+            {partialLoad
+              ? 'Some owner metrics are temporarily unavailable. The cards below show the data that is ready.'
+              : 'Updated from live billing, accounting, customer, inventory, purchase, and restaurant activity.'}
+          </div>
+        </div>
 
-          return (
-            <Link key={card.title} to={card.link} className="group panel p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm text-slate-500">{card.title}</p>
-                  <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{card.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
-                </div>
-                <div className={`rounded-2xl p-3 ${card.tone}`}>
-                  <Icon className="h-5 w-5" />
-                </div>
-              </div>
-
-              <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
-                View details
-                <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </div>
-            </Link>
-          )
-        })}
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {ownerCards.map((card) => (
+            <OwnerMetricCard
+              key={card.title}
+              title={card.title}
+              value={card.value}
+              detail={card.detail}
+              icon={card.icon}
+              tone={card.tone}
+              link={card.link}
+              ctaLabel={card.ctaLabel}
+            />
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
         <div className="panel p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="section-kicker">Operational Health</p>
-              <h2 className="mt-2 section-heading">The business should move through a few strong work areas.</h2>
+              <p className="section-kicker">Main Areas</p>
+              <h2 className="mt-2 section-heading">Keep the main work areas easy to reach.</h2>
             </div>
             <Link to="/apps" className="text-sm font-semibold text-slate-900">
-              Open work areas
+              Open modules
             </Link>
           </div>
 
@@ -486,16 +729,19 @@ const Dashboard = () => {
         </div>
 
         <div className="panel p-6">
-          <p className="section-kicker">Today Focus</p>
-          <h2 className="mt-2 section-heading">Keep the next actions obvious.</h2>
+          <p className="section-kicker">Quick Insights</p>
+          <h2 className="mt-2 section-heading">Keep the next owner decisions obvious.</h2>
 
-          <div className="mt-6 space-y-4">
-            {focusItems.map(item => (
-              <Link key={item.title} to={item.path} className={`block rounded-3xl border p-5 ${item.tone}`}>
-                <p className="text-sm font-semibold">{item.title}</p>
-                <p className="mt-2 text-xl font-semibold tracking-tight">{item.value}</p>
-                <p className="mt-2 text-sm leading-6">{item.detail}</p>
-              </Link>
+          <div className="mt-6 grid gap-4">
+            {focusItems.map((item) => (
+              <QuickInsightCard
+                key={item.title}
+                title={item.title}
+                value={item.value}
+                detail={item.detail}
+                tone={item.tone}
+                path={item.path}
+              />
             ))}
           </div>
 
@@ -503,9 +749,9 @@ const Dashboard = () => {
             <div className="flex items-start gap-3">
               <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-500" />
               <div>
-                <p className="text-sm font-semibold text-slate-900">Simple rule</p>
+                <p className="text-sm font-semibold text-slate-900">Owner rule</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  If the cashier, store manager, and owner need different tools just to understand the day, the package is still too fragmented.
+                  If the day&apos;s sales, cash, dues, stock risk, and purchases are not obvious in one view, the dashboard is still too complicated.
                 </p>
               </div>
             </div>
@@ -569,10 +815,10 @@ const Dashboard = () => {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="section-kicker">Daily Snapshot</p>
-                <h2 className="mt-2 section-heading">The focused package should stay easy to scan.</h2>
+                <h2 className="mt-2 section-heading">Keep the daily picture easy to scan.</h2>
               </div>
               <Link to="/apps" className="text-sm font-semibold text-slate-900">
-                Open work areas
+                Open modules
               </Link>
             </div>
 
@@ -615,7 +861,7 @@ const Dashboard = () => {
             </>
           ) : (
             <>
-              <p className="section-kicker">Focused Package</p>
+              <p className="section-kicker">Business Setup</p>
               <h2 className="mt-2 section-heading">{businessMeta.spotlightTitle}</h2>
 
               <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
@@ -626,7 +872,7 @@ const Dashboard = () => {
                 </div>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Link to="/apps" className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-                    Open work areas
+                    Open modules
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link to="/settings" className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">

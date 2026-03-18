@@ -45,6 +45,7 @@ export const shiftService = {
           totalTransactions: { $count: {} },
           cash: { $sum: { $cond: [{ $eq: ["$paymentMethod", "cash"] }, "$paidAmount", 0] } },
           card: { $sum: { $cond: [{ $eq: ["$paymentMethod", "card"] }, "$paidAmount", 0] } },
+          bank_transfer: { $sum: { $cond: [{ $eq: ["$paymentMethod", "bank_transfer"] }, "$paidAmount", 0] } },
           esewa: { $sum: { $cond: [{ $eq: ["$paymentMethod", "esewa"] }, "$paidAmount", 0] } },
           khalti: { $sum: { $cond: [{ $eq: ["$paymentMethod", "khalti"] }, "$paidAmount", 0] } },
           credit: { $sum: { $cond: [{ $eq: ["$paymentMethod", "credit"] }, "$paidAmount", 0] } },
@@ -74,6 +75,7 @@ export const shiftService = {
           salesByMethod: {
             cash: cashSales,
             card: agg?.card || 0,
+            bank_transfer: agg?.bank_transfer || 0,
             esewa: agg?.esewa || 0,
             khalti: agg?.khalti || 0,
             credit: agg?.credit || 0,

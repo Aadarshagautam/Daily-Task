@@ -159,7 +159,7 @@ export const getCheckoutIssues = ({
   }
 
   if (paymentState.dueAmount > 0 && !['credit', 'mixed'].includes(paymentMethod)) {
-    issues.push('Use credit payment to keep a due balance.')
+    issues.push('Use Due payment to keep an unpaid balance.')
   }
 
   return issues

@@ -6,9 +6,10 @@ export const TAX_REGISTRATION_LABEL = "PAN/VAT";
 export const POS_PAYMENT_METHODS = [
   { key: "cash", label: "Cash" },
   { key: "card", label: "Card" },
+  { key: "bank_transfer", label: "Bank" },
   { key: "esewa", label: "eSewa" },
   { key: "khalti", label: "Khalti" },
-  { key: "credit", label: "Credit" },
+  { key: "credit", label: "Due" },
   { key: "mixed", label: "Split" },
 ];
 

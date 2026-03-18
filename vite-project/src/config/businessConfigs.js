@@ -19,16 +19,16 @@ import {
 
 const overviewApp = {
   id: "overview",
-  name: "Overview",
+  name: "Dashboard",
   icon: LayoutDashboard,
   accent: "amber",
   basePath: "/home",
   pathPrefixes: ["/home", "/dashboard", "/apps"],
-  description: "Workspace home and work area launcher.",
+  description: "Today's business view and quick navigation.",
   menu: [
-    { label: "Suite Home", path: "/home", icon: LayoutDashboard, exact: true },
-    { label: "Command Center", path: "/dashboard", icon: LayoutDashboard, exact: true },
-    { label: "Work Areas", path: "/apps", icon: LayoutGrid, exact: true },
+    { label: "Business Home", path: "/home", icon: LayoutDashboard, exact: true },
+    { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, exact: true },
+    { label: "All tools", path: "/apps", icon: LayoutGrid, exact: true },
   ],
 };
 
@@ -39,24 +39,24 @@ const settingsApp = {
   accent: "slate",
   basePath: "/settings",
   pathPrefixes: ["/settings"],
-  description: "Workspace setup and team access.",
+  description: "Business settings, branches, and staff access.",
   permission: "settings.read",
   menu: [
-    { label: "Workspace", path: "/settings", icon: Settings, permission: "settings.read" },
+    { label: "Business Settings", path: "/settings", icon: Settings, permission: "settings.read" },
   ],
 };
 
 const stockApp = {
   id: "stock",
-  name: "Stock",
+  name: "Inventory",
   icon: Package,
   accent: "orange",
   basePath: "/inventory",
   pathPrefixes: ["/inventory"],
-  description: "Stock counts, low-stock alerts, and replenishment.",
+  description: "Inventory counts, low-stock alerts, and restocking.",
   permission: "inventory.read",
   menu: [
-    { label: "Stock Room", path: "/inventory", icon: Package, permission: "inventory.read" },
+    { label: "Inventory", path: "/inventory", icon: Package, permission: "inventory.read" },
   ],
 };
 
@@ -81,7 +81,7 @@ const financeApp = {
   accent: "emerald",
   basePath: "/invoices",
   pathPrefixes: ["/invoices", "/accounting", "/reports", "/purchases"],
-  description: "Invoices, purchases, and reporting.",
+  description: "Invoices, purchases, and business reports.",
   permission: "invoices.read",
   menu: [
     { label: "Invoices", path: "/invoices", icon: FileText, permission: "invoices.read" },
@@ -98,7 +98,7 @@ const generalFinanceApp = {
   accent: "emerald",
   basePath: "/accounting",
   pathPrefixes: ["/accounting", "/reports", "/purchases"],
-  description: "Cash flow, purchases, and reporting.",
+  description: "Expenses, purchases, cash flow, and reports.",
   permission: "accounting.read",
   menu: [
     { label: "Transactions", path: "/accounting", icon: DollarSign, permission: "accounting.read" },
@@ -116,30 +116,30 @@ const restaurantConfig = [
     accent: "teal",
     basePath: "/pos",
     pathPrefixes: ["/pos"],
-    description: "Billing, reservations, KOT flow, tables, guests, and shift close.",
+    description: "Tables, KOT, billing, guests, and shift close.",
     permission: "pos.read",
     menu: [
       { label: "Dashboard", path: "/pos", icon: Monitor, exact: true, permission: "pos.read" },
-      { label: "New Bill", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
-      { label: "Floor Plan", path: "/pos/tables", icon: Table2, permission: "pos.tables.read" },
-      { label: "Kitchen", path: "/pos/kds", icon: ChefHat, permission: "pos.kitchen.read" },
+      { label: "New Order", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
+      { label: "Tables", path: "/pos/tables", icon: Table2, permission: "pos.tables.read" },
+      { label: "Kitchen / KOT", path: "/pos/kds", icon: ChefHat, permission: "pos.kitchen.read" },
       { label: "Menu Items", path: "/pos/products", icon: Package, permission: "pos.products.read" },
-      { label: "Guests", path: "/pos/customers", icon: Users, permission: "pos.customers.read" },
+      { label: "Customers", path: "/pos/customers", icon: Users, permission: "pos.customers.read" },
       { label: "Shifts", path: "/pos/shifts", icon: Clock, permission: "pos.shifts.read" },
-      { label: "Sales History", path: "/pos/sales", icon: Receipt, permission: "pos.sales.read" },
+      { label: "Bills", path: "/pos/sales", icon: Receipt, permission: "pos.sales.read" },
     ],
   },
   {
     id: "stock",
-    name: "Stock",
+    name: "Inventory",
     icon: Package,
     accent: "emerald",
     basePath: "/inventory",
     pathPrefixes: ["/inventory", "/reports", "/purchases"],
-    description: "Stock room, supplier buying, and day-close summaries for the kitchen floor.",
+    description: "Kitchen stock, supplier buying, and daily reports.",
     permission: "inventory.read",
     menu: [
-      { label: "Stock Room", path: "/inventory", icon: Package, permission: "inventory.read" },
+      { label: "Inventory", path: "/inventory", icon: Package, permission: "inventory.read" },
       { label: "Purchases", path: "/purchases", icon: ShoppingCart, permission: "purchases.read" },
       { label: "Reports", path: "/reports", icon: TrendingUp, permission: "reports.read" },
     ],
@@ -156,28 +156,28 @@ const cafeConfig = [
     accent: "teal",
     basePath: "/pos",
     pathPrefixes: ["/pos"],
-    description: "Fast billing, menu, regulars, and shift close.",
+    description: "Fast orders, menu, regular customers, and shift close.",
     permission: "pos.read",
     menu: [
       { label: "Dashboard", path: "/pos", icon: Monitor, exact: true, permission: "pos.read" },
-      { label: "New Sale", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
-      { label: "Menu Items", path: "/pos/products", icon: Package, permission: "pos.products.read" },
-      { label: "Regulars", path: "/pos/customers", icon: Users, permission: "pos.customers.read" },
+      { label: "New Order", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
+      { label: "Menu", path: "/pos/products", icon: Package, permission: "pos.products.read" },
+      { label: "Customers", path: "/pos/customers", icon: Users, permission: "pos.customers.read" },
       { label: "Shifts", path: "/pos/shifts", icon: Clock, permission: "pos.shifts.read" },
-      { label: "Sales History", path: "/pos/sales", icon: Receipt, permission: "pos.sales.read" },
+      { label: "Bills", path: "/pos/sales", icon: Receipt, permission: "pos.sales.read" },
     ],
   },
   {
     id: "stock",
-    name: "Stock",
+    name: "Inventory",
     icon: Package,
     accent: "emerald",
     basePath: "/inventory",
     pathPrefixes: ["/inventory", "/reports", "/purchases"],
-    description: "Beans, ingredients, restocking, and day-close summaries without office clutter.",
+    description: "Ingredients, restocking, and daily reports without office clutter.",
     permission: "inventory.read",
     menu: [
-      { label: "Stock Room", path: "/inventory", icon: Package, permission: "inventory.read" },
+      { label: "Inventory", path: "/inventory", icon: Package, permission: "inventory.read" },
       { label: "Purchases", path: "/purchases", icon: ShoppingCart, permission: "purchases.read" },
       { label: "Reports", path: "/reports", icon: TrendingUp, permission: "reports.read" },
     ],
@@ -222,7 +222,7 @@ const shopConfig = [
     accent: "rose",
     basePath: "/customers",
     pathPrefixes: ["/customers", "/pos/customers"],
-    description: "Customer accounts, dues, and follow-up history.",
+    description: "Customer dues, history, and repeat follow-up.",
     permission: "customers.read",
     menu: [
       { label: "Customer Accounts", path: "/customers", icon: Users, permission: "customers.read" },
@@ -242,16 +242,16 @@ const generalConfig = [
     accent: "teal",
     basePath: "/pos",
     pathPrefixes: ["/pos"],
-    description: "Counter billing, tables, kitchen, and shifts.",
+    description: "Billing, tables, kitchen, and shifts.",
     permission: "pos.read",
     menu: [
       { label: "Dashboard", path: "/pos", icon: Monitor, exact: true, permission: "pos.read" },
-      { label: "Billing", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
-      { label: "Floor Plan", path: "/pos/tables", icon: Table2, permission: "pos.tables.read" },
-      { label: "Kitchen", path: "/pos/kds", icon: ChefHat, permission: "pos.kitchen.read" },
+      { label: "New Order", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
+      { label: "Tables", path: "/pos/tables", icon: Table2, permission: "pos.tables.read" },
+      { label: "Kitchen / KOT", path: "/pos/kds", icon: ChefHat, permission: "pos.kitchen.read" },
       { label: "Products", path: "/pos/products", icon: Package, permission: "pos.products.read" },
       { label: "Customers", path: "/pos/customers", icon: Users, permission: "pos.customers.read" },
-      { label: "Sales History", path: "/pos/sales", icon: Receipt, permission: "pos.sales.read" },
+      { label: "Bills", path: "/pos/sales", icon: Receipt, permission: "pos.sales.read" },
       { label: "Shifts", path: "/pos/shifts", icon: Clock, permission: "pos.shifts.read" },
     ],
   },
@@ -282,16 +282,104 @@ export const BUSINESS_CONFIGS = {
   general: generalConfig,
 };
 
+const dashboardSidebarItem = {
+  label: "Dashboard",
+  path: "/dashboard",
+  icon: LayoutDashboard,
+  exact: true,
+  activePrefixes: ["/dashboard", "/home"],
+};
+
+const BUSINESS_SIDEBAR_SECTIONS = {
+  shop: [
+    {
+      title: "Today",
+      items: [
+        dashboardSidebarItem,
+        { label: "New Sale", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
+      ],
+    },
+    {
+      title: "Business",
+      items: [
+        { label: "Products", path: "/pos/products", icon: Package, permission: "pos.products.read" },
+        { label: "Customers", path: "/customers", icon: Users, permission: "customers.read" },
+        { label: "Purchases", path: "/purchases", icon: ShoppingCart, permission: "purchases.read" },
+        { label: "Inventory", path: "/inventory", icon: Package, permission: "inventory.read" },
+        { label: "Expenses", path: "/accounting", icon: DollarSign, permission: "accounting.read" },
+        { label: "Reports", path: "/reports", icon: TrendingUp, permission: "reports.read" },
+      ],
+    },
+  ],
+  cafe: [
+    {
+      title: "Today",
+      items: [
+        dashboardSidebarItem,
+        { label: "New Order", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
+      ],
+    },
+    {
+      title: "Business",
+      items: [
+        { label: "Menu", path: "/pos/products", icon: Package, permission: "pos.products.read" },
+        { label: "Customers", path: "/pos/customers", icon: Users, permission: "pos.customers.read" },
+        { label: "Expenses", path: "/accounting", icon: DollarSign, permission: "accounting.read" },
+        { label: "Reports", path: "/reports", icon: TrendingUp, permission: "reports.read" },
+      ],
+    },
+  ],
+  restaurant: [
+    {
+      title: "Today",
+      items: [
+        dashboardSidebarItem,
+        { label: "Tables", path: "/pos/tables", icon: Table2, permission: "pos.tables.read" },
+        { label: "New Order", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
+        { label: "Kitchen / KOT", path: "/pos/kds", icon: ChefHat, permission: "pos.kitchen.read" },
+      ],
+    },
+    {
+      title: "Business",
+      items: [
+        { label: "Bills", path: "/pos/sales", icon: Receipt, permission: "pos.sales.read" },
+        { label: "Customers", path: "/pos/customers", icon: Users, permission: "pos.customers.read" },
+        { label: "Inventory", path: "/inventory", icon: Package, permission: "inventory.read" },
+        { label: "Reports", path: "/reports", icon: TrendingUp, permission: "reports.read" },
+      ],
+    },
+  ],
+  general: [
+    {
+      title: "Today",
+      items: [
+        dashboardSidebarItem,
+        { label: "New Order", path: "/pos/billing", icon: ShoppingCart, permission: "pos.sales.create" },
+      ],
+    },
+    {
+      title: "Business",
+      items: [
+        { label: "Customers", path: "/customers", icon: Users, permission: "customers.read" },
+        { label: "Purchases", path: "/purchases", icon: ShoppingCart, permission: "purchases.read" },
+        { label: "Inventory", path: "/inventory", icon: Package, permission: "inventory.read" },
+        { label: "Expenses", path: "/accounting", icon: DollarSign, permission: "accounting.read" },
+        { label: "Reports", path: "/reports", icon: TrendingUp, permission: "reports.read" },
+      ],
+    },
+  ],
+};
+
 export const BUSINESS_META = {
   restaurant: {
     label: "Restaurant",
     shortLabel: "Restaurant",
     productName: "Restaurant Software",
-    workspaceSummary: "Service, reservations, KOT flow, stock, and day close for Nepali restaurants.",
-    settingsDescription: "Focused restaurant workflow for tables, reservations, kitchen tickets, billing, stock, and shift close.",
-    launcherDescription: "Keep service, kitchen, stock, and day close in one focused restaurant workspace.",
-    commandCenterSummary: "Service, kitchen flow, stock, and closing numbers stay visible without extra suite noise.",
-    statusPill: "Restaurant workflow",
+    workspaceSummary: "Billing, tables, KOT, stock, and daily reports for Nepali restaurants.",
+    settingsDescription: "Restaurant setup for tables, kitchen flow, billing, stock, and staff access.",
+    launcherDescription: "Open restaurant billing, kitchen, stock, and reports from one simple menu.",
+    commandCenterSummary: "Service, kitchen flow, stock, and closing numbers stay easy to follow.",
+    statusPill: "Restaurant software",
     spotlightTitle: "Focused for restaurant service",
     spotlightSummary: "Tables, kitchen tickets, guest history, stock, and shift close stay in one package.",
   },
@@ -299,11 +387,11 @@ export const BUSINESS_META = {
     label: "Cafe",
     shortLabel: "Cafe",
     productName: "Cafe Software",
-    workspaceSummary: "Counter sales, regulars, stock, and shift close for Nepali cafes.",
-    settingsDescription: "Focused cafe workflow for quick checkout, repeat guests, stock, and shift close.",
-    launcherDescription: "Keep counter sales, regulars, stock, and closing in one focused cafe workspace.",
-    commandCenterSummary: "Counter speed, regulars, stock, and shift close stay easy to scan without office clutter.",
-    statusPill: "Cafe workflow",
+    workspaceSummary: "Orders, menu, expenses, and daily reports for Nepali cafes.",
+    settingsDescription: "Cafe setup for quick orders, regular customers, expenses, and staff access.",
+    launcherDescription: "Open cafe orders, menu, expenses, and reports from one simple menu.",
+    commandCenterSummary: "Counter speed, regular customers, expenses, and closing stay easy to scan.",
+    statusPill: "Cafe software",
     spotlightTitle: "Focused for cafe counters",
     spotlightSummary: "Menu, regulars, stock, and daily close stay close to the till.",
   },
@@ -311,24 +399,24 @@ export const BUSINESS_META = {
     label: "Shop",
     shortLabel: "Shop",
     productName: "Shop Software",
-    workspaceSummary: "Billing, products, stock, invoices, and customer dues.",
-    settingsDescription: "Focused shop workflow for checkout, products, stock, invoices, and customer dues.",
-    launcherDescription: "Open shop work areas without restaurant floor tools or CRM clutter.",
-    commandCenterSummary: "Checkout, stock, invoices, and due follow-up stay in one retail flow.",
-    statusPill: "Shop workflow",
+    workspaceSummary: "Billing, products, purchases, inventory, and due tracking for Nepali shops.",
+    settingsDescription: "Shop setup for checkout, inventory, expenses, reports, and staff access.",
+    launcherDescription: "Open shop billing, inventory, purchases, and reports from one simple menu.",
+    commandCenterSummary: "Checkout, stock, expenses, and due follow-up stay in one retail flow.",
+    statusPill: "Shop software",
     spotlightTitle: "Focused for shop operations",
     spotlightSummary: "Billing, products, invoices, and stock control stay in one package.",
   },
   general: {
-    label: "Legacy Workspace",
-    shortLabel: "Legacy",
-    productName: "Legacy Workspace",
-    workspaceSummary: "Fallback workspace for older accounts with broader access.",
-    settingsDescription: "Legacy fallback package with broader access. Restaurant, Cafe, or Shop is the cleaner Nepal-first setup.",
-    launcherDescription: "Legacy fallback workspace with broader access across sales, stock, finance, and support work.",
-    commandCenterSummary: "This legacy workspace still spans more areas than the focused Nepal packages.",
-    statusPill: "Legacy fallback",
-    spotlightTitle: "Move this workspace to a focused package",
+    label: "General Business",
+    shortLabel: "General",
+    productName: "General Business Software",
+    workspaceSummary: "General billing, inventory, expenses, and reports for older accounts.",
+    settingsDescription: "General package with broader access. Shop, Cafe, or Restaurant gives a cleaner Nepal-first menu.",
+    launcherDescription: "Open billing, inventory, expenses, and reports from one general business menu.",
+    commandCenterSummary: "This package still spans more areas than the focused Nepal business setups.",
+    statusPill: "General software",
+    spotlightTitle: "Move this business to a focused setup",
     spotlightSummary: "Restaurant, Cafe, and Shop trim daily work down to the flows Nepali teams actually use.",
   },
 };
@@ -363,7 +451,7 @@ export const BUSINESS_POS_META = {
   },
   general: {
     dashboardTitle: "Legacy POS Dashboard",
-    dashboardSummary: "Billing, reservations, tables, kitchen flow, stock, and shifts still run here until the workspace is moved to a focused package.",
+    dashboardSummary: "Billing, reservations, tables, kitchen flow, stock, and shifts still run here until this business is moved to a focused package.",
     customerTitle: "Customers",
     customerSummary: "Customer management, loyalty, and repeat billing stay connected to POS.",
     allowTables: true,
@@ -408,6 +496,10 @@ export function getBusinessMeta(businessType) {
   return BUSINESS_META[businessType] || BUSINESS_META.general;
 }
 
+export function getSidebarSectionsForBusiness(businessType) {
+  return BUSINESS_SIDEBAR_SECTIONS[businessType] || BUSINESS_SIDEBAR_SECTIONS.general;
+}
+
 export function getBusinessPosMeta(businessType) {
   return BUSINESS_POS_META[businessType] || BUSINESS_POS_META.general;
 }
@@ -448,6 +540,9 @@ export function getRedirectPathForBusiness(pathname, businessType) {
 }
 
 export function isMenuItemActive(item, pathname) {
+  if (item.activePrefixes?.some((prefix) => pathname === prefix || pathname.startsWith(prefix + "/"))) {
+    return true;
+  }
   if (item.exact) return pathname === item.path;
   if (item.path === "/") return pathname === "/";
   return pathname === item.path || pathname.startsWith(item.path + "/");

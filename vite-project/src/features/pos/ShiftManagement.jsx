@@ -22,9 +22,10 @@ const fmt = (n) =>
 const METHOD_LABELS = {
   cash: "Cash",
   card: "Card",
+  bank_transfer: "Bank",
   esewa: "eSewa",
   khalti: "Khalti",
-  credit: "Credit",
+  credit: "Due",
   mixed: "Mixed",
 };
 

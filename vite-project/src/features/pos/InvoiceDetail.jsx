@@ -1,22 +1,35 @@
-import React, { useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useRef } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Printer, RotateCcw } from "lucide-react";
 import toast from "react-hot-toast";
 import { posSaleApi } from "../../api/posApi";
+import api from "../../lib/api.js";
 import AppContext from "../../context/app-context.js";
 import PrintableInvoice from "./components/PrintableInvoice";
 
 const InvoiceDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
-  const { hasPermission } = useContext(AppContext);
+  const { hasPermission, currentOrgId, currentOrgName, branchName, userData } = useContext(AppContext);
   const canRefundSale = hasPermission("pos.sales.refund");
+  const autoPrintRef = useRef(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["pos-sale", id],
     queryFn: () => posSaleApi.get(id),
+  });
+
+  const { data: organization, isLoading: isOrgLoading } = useQuery({
+    queryKey: ["receipt-organization", currentOrgId],
+    enabled: Boolean(currentOrgId),
+    retry: false,
+    queryFn: async () => {
+      const response = await api.get("/org/");
+      return response.data?.data || null;
+    },
   });
 
   const refundMut = useMutation({
@@ -31,6 +44,13 @@ const InvoiceDetail = () => {
   });
 
   const sale = data?.data;
+
+  useEffect(() => {
+    if (!sale || autoPrintRef.current || !location.state?.autoPrint || isOrgLoading) return;
+
+    autoPrintRef.current = true;
+    window.setTimeout(() => window.print(), 250);
+  }, [isOrgLoading, location.state, sale]);
 
   if (isLoading) {
     return (
@@ -60,7 +80,7 @@ const InvoiceDetail = () => {
         {/* Top bar */}
         <div className="flex items-center justify-between mb-4 print:hidden">
           <button
-            onClick={() => navigate("/pos/sales")}
+            onClick={() => navigate(location.state?.backTo || "/pos/sales")}
             className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Sales
@@ -80,12 +100,18 @@ const InvoiceDetail = () => {
               onClick={() => window.print()}
               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
             >
-              <Printer className="w-4 h-4" /> Print
+              <Printer className="w-4 h-4" /> Print receipt
             </button>
           </div>
         </div>
 
-        <PrintableInvoice sale={sale} />
+        <PrintableInvoice
+          sale={sale}
+          organization={organization}
+          currentOrgName={currentOrgName}
+          branchName={branchName}
+          operatorName={sale?.soldBy?.username || userData?.username || "Operator"}
+        />
       </div>
     </div>
   );

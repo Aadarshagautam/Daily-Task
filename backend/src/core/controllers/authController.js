@@ -3,7 +3,9 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import UserModel from "../models/User.js";
-import OrganizationModel from "../models/Organization.js";
+import OrganizationModel, {
+  createDefaultOrganizationPaymentMethods,
+} from "../models/Organization.js";
 import OrgMemberModel from "../models/OrgMember.js";
 import BranchModel from "../models/Branch.js";
 import transporter from "../config/nodemailer.js";
@@ -137,6 +139,7 @@ export const register = async (req, res) => {
       softwarePlan: normalizedSoftwarePlan,
       settings: {
         enabledModules: getEnabledModulesForBusinessType(normalizedBusinessType),
+        paymentMethods: createDefaultOrganizationPaymentMethods(),
       },
     });
     await org.save({ session });

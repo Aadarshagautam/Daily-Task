@@ -5,7 +5,14 @@ export const tableService = {
   async list(req) {
     return PosTable.find({ ...buildPosScopeFilter(req), isActive: true })
       .sort({ number: 1 })
-      .populate("currentOrderId", "invoiceNo grandTotal orderStatus");
+      .populate({
+        path: "currentOrderId",
+        select: "invoiceNo grandTotal orderStatus createdAt soldBy",
+        populate: {
+          path: "soldBy",
+          select: "username",
+        },
+      });
   },
 
   async create(data, req) {

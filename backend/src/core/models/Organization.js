@@ -1,5 +1,52 @@
 import mongoose from "mongoose";
 import { DEFAULT_COUNTRY, DEFAULT_CURRENCY } from "../utils/nepal.js";
+import { PAYMENT_METHOD_VALUES } from "../../shared/payment-methods/constants.js";
+
+const DEFAULT_ORG_PAYMENT_METHODS = Object.freeze([
+  {
+    key: "cash",
+    name: "Cash",
+    type: "cash",
+    isActive: true,
+    isDefault: true,
+    description: "Default counter payment for daily billing.",
+  },
+  {
+    key: "esewa",
+    name: "eSewa",
+    type: "digital",
+    isActive: true,
+    isDefault: false,
+    description: "Popular QR and wallet payments in Nepal.",
+  },
+  {
+    key: "khalti",
+    name: "Khalti",
+    type: "digital",
+    isActive: true,
+    isDefault: false,
+    description: "Useful for cafes, restaurants, and local digital collections.",
+  },
+  {
+    key: "bank_transfer",
+    name: "Bank Transfer",
+    type: "bank",
+    isActive: true,
+    isDefault: false,
+    description: "Best for supplier settlements and larger customer bills.",
+  },
+  {
+    key: "credit",
+    name: "Due / Credit",
+    type: "due",
+    isActive: false,
+    isDefault: false,
+    description: "Enable this when you want to track trusted customers who pay later.",
+  },
+]);
+
+export const createDefaultOrganizationPaymentMethods = () =>
+  DEFAULT_ORG_PAYMENT_METHODS.map((method) => ({ ...method }));
 
 const organizationSchema = new mongoose.Schema(
   {
@@ -82,6 +129,41 @@ const organizationSchema = new mongoose.Schema(
           "reports",
           "crm",
         ],
+      },
+      paymentMethods: {
+        type: [
+          {
+            _id: false,
+            key: {
+              type: String,
+              enum: PAYMENT_METHOD_VALUES,
+              required: true,
+            },
+            name: {
+              type: String,
+              required: true,
+              trim: true,
+            },
+            type: {
+              type: String,
+              enum: ["cash", "digital", "bank", "due", "card", "other"],
+              default: "other",
+            },
+            isActive: {
+              type: Boolean,
+              default: true,
+            },
+            isDefault: {
+              type: Boolean,
+              default: false,
+            },
+            description: {
+              type: String,
+              default: "",
+            },
+          },
+        ],
+        default: () => createDefaultOrganizationPaymentMethods(),
       },
     },
   },

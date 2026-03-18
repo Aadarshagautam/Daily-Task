@@ -1,10 +1,16 @@
 import bcrypt from "bcryptjs";
-import OrganizationModel from "../models/Organization.js";
+import OrganizationModel, {
+  createDefaultOrganizationPaymentMethods,
+} from "../models/Organization.js";
 import OrgMemberModel from "../models/OrgMember.js";
 import BranchModel from "../models/Branch.js";
 import UserModel from "../models/User.js";
 import { logAudit } from "../utils/auditLogger.js";
 import { sendCreated, sendError, sendSuccess } from "../utils/response.js";
+import {
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_METHOD_VALUES,
+} from "../../shared/payment-methods/constants.js";
 import {
   buildBranchCode,
   getBranchLimitForPlan,
@@ -14,6 +20,18 @@ import {
 
 const VALID_ROLES = ["owner", "admin", "manager", "accountant", "cashier", "waiter", "kitchen", "member", "viewer"];
 const ASSIGNABLE_ROLES = ["manager", "accountant", "cashier", "waiter", "kitchen", "admin", "member", "viewer"];
+const PAYMENT_METHOD_TYPES = ["cash", "digital", "bank", "due", "card", "other"];
+const PAYMENT_METHOD_TYPE_BY_KEY = {
+  cash: "cash",
+  card: "card",
+  bank_transfer: "bank",
+  esewa: "digital",
+  khalti: "digital",
+  credit: "due",
+  cheque: "other",
+  other: "other",
+  mixed: "other",
+};
 
 const canManageWholeOrganization = (membership) =>
   ["owner", "admin"].includes(membership?.role);
@@ -24,6 +42,80 @@ const normalizeOptionalString = (value) => {
 };
 
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+const getPaymentMethodType = (key) => PAYMENT_METHOD_TYPE_BY_KEY[key] || "other";
+
+const normalizePaymentMethodSettings = (value) => {
+  const defaults = createDefaultOrganizationPaymentMethods();
+  const incomingMethods = Array.isArray(value) ? value : [];
+  const incomingByKey = new Map();
+
+  incomingMethods.forEach((method) => {
+    const key = normalizeOptionalString(method?.key);
+    if (!PAYMENT_METHOD_VALUES.includes(key)) return;
+    incomingByKey.set(key, method);
+  });
+
+  let methods = defaults.map((defaultMethod) => {
+    const current = incomingByKey.get(defaultMethod.key) || {};
+    return {
+      key: defaultMethod.key,
+      name: normalizeOptionalString(current.name) || defaultMethod.name,
+      type: PAYMENT_METHOD_TYPES.includes(current.type)
+        ? current.type
+        : defaultMethod.type,
+      isActive:
+        current.isActive === undefined
+          ? defaultMethod.isActive
+          : Boolean(current.isActive),
+      isDefault: Boolean(current.isDefault),
+      description:
+        normalizeOptionalString(current.description) || defaultMethod.description,
+    };
+  });
+
+  const additionalMethods = incomingMethods
+    .filter((method) => {
+      const key = normalizeOptionalString(method?.key);
+      return key && !methods.some((entry) => entry.key === key);
+    })
+    .map((method) => {
+      const key = normalizeOptionalString(method.key);
+      if (!PAYMENT_METHOD_VALUES.includes(key)) return null;
+
+      return {
+        key,
+        name:
+          normalizeOptionalString(method.name) ||
+          PAYMENT_METHOD_LABELS[key] ||
+          key,
+        type: PAYMENT_METHOD_TYPES.includes(method.type)
+          ? method.type
+          : getPaymentMethodType(key),
+        isActive: method.isActive === undefined ? true : Boolean(method.isActive),
+        isDefault: Boolean(method.isDefault),
+        description: normalizeOptionalString(method.description),
+      };
+    })
+    .filter(Boolean);
+
+  methods = [...methods, ...additionalMethods];
+
+  if (!methods.some((method) => method.isActive)) {
+    methods = methods.map((method) =>
+      method.key === "cash" ? { ...method, isActive: true } : method
+    );
+  }
+
+  const defaultMethod =
+    methods.find((method) => method.isDefault && method.isActive) ||
+    methods.find((method) => method.isActive) ||
+    methods[0];
+
+  return methods.map((method) => ({
+    ...method,
+    isDefault: defaultMethod ? method.key === defaultMethod.key : false,
+  }));
+};
 
 const getPrimaryBranch = async (orgId) =>
   BranchModel.findOne({ orgId, isActive: true }).sort({ isPrimary: -1, createdAt: 1 });
@@ -45,6 +137,14 @@ export const getOrganization = async (req, res) => {
     if (!org) {
       return sendError(res, { status: 404, message: "Organization not found" });
     }
+
+    if (!org.settings) {
+      org.settings = {};
+    }
+
+    org.settings.paymentMethods = normalizePaymentMethodSettings(
+      org.settings?.paymentMethods
+    );
 
     return sendSuccess(res, { data: org });
   } catch (error) {
@@ -75,6 +175,8 @@ export const updateOrganization = async (req, res) => {
       address,
       businessType,
     } = req.body;
+    const paymentMethods =
+      req.body?.settings?.paymentMethods ?? req.body?.paymentMethods;
 
     if (name) org.name = name;
     if (phone !== undefined) org.phone = phone;
@@ -84,6 +186,16 @@ export const updateOrganization = async (req, res) => {
     if (financialYearStart) org.financialYearStart = financialYearStart;
     if (invoicePrefix) org.invoicePrefix = invoicePrefix;
     if (address) org.address = address;
+
+    if (!org.settings) {
+      org.settings = {};
+    }
+
+    if (paymentMethods !== undefined) {
+      org.settings.paymentMethods = normalizePaymentMethodSettings(paymentMethods);
+    } else if (!Array.isArray(org.settings.paymentMethods) || !org.settings.paymentMethods.length) {
+      org.settings.paymentMethods = createDefaultOrganizationPaymentMethods();
+    }
 
     if (businessType) {
       const normalizedBusinessType = normalizeBusinessType(businessType);
@@ -237,9 +349,12 @@ export const getMembers = async (req, res) => {
       role: member.role,
       branchId: member.branchId || null,
       branchName: member.branchId ? branchMap[member.branchId.toString()]?.name || "" : "",
+      phone: member.phone || "",
+      notes: member.notes || "",
       permissions: member.permissions,
       isActive: member.isActive,
       createdAt: member.createdAt,
+      updatedAt: member.updatedAt,
     }));
 
     return sendSuccess(res, { data: result });
@@ -259,9 +374,12 @@ export const createMember = async (req, res) => {
     const email = normalizeOptionalString(req.body.email).toLowerCase();
     const password = normalizeOptionalString(req.body.password);
     const role = normalizeOptionalString(req.body.role);
+    const phone = normalizeOptionalString(req.body.phone);
+    const notes = normalizeOptionalString(req.body.notes);
+    const isActive = req.body.isActive === undefined ? true : Boolean(req.body.isActive);
 
     if (!username || !email || !role) {
-      return sendError(res, { status: 400, message: "Username, email, and role are required" });
+      return sendError(res, { status: 400, message: "Full name, email, and role are required" });
     }
 
     if (!ASSIGNABLE_ROLES.includes(role)) {
@@ -319,7 +437,10 @@ export const createMember = async (req, res) => {
       userId: user._id,
       role,
       branchId: branch?._id || null,
+      phone,
+      notes,
       permissions: [],
+      isActive,
       invitedBy: req.userId,
     });
 
@@ -345,10 +466,13 @@ export const createMember = async (req, res) => {
         role: member.role,
         branchId: member.branchId,
         branchName: branch?.name || "",
+        phone: member.phone || "",
+        notes: member.notes || "",
         isActive: member.isActive,
         createdAt: member.createdAt,
+        updatedAt: member.updatedAt,
       },
-      "Team member added"
+      "Staff member added"
     );
   } catch (error) {
     console.error(error);
@@ -364,6 +488,10 @@ export const updateMemberRole = async (req, res) => {
 
     const { memberId } = req.params;
     const { role } = req.body;
+    const phone = normalizeOptionalString(req.body.phone);
+    const notes = normalizeOptionalString(req.body.notes);
+    const nextIsActive =
+      req.body.isActive === undefined ? undefined : Boolean(req.body.isActive);
 
     if (!VALID_ROLES.includes(role)) {
       return sendError(res, { status: 400, message: "Invalid role" });
@@ -380,8 +508,17 @@ export const updateMemberRole = async (req, res) => {
 
     const oldRole = member.role;
     const oldBranchId = member.branchId ? member.branchId.toString() : null;
+    const oldIsActive = member.isActive;
+    const oldPhone = member.phone || "";
+    const oldNotes = member.notes || "";
 
     member.role = role;
+    member.phone = phone;
+    member.notes = notes;
+
+    if (nextIsActive !== undefined) {
+      member.isActive = nextIsActive;
+    }
 
     if (Object.prototype.hasOwnProperty.call(req.body, "branchId")) {
       const nextBranchId = req.body.branchId || null;
@@ -410,12 +547,15 @@ export const updateMemberRole = async (req, res) => {
             old: oldBranchId,
             new: member.branchId ? member.branchId.toString() : null,
           },
+          isActive: { old: oldIsActive, new: member.isActive },
+          phone: { old: oldPhone, new: member.phone || "" },
+          notes: { old: oldNotes, new: member.notes || "" },
         },
       },
       req
     );
 
-    return sendSuccess(res, { data: member, message: "Member role updated" });
+    return sendSuccess(res, { data: member, message: "Staff member updated" });
   } catch (error) {
     console.error(error);
     return sendError(res, { status: 500, message: "Server error" });

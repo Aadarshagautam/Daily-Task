@@ -24,6 +24,16 @@ const orgMemberSchema = new mongoose.Schema(
       ref: "branch",
       default: null,
     },
+    phone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    notes: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     permissions: [{ type: String }],
     isActive: {
       type: Boolean,

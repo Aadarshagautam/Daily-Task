@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 
 const navItems = [
-  { label: 'Software', href: '/#products' },
-  { label: 'Roles', href: '/#roles' },
-  { label: 'Branches', href: '/#branches' },
+  { label: 'Business Types', href: '/#business-types' },
+  { label: 'Features', href: '/#features' },
+  { label: 'Trust', href: '/#trust' },
+  { label: 'Plans', href: '/#pricing' },
 ]
 
 const MarketingShell = ({ children }) => {
@@ -21,7 +22,7 @@ const MarketingShell = ({ children }) => {
             </div>
             <div className="hidden sm:block">
               <p className="text-sm font-semibold text-slate-900">CommerceOS</p>
-              <p className="text-xs text-slate-500">Nepal-first software for restaurant, cafe, and shop teams</p>
+              <p className="text-xs text-slate-500">Nepal business software for billing, stock, and daily reports</p>
             </div>
           </Link>
 
@@ -37,8 +38,8 @@ const MarketingShell = ({ children }) => {
             <Link to="/login" className="rounded-2xl px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-stone-100 hover:text-slate-900">
               Log in
             </Link>
-            <a href="/#products" className="rounded-2xl bg-gradient-to-r from-emerald-950 to-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95">
-              Buy software
+            <a href="/#contact" className="rounded-2xl bg-gradient-to-r from-emerald-950 to-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95">
+              Start trial
             </a>
           </div>
 
@@ -74,11 +75,11 @@ const MarketingShell = ({ children }) => {
                 Log in
               </Link>
               <a
-                href="/#products"
+                href="/#contact"
                 onClick={() => setNavOpen(false)}
                 className="rounded-2xl bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-slate-800"
               >
-                Buy software
+                Start trial
               </a>
             </div>
           </div>
@@ -95,14 +96,15 @@ const MarketingShell = ({ children }) => {
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-900">CommerceOS</p>
-              <p className="text-xs text-slate-500">Built around NPR, 13% VAT, eSewa, Khalti, and branch-led Nepal operations</p>
+              <p className="text-xs text-slate-500">Built around billing, stock, VAT-friendly invoicing, local payments, and daily business reports</p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-500">
-            <a href="/#products" className="transition hover:text-slate-900">Software</a>
-            <a href="/#roles" className="transition hover:text-slate-900">Roles</a>
-            <a href="/#branches" className="transition hover:text-slate-900">Branches</a>
+            <a href="/#business-types" className="transition hover:text-slate-900">Business Types</a>
+            <a href="/#features" className="transition hover:text-slate-900">Features</a>
+            <a href="/#pricing" className="transition hover:text-slate-900">Plans</a>
+            <a href="/#contact" className="transition hover:text-slate-900">Demo</a>
             <Link to="/login" className="transition hover:text-slate-900">Log in</Link>
           </div>
         </div>

@@ -153,7 +153,9 @@ export const createSupplier = async (req, res) => {
 
 export const getPurchases = async (req, res) => {
   try {
-    const purchases = await Purchase.find(buildScopeFilter(req)).sort({ createdAt: -1 });
+    const purchases = await Purchase.find(buildScopeFilter(req))
+      .populate({ path: "userId", select: "username" })
+      .sort({ createdAt: -1 });
     return sendSuccess(res, { data: purchases });
   } catch (error) {
     console.error(error);
