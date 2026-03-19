@@ -2,6 +2,7 @@
   "name": "commerceos-workspace",
   "private": true,
   "scripts": {
+    "postinstall": "npm --prefix backend install && npm --prefix vite-project install",
     "lint": "npm --prefix backend run lint && npm --prefix vite-project run lint",
     "test": "npm --prefix backend run test && npm --prefix vite-project run test",
     "build": "npm --prefix vite-project run build",
