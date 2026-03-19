@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "vite-project/dist",
+  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/(.*)",
