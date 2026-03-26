@@ -1,24 +1,22 @@
 import React, { useContext } from 'react'
-import { Plus, User, LogOut, Mail, Menu, Bell, Search, LayoutGrid } from 'lucide-react'
+import { User, LogOut, Mail, Menu, Bell, Search } from 'lucide-react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import AppContext from '../context/app-context.js'
-import axios from 'axios'
 import { toast } from 'react-hot-toast'
+import api from '../lib/api.js'
 
 const Navbar = ({ toggleSidebar }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { userData, backendUrl, setUserData, setIsLoggedin, isLoggedin, currentOrgId, currentOrgName } = useContext(AppContext)
+  const { userData, setUserData, setIsLoggedin, isLoggedin, currentOrgId, currentOrgName } = useContext(AppContext)
 
   const hideNavbar = ['/login', '/register', '/email-verifty', '/reset-password'].includes(location.pathname)
-  const isEditorPage = location.pathname.includes('/create') || (location.pathname.includes('/notes/') && location.pathname !== '/notes')
-  
-  if (hideNavbar || isEditorPage) return null
+
+  if (hideNavbar) return null
 
   const sendVerificationOtp = async () => {
     try {
-      axios.defaults.withCredentials = true
-      const { data } = await axios.post(backendUrl + "/api/auth/send-verify-opt")
+      const { data } = await api.post("/auth/send-verify-opt")
       if (data.success) {
         toast.success(data.message)
         navigate('/email-verifty')
@@ -32,8 +30,7 @@ const Navbar = ({ toggleSidebar }) => {
 
   const logout = async () => {
     try {
-      axios.defaults.withCredentials = true
-      const { data } = await axios.post(backendUrl + "/api/auth/logout")
+      const { data } = await api.post("/auth/logout")
       if (data.success) {
         setIsLoggedin(false)
         setUserData(null)
@@ -79,20 +76,6 @@ const Navbar = ({ toggleSidebar }) => {
           <div className="flex items-center gap-3">
             {isLoggedin ? (
               <>
-                {/* New Note Button */}
-                {/* <Link 
-                  to="/create" 
-                  className="flex items-center gap-2 btn-primary"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">New Note</span>
-                </Link> */}
-
-                {/* App Switcher */}
-                <Link to="/apps" className="p-2 hover:bg-gray-100 rounded-xl transition-all duration-200" title="All Apps">
-                  <LayoutGrid className="w-5 h-5 text-gray-600" />
-                </Link>
-
                 {/* Notifications */}
                 <button className="relative p-2 hover:bg-gray-100 rounded-xl transition-all duration-200">
                   <Bell className="w-5 h-5 text-gray-600" />

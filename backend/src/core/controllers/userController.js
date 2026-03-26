@@ -1,9 +1,6 @@
 import UserModel from "../models/User.js";
-import OrganizationModel from "../models/Organization.js";
-import OrgMemberModel from "../models/OrgMember.js";
-import BranchModel from "../models/Branch.js";
-import { ROLE_PERMISSIONS } from "../config/permissions.js";
 import { sendError, sendSuccess } from "../utils/response.js";
+import { resolveWorkspaceContextForUser } from "../utils/workspace.js";
 
 export const getUserData = async (req, res) => {
     try {
@@ -15,33 +12,7 @@ export const getUserData = async (req, res) => {
           return sendError(res, { status: 404, message: "User not found" });
         }
 
-        let orgName = null;
-        let orgBusinessType = "general";
-        let orgSoftwarePlan = "single-branch";
-        let role = null;
-        let permissions = [];
-        let branchId = null;
-        let branchName = null;
-
-        if (user.currentOrgId) {
-          const [org, membership] = await Promise.all([
-            OrganizationModel.findById(user.currentOrgId).select("name businessType softwarePlan"),
-            OrgMemberModel.findOne({ orgId: user.currentOrgId, userId: user._id, isActive: true }),
-          ]);
-          orgName = org?.name || null;
-          orgBusinessType = org?.businessType || "general";
-          orgSoftwarePlan = org?.softwarePlan || "single-branch";
-          role = membership?.role || null;
-          branchId = membership?.branchId || null;
-          // Merge role defaults with individual overrides
-          const rolePerms = ROLE_PERMISSIONS[membership?.role] || [];
-          permissions = [...new Set([...rolePerms, ...(membership?.permissions || [])])];
-
-          if (branchId) {
-            const branch = await BranchModel.findById(branchId).select("name");
-            branchName = branch?.name || null;
-          }
-        }
+        const workspace = await resolveWorkspaceContextForUser(user);
 
         return sendSuccess(res, {
           data: {
@@ -49,14 +20,14 @@ export const getUserData = async (req, res) => {
             username: user.username,
             email: user.email,
             isAccountVerified: user.isAccountVerified,
-            orgId: user.currentOrgId || null,
-            orgName,
-            orgBusinessType: orgBusinessType || "general",
-            orgSoftwarePlan,
-            branchId,
-            branchName,
-            role,
-            permissions,
+            orgId: workspace.orgId,
+            orgName: workspace.orgName,
+            orgBusinessType: workspace.orgBusinessType,
+            orgSoftwarePlan: workspace.orgSoftwarePlan,
+            branchId: workspace.branchId,
+            branchName: workspace.branchName,
+            role: workspace.role,
+            permissions: workspace.permissions,
           },
         });
       } catch (error) {

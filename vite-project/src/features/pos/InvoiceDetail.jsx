@@ -54,7 +54,7 @@ const InvoiceDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="p-4 lg:pl-[17.5rem] pt-20 flex items-center justify-center min-h-[50vh]">
+      <div className="page-shell flex min-h-[50vh] items-center justify-center">
         <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
       </div>
     );
@@ -62,7 +62,7 @@ const InvoiceDetail = () => {
 
   if (!sale) {
     return (
-      <div className="p-4 lg:pl-[17.5rem] pt-20 text-center py-20">
+      <div className="page-shell py-20 text-center">
         <p className="text-gray-500">Sale not found</p>
       </div>
     );
@@ -75,7 +75,7 @@ const InvoiceDetail = () => {
   };
 
   return (
-    <div className="p-4 lg:pl-[17.5rem] pt-20">
+    <div className="page-shell">
       <div className="max-w-4xl mx-auto">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-4 print:hidden">

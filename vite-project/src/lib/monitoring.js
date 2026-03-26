@@ -1,7 +1,4 @@
-const backendBaseUrl = (import.meta.env?.VITE_BACKEND_URL || "http://localhost:5001").replace(
-  /\/+$/,
-  ""
-);
+const backendBaseUrl = (import.meta.env?.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
 const createRandomId = () => {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -37,7 +34,7 @@ export const reportBrowserEvent = async ({
     page: page || (typeof window !== "undefined" ? window.location.pathname : null),
     metadata: metadata && typeof metadata === "object" ? metadata : null,
   });
-  const url = `${backendBaseUrl}/api/ops/frontend-events`;
+  const url = backendBaseUrl ? `${backendBaseUrl}/api/ops/frontend-events` : "/api/ops/frontend-events";
 
   try {
     await fetch(url, {

@@ -14,8 +14,6 @@ import { ConnectDB } from "../core/config/db.js";
 import UserModel from "../core/models/User.js";
 import OrganizationModel from "../core/models/Organization.js";
 import OrgMemberModel from "../core/models/OrgMember.js";
-import NoteModel from "../modules/notes/model.js";
-import TodoModel from "../modules/todos/model.js";
 import TransactionModel from "../modules/accounting/model.js";
 import InventoryModel from "../modules/inventory/model.js";
 import CustomerModel from "../modules/customers/model.js";
@@ -35,7 +33,7 @@ async function migrate() {
         console.log(`User ${user.username} (${user.email}) already has org: ${existingOrg.name}. Skipping org creation.`);
         // Still update records that may be missing orgId
         const orgId = user.currentOrgId;
-        const models = [NoteModel, TodoModel, TransactionModel, InventoryModel, CustomerModel, InvoiceModel];
+        const models = [TransactionModel, InventoryModel, CustomerModel, InvoiceModel];
         for (const Model of models) {
           const result = await Model.updateMany(
             { userId: user._id, $or: [{ orgId: null }, { orgId: { $exists: false } }] },
@@ -76,7 +74,7 @@ async function migrate() {
     await user.save();
 
     // Update all business records
-    const models = [NoteModel, TodoModel, TransactionModel, InventoryModel, CustomerModel, InvoiceModel];
+    const models = [TransactionModel, InventoryModel, CustomerModel, InvoiceModel];
     for (const Model of models) {
       const result = await Model.updateMany(
         { userId: user._id, $or: [{ orgId: null }, { orgId: { $exists: false } }] },

@@ -6,7 +6,6 @@ import {
   ArrowUpRight,
   DollarSign,
   FileText,
-  Kanban,
   Monitor,
   Package,
   Receipt,
@@ -19,7 +18,7 @@ import {
 import toast from 'react-hot-toast'
 import { posCustomerApi, posKdsApi, posSaleApi, posTableApi } from '../api/posApi'
 import StatePanel from '../components/StatePanel.jsx'
-import { getBusinessMeta } from '../config/businessConfigs.js'
+import { getBusinessMeta, getCustomerPathForBusiness } from '../config/businessConfigs.js'
 import AppContext from '../context/app-context.js'
 import { purchaseApi } from '../lib/purchaseApi.js'
 import api from '../lib/api.js'
@@ -79,56 +78,104 @@ const getTableServiceState = (table) => {
 
 const ownerCardToneMap = {
   emerald: {
-    border: 'border-emerald-200 hover:border-emerald-300',
-    icon: 'bg-emerald-50 text-emerald-700',
+    border: 'border-[#dbe5f4] hover:border-[#7dd3fc]',
+    line: 'from-emerald-500 via-cyan-400 to-transparent',
+    icon: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    badge: 'bg-emerald-50 text-emerald-700',
+    dot: 'bg-emerald-400',
   },
   rose: {
-    border: 'border-rose-200 hover:border-rose-300',
-    icon: 'bg-rose-50 text-rose-700',
+    border: 'border-[#dbe5f4] hover:border-[#fda4af]',
+    line: 'from-rose-500 via-cyan-400 to-transparent',
+    icon: 'border-rose-200 bg-rose-50 text-rose-700',
+    badge: 'bg-rose-50 text-rose-700',
+    dot: 'bg-rose-400',
   },
   amber: {
-    border: 'border-amber-200 hover:border-amber-300',
-    icon: 'bg-amber-50 text-amber-700',
+    border: 'border-[#dbe5f4] hover:border-[#fcd34d]',
+    line: 'from-amber-500 via-cyan-400 to-transparent',
+    icon: 'border-amber-200 bg-amber-50 text-amber-700',
+    badge: 'bg-amber-50 text-amber-700',
+    dot: 'bg-amber-400',
   },
   blue: {
-    border: 'border-sky-200 hover:border-sky-300',
-    icon: 'bg-sky-50 text-sky-700',
+    border: 'border-[#dbe5f4] hover:border-[#93c5fd]',
+    line: 'from-blue-500 via-cyan-400 to-transparent',
+    icon: 'border-blue-200 bg-blue-50 text-blue-700',
+    badge: 'bg-blue-50 text-blue-700',
+    dot: 'bg-blue-400',
   },
   slate: {
-    border: 'border-slate-200 hover:border-slate-300',
-    icon: 'bg-slate-100 text-slate-700',
+    border: 'border-[#dbe5f4] hover:border-[#cbd5e1]',
+    line: 'from-slate-500 via-cyan-400 to-transparent',
+    icon: 'border-slate-200 bg-slate-100 text-slate-700',
+    badge: 'bg-slate-100 text-slate-700',
+    dot: 'bg-slate-400',
   },
   teal: {
-    border: 'border-teal-200 hover:border-teal-300',
-    icon: 'bg-teal-50 text-teal-700',
+    border: 'border-[#dbe5f4] hover:border-[#67e8f9]',
+    line: 'from-cyan-500 via-blue-400 to-transparent',
+    icon: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+    badge: 'bg-cyan-50 text-cyan-700',
+    dot: 'bg-cyan-400',
   },
 }
 
 const insightToneMap = {
-  emerald: 'border-emerald-200 bg-emerald-50 text-emerald-900',
-  rose: 'border-rose-200 bg-rose-50 text-rose-900',
-  amber: 'border-amber-200 bg-amber-50 text-amber-900',
-  blue: 'border-sky-200 bg-sky-50 text-sky-900',
-  slate: 'border-slate-200 bg-slate-50 text-slate-900',
-  teal: 'border-teal-200 bg-teal-50 text-teal-900',
+  emerald: { border: 'border-[#1b334e]', dot: 'bg-emerald-400' },
+  rose: { border: 'border-[#3c2743]', dot: 'bg-rose-400' },
+  amber: { border: 'border-[#3f3a2d]', dot: 'bg-amber-400' },
+  blue: { border: 'border-[#1e3a5f]', dot: 'bg-blue-400' },
+  slate: { border: 'border-[#334155]', dot: 'bg-slate-300' },
+  teal: { border: 'border-[#153f51]', dot: 'bg-cyan-400' },
 }
 
-const businessModes = [
-  { name: 'Restaurant', summary: 'Tables, kitchen, billing, stock, and shift close in one Nepal-ready package.', path: '/settings' },
-  { name: 'Cafe', summary: 'Counter billing, regulars, stock, and day close without restaurant clutter.', path: '/settings' },
-  { name: 'Shop', summary: 'Billing, products, stock, invoices, and due follow-up for retail counters.', path: '/settings' },
-]
+const moduleToneMap = {
+  emerald: {
+    rail: 'from-emerald-500 to-cyan-400',
+    icon: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    badge: 'bg-emerald-50 text-emerald-800',
+  },
+  rose: {
+    rail: 'from-rose-500 to-cyan-400',
+    icon: 'border-rose-200 bg-rose-50 text-rose-700',
+    badge: 'bg-rose-50 text-rose-800',
+  },
+  amber: {
+    rail: 'from-amber-500 to-cyan-400',
+    icon: 'border-amber-200 bg-amber-50 text-amber-700',
+    badge: 'bg-amber-50 text-amber-800',
+  },
+  blue: {
+    rail: 'from-blue-500 to-cyan-400',
+    icon: 'border-blue-200 bg-blue-50 text-blue-700',
+    badge: 'bg-blue-50 text-blue-800',
+  },
+  teal: {
+    rail: 'from-cyan-500 to-blue-400',
+    icon: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+    badge: 'bg-cyan-50 text-cyan-800',
+  },
+  slate: {
+    rail: 'from-slate-500 to-cyan-400',
+    icon: 'border-slate-200 bg-slate-100 text-slate-700',
+    badge: 'bg-slate-100 text-slate-800',
+  },
+}
+
+const heroStatusToneMap = {
+  emerald: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-50',
+  rose: 'border-rose-400/25 bg-rose-400/10 text-rose-50',
+  amber: 'border-amber-300/25 bg-amber-300/10 text-amber-50',
+}
 
 const getRoleExperience = (role, businessType, businessMeta) => {
-  const isLegacyWorkspace = businessType === 'general'
   const isShop = businessType === 'shop'
   const isFoodService = businessType === 'restaurant' || businessType === 'cafe'
   const focusedPrimary =
-    isLegacyWorkspace
-      ? { label: 'Review finance', path: '/accounting' }
-      : isShop
-        ? { label: 'Review invoices', path: '/invoices' }
-        : { label: 'Review shift close', path: '/pos/shifts' }
+    isShop
+      ? { label: 'Review invoices', path: '/invoices' }
+      : { label: 'Review shift close', path: '/pos/shifts' }
 
   const byRole = {
     owner: {
@@ -141,7 +188,7 @@ const getRoleExperience = (role, businessType, businessMeta) => {
       kicker: 'Admin View',
       summary: 'Keep work areas, staff access, and payment flow aligned across the workspace.',
       primaryAction: { label: 'Open settings', path: '/settings' },
-      secondaryAction: { label: 'Review work areas', path: '/apps' },
+      secondaryAction: { label: 'Open dashboard', path: '/dashboard' },
     },
     manager: {
       kicker: 'Manager View',
@@ -151,7 +198,7 @@ const getRoleExperience = (role, businessType, businessMeta) => {
           : businessType === 'cafe'
             ? 'Keep counter speed, regulars, and stock risk visible during rush hours.'
             : businessType === 'shop'
-              ? 'Keep checkout speed, stock risk, and due follow-up visible through the day.'
+              ? 'Keep checkout speed, stock risk, and due follow-up visible through the retail day.'
               : 'Watch revenue, branch health, and the next bottlenecks before they slow the workspace.',
       primaryAction: { label: 'Open POS', path: '/pos/billing' },
       secondaryAction: { label: 'Check stock', path: '/inventory' },
@@ -159,11 +206,9 @@ const getRoleExperience = (role, businessType, businessMeta) => {
     accountant: {
       kicker: 'Accountant View',
       summary:
-        isLegacyWorkspace
-          ? 'Keep revenue, receivables, purchases, and cash movement reconciled for Nepal VAT reporting.'
-          : isShop
-            ? 'Keep invoices, collections, and buying records ready for daily reconciliation.'
-            : 'Keep stock buying, wallet totals, and shift close consistent for daily reconciliation.',
+        isShop
+          ? 'Keep invoices, collections, and buying records ready for daily reconciliation.'
+          : 'Keep stock buying, wallet totals, and shift close consistent for daily reconciliation.',
       primaryAction: focusedPrimary,
       secondaryAction: isFoodService ? { label: 'Check stock', path: '/inventory' } : { label: 'Review invoices', path: '/invoices' },
     },
@@ -180,7 +225,7 @@ const getRoleExperience = (role, businessType, businessMeta) => {
       kicker: 'Command Center',
       summary: businessMeta.commandCenterSummary,
       primaryAction: { label: 'Open billing', path: '/pos/billing' },
-      secondaryAction: { label: 'Open work areas', path: '/apps' },
+      secondaryAction: { label: 'Check stock', path: '/inventory' },
     }
   )
 }
@@ -188,21 +233,26 @@ const getRoleExperience = (role, businessType, businessMeta) => {
 const OwnerMetricCard = ({ title, value, detail, icon: Icon, tone = 'slate', link, ctaLabel = 'Open details' }) => {
   const palette = ownerCardToneMap[tone] || ownerCardToneMap.slate
   const content = (
-    <div className={`group rounded-[28px] border bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md ${palette.border}`}>
-      <div className="flex items-start justify-between gap-4">
+    <div className={`group relative overflow-hidden rounded-[30px] border bg-[linear-gradient(180deg,#ffffff_0%,#edf4ff_100%)] p-5 shadow-[0_26px_60px_-42px_rgba(15,23,42,0.22)] transition hover:-translate-y-1 hover:shadow-[0_34px_70px_-42px_rgba(37,99,235,0.18)] ${palette.border}`}>
+      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${palette.line}`} />
+      <div className="absolute -right-6 top-0 h-24 w-24 rounded-full bg-[#38bdf8]/10 blur-2xl" />
+
+      <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{title}</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
-          <p className="mt-2 text-sm leading-6 text-slate-600">{detail}</p>
+          <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${palette.badge}`}>
+            {title}
+          </span>
+          <p className="mt-4 text-3xl font-semibold tracking-tight text-[#0f172a]">{value}</p>
+          <p className="mt-3 text-sm leading-6 text-[#52627a]">{detail}</p>
         </div>
         {Icon ? (
-          <div className={`rounded-2xl p-3 ${palette.icon}`}>
+          <div className={`rounded-[20px] border p-3 shadow-sm ${palette.icon}`}>
             <Icon className="h-5 w-5" />
           </div>
         ) : null}
       </div>
       {link ? (
-        <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
+        <div className="relative mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#0f172a]">
           {ctaLabel}
           <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </div>
@@ -214,12 +264,21 @@ const OwnerMetricCard = ({ title, value, detail, icon: Icon, tone = 'slate', lin
 }
 
 const QuickInsightCard = ({ title, value, detail, tone = 'slate', path }) => {
-  const className = insightToneMap[tone] || insightToneMap.slate
+  const palette = insightToneMap[tone] || insightToneMap.slate
   const content = (
-    <div className={`rounded-3xl border p-5 transition ${path ? 'hover:-translate-y-0.5 hover:shadow-sm' : ''} ${className}`}>
-      <p className="text-sm font-semibold">{title}</p>
-      <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
-      <p className="mt-2 text-sm leading-6 opacity-80">{detail}</p>
+    <div className={`group relative overflow-hidden rounded-[26px] border bg-[linear-gradient(180deg,rgba(10,18,34,0.96),rgba(16,29,53,0.98))] p-5 transition ${path ? 'hover:-translate-y-0.5 hover:shadow-[0_26px_56px_-38px_rgba(2,8,23,0.86)]' : ''} ${palette.border}`}>
+      <div className="absolute -right-8 top-0 h-20 w-20 rounded-full bg-[#38bdf8]/10 blur-2xl" />
+      <div className="relative flex items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className={`h-2.5 w-2.5 rounded-full ${palette.dot}`} />
+            <p className="text-sm font-semibold text-white">{title}</p>
+          </div>
+          <p className="mt-3 text-2xl font-semibold tracking-tight text-white">{value}</p>
+        </div>
+        {path ? <ArrowUpRight className="mt-0.5 h-4 w-4 shrink-0 text-[#7dd3fc] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /> : null}
+      </div>
+      <p className="relative mt-3 text-sm leading-6 text-[#bfd0e8]">{detail}</p>
     </div>
   )
 
@@ -236,7 +295,6 @@ const Dashboard = () => {
     sales: {},
     people: [],
     invoices: {},
-    leads: {},
     finance: {},
     lowStock: [],
     purchases: [],
@@ -254,22 +312,19 @@ const Dashboard = () => {
     },
   })
 
-  const businessType = orgBusinessType || 'general'
-  const isLegacyWorkspace = businessType === 'general'
+  const businessType = orgBusinessType || 'shop'
   const isShop = businessType === 'shop'
   const isRestaurant = businessType === 'restaurant'
   const businessMeta = getBusinessMeta(businessType)
-  const peoplePath = isShop || isLegacyWorkspace ? '/customers' : '/pos/customers'
+  const peoplePath = getCustomerPathForBusiness(businessType)
   const roleExperience = getRoleExperience(userRole, businessType, businessMeta)
   const showFinance = hasPermission('accounting.read')
-  const showInvoices = (isLegacyWorkspace || isShop) && hasPermission('invoices.read')
-  const showCrm = isLegacyWorkspace && hasPermission('crm.read')
-  const canReadCustomers = (isLegacyWorkspace || isShop) ? hasPermission('customers.read') : hasPermission('pos.customers.read')
+  const showInvoices = isShop && hasPermission('invoices.read')
+  const canReadCustomers = isShop ? hasPermission('customers.read') : hasPermission('pos.customers.read')
   const canReadInventory = hasPermission('inventory.read')
   const canReadPurchases = hasPermission('purchases.read')
-  const canReadTables = (isRestaurant || isLegacyWorkspace) && hasPermission('pos.tables.read')
-  const canReadKitchen = (isRestaurant || isLegacyWorkspace) && hasPermission('pos.kitchen.read')
-  const todayFocusCount = (overview.leads?.byStage?.proposal?.count || 0) + (overview.leads?.byStage?.negotiation?.count || 0)
+  const canReadTables = isRestaurant && hasPermission('pos.tables.read')
+  const canReadKitchen = isRestaurant && hasPermission('pos.kitchen.read')
   const headline =
     businessType === 'restaurant'
       ? 'is ready for the next service cycle.'
@@ -288,9 +343,8 @@ const Dashboard = () => {
 
         const results = await Promise.allSettled([
           posSaleApi.stats(),
-          canReadCustomers ? (isLegacyWorkspace || isShop ? api.get('/customers') : posCustomerApi.list()) : Promise.resolve({ data: { data: [] } }),
+          canReadCustomers ? (isShop ? api.get('/customers') : posCustomerApi.list()) : Promise.resolve({ data: { data: [] } }),
           showInvoices ? api.get('/invoices/stats') : Promise.resolve({ data: { data: {} } }),
-          showCrm ? api.get('/crm/stats') : Promise.resolve({ data: { data: {} } }),
           showFinance ? api.get('/transactions/summary') : Promise.resolve({ data: { data: {} } }),
           showFinance ? api.get('/transactions') : Promise.resolve({ data: { data: [] } }),
           canReadInventory ? api.get('/inventory/low-stock') : Promise.resolve({ data: { data: [] } }),
@@ -302,18 +356,17 @@ const Dashboard = () => {
         const sales = getSettledData(results[0], {})
         const people = getSettledData(results[1], [])
         const invoices = getSettledData(results[2], {})
-        const leads = getSettledData(results[3], {})
-        const finance = getSettledData(results[4], {})
-        const transactions = getSettledData(results[5], [])
-        const lowStock = getSettledData(results[6], [])
-        const purchases = getSettledData(results[7], [])
-        const tables = getSettledData(results[8], [])
-        const kitchen = getSettledData(results[9], [])
+        const finance = getSettledData(results[3], {})
+        const transactions = getSettledData(results[4], [])
+        const lowStock = getSettledData(results[5], [])
+        const purchases = getSettledData(results[6], [])
+        const tables = getSettledData(results[7], [])
+        const kitchen = getSettledData(results[8], [])
 
         const failedIndexes = results
           .map((result, index) => (result.status === 'rejected' ? index : null))
           .filter((index) => index !== null)
-        const criticalFailed = [0, 6, 7].every((index) => failedIndexes.includes(index))
+        const criticalFailed = [0, 5, 6].every((index) => failedIndexes.includes(index))
 
         setLoadFailed(criticalFailed)
         setPartialLoad(!criticalFailed && failedIndexes.length > 0)
@@ -322,7 +375,6 @@ const Dashboard = () => {
           sales,
           people: Array.isArray(people) ? people : [],
           invoices,
-          leads,
           finance,
           lowStock: Array.isArray(lowStock) ? lowStock : [],
           purchases: Array.isArray(purchases) ? purchases : [],
@@ -332,11 +384,11 @@ const Dashboard = () => {
           availability: {
             sales: results[0]?.status === 'fulfilled',
             customers: canReadCustomers ? results[1]?.status === 'fulfilled' : false,
-            finance: showFinance ? results[4]?.status === 'fulfilled' && results[5]?.status === 'fulfilled' : false,
-            inventory: canReadInventory ? results[6]?.status === 'fulfilled' : false,
-            purchases: canReadPurchases ? results[7]?.status === 'fulfilled' : false,
-            tables: canReadTables ? results[8]?.status === 'fulfilled' : false,
-            kitchen: canReadKitchen ? results[9]?.status === 'fulfilled' : false,
+            finance: showFinance ? results[3]?.status === 'fulfilled' && results[4]?.status === 'fulfilled' : false,
+            inventory: canReadInventory ? results[5]?.status === 'fulfilled' : false,
+            purchases: canReadPurchases ? results[6]?.status === 'fulfilled' : false,
+            tables: canReadTables ? results[7]?.status === 'fulfilled' : false,
+            kitchen: canReadKitchen ? results[8]?.status === 'fulfilled' : false,
           },
         })
 
@@ -356,10 +408,8 @@ const Dashboard = () => {
     canReadKitchen,
     canReadPurchases,
     canReadTables,
-    isLegacyWorkspace,
     isShop,
     reloadKey,
-    showCrm,
     showFinance,
     showInvoices,
   ])
@@ -388,7 +438,7 @@ const Dashboard = () => {
       title: 'Today Sales',
       value: overview.availability.sales ? formatCurrency(overview.sales?.todayRevenue) : '--',
       detail: overview.availability.sales
-        ? `${overview.sales?.todaySales || 0} bills closed today${overview.sales?.todayAverageSale ? ` · Avg ${formatCurrency(overview.sales?.todayAverageSale)}` : ''}`
+        ? `${overview.sales?.todaySales || 0} bills closed today${overview.sales?.todayAverageSale ? ` / Avg ${formatCurrency(overview.sales?.todayAverageSale)}` : ''}`
         : 'Live sales totals could not be loaded right now.',
       icon: DollarSign,
       tone: 'emerald',
@@ -461,26 +511,19 @@ const Dashboard = () => {
   ]
 
   const operationalCards =
-    isLegacyWorkspace
+    isShop
       ? [
-          { title: 'POS', metric: formatCurrency(overview.sales?.todayRevenue), summary: `${overview.sales?.todaySales || 0} sales today`, icon: Monitor, tone: 'bg-teal-50 text-teal-700 border-teal-200', path: '/pos/billing' },
-          { title: 'Sales', metric: `${overview.invoices?.totalInvoices || 0} invoices`, summary: `${formatCurrency(overview.invoices?.unpaidAmount)} waiting to collect`, icon: FileText, tone: 'bg-blue-50 text-blue-700 border-blue-200', path: '/invoices' },
-          { title: 'CRM', metric: `${overview.leads?.total || 0} leads`, summary: `${formatCurrency(overview.leads?.weightedRevenue)} weighted pipeline`, icon: Kanban, tone: 'bg-rose-50 text-rose-700 border-rose-200', path: '/crm' },
-          { title: 'Inventory', metric: `${overview.lowStock.length} low stock`, summary: 'Watch critical products before service slows down', icon: Package, tone: 'bg-orange-50 text-orange-700 border-orange-200', path: '/inventory' },
+          { title: 'POS', metric: formatCurrency(overview.sales?.todayRevenue), summary: `${overview.sales?.todaySales || 0} sales today`, icon: Monitor, tone: 'teal', path: '/pos/billing' },
+          { title: 'Customer due', metric: overview.availability.customers ? formatCurrency(dueCustomerTotal) : '--', summary: dueCustomers.length > 0 ? `${dueCustomers.length} account${dueCustomers.length === 1 ? '' : 's'} waiting collection` : 'No customer due is pending right now.', icon: Users, tone: 'blue', path: peoplePath },
+          { title: 'Stock', metric: `${overview.lowStock.length} low stock`, summary: 'Replenish products before the shelf runs dry', icon: Package, tone: 'amber', path: '/inventory' },
+          { title: 'Cash / due', metric: showFinance && overview.availability.finance ? formatCurrency(overview.finance?.balance) : '--', summary: showFinance && overview.availability.finance ? `${formatCurrency(overview.invoices?.unpaidAmount)} still waiting to collect` : 'Open accounting when finance access is available.', icon: FileText, tone: 'emerald', path: '/accounting' },
         ]
-      : isShop
-        ? [
-            { title: 'Sales', metric: formatCurrency(overview.sales?.todayRevenue), summary: `${overview.sales?.todaySales || 0} sales today`, icon: Monitor, tone: 'bg-teal-50 text-teal-700 border-teal-200', path: '/pos/billing' },
-            { title: 'Customers', metric: `${overview.people.length} accounts`, summary: 'Balances and follow-up stay close to billing', icon: Users, tone: 'bg-blue-50 text-blue-700 border-blue-200', path: '/customers' },
-            { title: 'Stock', metric: `${overview.lowStock.length} low stock`, summary: 'Replenish products before the shelf runs dry', icon: Package, tone: 'bg-orange-50 text-orange-700 border-orange-200', path: '/inventory' },
-            { title: 'Finance', metric: `${overview.invoices?.overdueCount || 0} overdue`, summary: `${formatCurrency(overview.invoices?.unpaidAmount)} waiting to collect`, icon: FileText, tone: 'bg-emerald-50 text-emerald-700 border-emerald-200', path: '/invoices' },
-          ]
-        : [
-            { title: isRestaurant ? 'Service' : 'Counter', metric: formatCurrency(overview.sales?.todayRevenue), summary: `${overview.sales?.todaySales || 0} sales today`, icon: Monitor, tone: 'bg-teal-50 text-teal-700 border-teal-200', path: '/pos/billing' },
-            { title: isRestaurant ? 'Guests' : 'Regulars', metric: `${overview.people.length} profiles`, summary: 'Repeat visitors stay close to billing', icon: Users, tone: 'bg-blue-50 text-blue-700 border-blue-200', path: '/pos/customers' },
-            { title: 'Stock', metric: `${overview.lowStock.length} low stock`, summary: 'Replenish before the next rush', icon: Package, tone: 'bg-orange-50 text-orange-700 border-orange-200', path: '/inventory' },
-            { title: 'Day close', metric: `${overview.sales?.todaySales || 0} sales`, summary: 'Shifts, wallet totals, and service summaries stay ready for sign-off.', icon: Receipt, tone: 'bg-amber-50 text-amber-700 border-amber-200', path: '/pos/shifts' },
-          ]
+      : [
+          { title: isRestaurant ? 'Service' : 'Counter', metric: formatCurrency(overview.sales?.todayRevenue), summary: `${overview.sales?.todaySales || 0} sales today`, icon: Monitor, tone: 'teal', path: '/pos/billing' },
+          { title: isRestaurant ? 'Guests' : 'Regulars', metric: `${overview.people.length} profiles`, summary: 'Repeat visitors stay close to billing', icon: Users, tone: 'blue', path: peoplePath },
+          { title: 'Stock', metric: `${overview.lowStock.length} low stock`, summary: 'Replenish before the next rush', icon: Package, tone: 'amber', path: '/inventory' },
+          { title: 'Day close', metric: `${overview.sales?.todaySales || 0} sales`, summary: 'Shifts, wallet totals, and service summaries stay ready for sign-off.', icon: Receipt, tone: 'emerald', path: '/pos/shifts' },
+        ]
 
   const focusItems = [
     {
@@ -493,7 +536,7 @@ const Dashboard = () => {
       path: overview.availability.sales ? '/pos/sales' : '',
     },
     {
-      title: 'Collection watch',
+      title: 'Customer due',
       value: overview.availability.customers ? formatCurrency(dueCustomerTotal) : '--',
       detail: overview.availability.customers
         ? dueCustomers.length > 0
@@ -504,7 +547,7 @@ const Dashboard = () => {
       path: overview.availability.customers ? peoplePath : '',
     },
     {
-      title: 'Purchase follow-up',
+      title: 'Supplier due',
       value: overview.availability.purchases ? formatCurrency(unpaidPurchaseTotal) : '--',
       detail: overview.availability.purchases
         ? unpaidPurchases.length > 0
@@ -515,7 +558,7 @@ const Dashboard = () => {
       path: overview.availability.purchases ? '/purchases' : '',
     },
     {
-      title: 'Restock watch',
+      title: 'Restock queue',
       value: overview.availability.inventory ? `${overview.lowStock.length} items` : '--',
       detail: overview.availability.inventory
         ? overview.lowStock.length > 0
@@ -525,15 +568,6 @@ const Dashboard = () => {
       tone: overview.lowStock.length > 0 ? 'amber' : 'emerald',
       path: overview.availability.inventory ? '/inventory' : '',
     },
-    ...(showCrm
-      ? [{
-          title: 'Pipeline focus',
-          value: `${todayFocusCount}`,
-          detail: todayFocusCount > 0 ? 'Deals are sitting in proposal or negotiation.' : 'No urgent proposal follow-up is pending.',
-          tone: 'rose',
-          path: '/crm',
-        }]
-      : []),
     ...(canReadTables && overview.availability.tables
       ? [{
           title: 'Open tables',
@@ -559,17 +593,9 @@ const Dashboard = () => {
   ].slice(0, canReadKitchen || canReadTables ? 6 : 5)
 
   const supportAction =
-    isLegacyWorkspace
-      ? { label: 'Close the books', path: '/accounting', description: 'Track cash, expenses, and reporting status.' }
-      : isShop
-        ? { label: 'Review collections', path: '/invoices', description: 'Follow overdue invoices and customer dues.' }
-        : { label: 'Close the day', path: '/pos/shifts', description: 'Review shift totals, wallets, and handover before sign-off.' }
-
-  const stockAction = {
-    label: 'Check stock',
-    path: '/inventory',
-    description: 'Watch critical items before the next rush.',
-  }
+    isShop
+      ? { label: 'Review collections', path: '/invoices', description: 'Follow overdue invoices and customer dues.' }
+      : { label: 'Close the day', path: '/pos/shifts', description: 'Review shift totals, wallets, and handover before sign-off.' }
 
   const heroActions = [
     {
@@ -580,7 +606,6 @@ const Dashboard = () => {
       ...roleExperience.secondaryAction,
       description: 'Keep the next operational decision obvious.',
     },
-    ...(isLegacyWorkspace ? [stockAction] : []),
     supportAction,
   ].filter((action, index, items) => action?.path && items.findIndex(item => item.path === action.path) === index)
 
@@ -588,14 +613,141 @@ const Dashboard = () => {
     isShop
       ? [
           { label: 'Sales closed today', value: overview.sales?.todaySales || 0, detail: 'Keep billing pace visible across the day.', path: '/pos/sales' },
-          { label: 'Customer accounts', value: overview.people.length, detail: 'Follow dues and repeat sales without extra CRM flow.', path: '/customers' },
+          { label: 'Customer accounts', value: overview.people.length, detail: 'Follow dues and repeat sales without extra CRM flow.', path: peoplePath },
           { label: 'Outstanding invoices', value: formatCurrency(overview.invoices?.unpaidAmount), detail: 'Collections stay in focus for the next follow-up.', path: '/invoices' },
         ]
       : [
           { label: 'Sales closed today', value: overview.sales?.todaySales || 0, detail: 'Keep the counter and floor moving through one focused flow.', path: '/pos/sales' },
-          { label: isRestaurant ? 'Guest profiles' : 'Regular profiles', value: overview.people.length, detail: 'Repeat guests and loyalty stay easy to reach.', path: '/pos/customers' },
+          { label: isRestaurant ? 'Guest profiles' : 'Regular profiles', value: overview.people.length, detail: 'Repeat guests and loyalty stay easy to reach.', path: peoplePath },
           { label: 'Low-stock alerts', value: overview.lowStock.length, detail: 'Replenishment stays visible before the next rush.', path: '/inventory' },
         ]
+
+  const dashboardDateLabel = new Date().toLocaleDateString('en-NP', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+
+  const activitySignal =
+    isRestaurant
+      ? {
+          label: 'Table watch',
+          value: canReadTables && overview.availability.tables ? `${openTables.length}` : '--',
+          detail:
+            canReadTables && overview.availability.tables
+              ? billingReadyTables.length > 0
+                ? `${billingReadyTables.length} ready to bill`
+                : `${reservedTables.length} reserved for service`
+              : 'Table activity is not available right now.',
+          tone: 'rose',
+        }
+      : isShop
+        ? {
+            label: 'Customer due',
+            value: overview.availability.customers ? formatCurrency(dueCustomerTotal) : '--',
+            detail:
+              overview.availability.customers
+                ? dueCustomers.length > 0
+                  ? `${dueCustomers.length} due account${dueCustomers.length === 1 ? '' : 's'} still open`
+                  : 'No customer due is waiting right now.'
+                : 'Customer follow-up is not available right now.',
+            tone: 'rose',
+          }
+        : canReadKitchen && overview.availability.kitchen
+          ? {
+              label: 'Kitchen watch',
+              value: `${pendingKitchenOrders.length}`,
+              detail:
+                readyKitchenOrders.length > 0
+                  ? `${readyKitchenOrders.length} ready to serve`
+                  : 'Kitchen board is clear for now.',
+              tone: 'rose',
+            }
+          : {
+              label: 'Counter watch',
+              value: overview.availability.sales ? `${overview.sales?.todaySales || 0}` : '--',
+              detail:
+                overview.availability.sales
+                  ? overview.sales?.todayAverageSale
+                    ? `Average bill ${formatCurrency(overview.sales?.todayAverageSale)}`
+                    : 'Keep billing pace steady through the day.'
+                  : 'Billing activity is not available right now.',
+              tone: 'rose',
+            }
+
+  const topSignalCards = [
+    {
+      label: 'Today sales',
+      value: overview.availability.sales ? formatCurrency(overview.sales?.todayRevenue) : '--',
+      detail: overview.availability.sales ? `${overview.sales?.todaySales || 0} bills closed today` : 'Waiting for billing activity.',
+      tone: 'emerald',
+    },
+    {
+      label: showFinance ? 'Cash & due' : isShop ? 'Customer due' : 'Profiles',
+      value:
+        showFinance
+          ? overview.availability.finance
+            ? formatCurrency(overview.finance?.balance)
+            : '--'
+          : overview.availability.customers
+            ? `${overview.people.length}`
+            : '--',
+      detail:
+        showFinance
+          ? overview.availability.finance
+            ? `${formatCurrency(todayExpenseTotal)} expense recorded today`
+            : 'Accounting visibility is not ready yet.'
+          : overview.availability.customers
+            ? `${dueCustomers.length} account${dueCustomers.length === 1 ? '' : 's'} with due`
+            : 'Customer visibility is not ready yet.',
+      tone: 'blue',
+    },
+    activitySignal,
+    {
+      label: 'Low stock',
+      value: overview.availability.inventory ? `${overview.lowStock.length}` : '--',
+      detail:
+        overview.availability.inventory
+          ? overview.lowStock.length > 0
+            ? lowStockPreview || 'Critical items need refill'
+            : 'No active stock alert right now.'
+          : 'Inventory visibility is not available right now.',
+      tone: 'amber',
+    },
+  ]
+
+  const heroStatusTone =
+    partialLoad
+      ? 'amber'
+      : overview.lowStock.length > 0 || dueCustomers.length > 0 || pendingKitchenOrders.length > 0
+        ? 'rose'
+        : 'emerald'
+
+  const heroStatusTitle =
+    partialLoad
+      ? 'Some live counters are still syncing.'
+      : heroStatusTone === 'rose'
+        ? 'A few hotspots need owner attention.'
+        : 'The counter looks balanced for the day.'
+
+  const heroStatusDetail =
+    partialLoad
+      ? 'Sales, inventory, and finance are partly available. The visible cards below are still safe to use.'
+      : overview.lowStock.length > 0
+        ? `${overview.lowStock.length} stock alert${overview.lowStock.length === 1 ? '' : 's'} should be checked before the next rush.`
+        : dueCustomers.length > 0
+          ? `${dueCustomers.length} customer due${dueCustomers.length === 1 ? '' : 's'} are still open for follow-up.`
+          : pendingKitchenOrders.length > 0
+            ? `${pendingKitchenOrders.length} kitchen order${pendingKitchenOrders.length === 1 ? '' : 's'} are waiting on the board.`
+            : 'Sales, cash, customers, and stock are all reading cleanly from one place.'
+
+  const ownerRuleCopy =
+    isRestaurant
+      ? 'If tables, kitchen, cash, and stock are not obvious in one glance, the service floor will feel harder than it should.'
+      : isShop
+        ? 'If sales, collection, stock, and buying are not obvious in one glance, the counter team will end up searching instead of selling.'
+        : 'If counter pace, regulars, cash, and stock are not obvious in one glance, the day close will get messy fast.'
 
   if (loading) {
     return (
@@ -625,51 +777,115 @@ const Dashboard = () => {
 
   return (
     <div className="page-shell">
-      <section className="panel subtle-grid relative overflow-hidden p-6 sm:p-8">
-        <div className="absolute inset-y-0 right-0 hidden w-1/3 bg-gradient-to-l from-amber-50 to-transparent lg:block" />
+      <section className="relative overflow-hidden rounded-[36px] border border-[#22385e] bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.26),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(6,182,212,0.18),transparent_32%),linear-gradient(135deg,#09111f_0%,#0f1b31_45%,#152542_100%)] p-6 text-white shadow-[0_40px_100px_-58px_rgba(2,8,23,0.9)] sm:p-8">
+        <div className="absolute inset-0 subtle-grid opacity-10 mix-blend-screen" />
+        <div className="absolute -left-14 top-0 h-56 w-56 rounded-full bg-[#2563eb]/18 blur-3xl" />
+        <div className="absolute right-0 top-8 h-64 w-64 rounded-full bg-[#06b6d4]/18 blur-3xl" />
 
-        <div className="relative flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
-          <div className="max-w-3xl">
-            <p className="section-kicker">{roleExperience.kicker}</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-              {currentOrgName || 'My Business'} {headline}
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">{roleExperience.summary}</p>
+        <div className="relative grid gap-6 xl:grid-cols-[1.18fr,0.82fr]">
+          <div className="space-y-6">
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#dbeafe]">
+                {roleExperience.kicker}
+              </span>
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/8 px-3 py-1 text-sm text-[#c9dbf5]">
+                {dashboardDateLabel}
+              </span>
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/8 px-3 py-1 text-sm text-[#c9dbf5]">
+                {userData?.username || 'Operator'}
+              </span>
+              <span className="inline-flex items-center rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-sm text-[#bff6ff]">
+                {businessMeta.statusPill}
+              </span>
+            </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              <span className="status-pill">{new Date().toLocaleDateString('en-NP', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-              <span className="status-pill">{userData?.username || 'Operator'}</span>
-              <span className="status-pill">{businessMeta.statusPill}</span>
+            <div className="max-w-3xl">
+              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+                {currentOrgName || 'My Business'} {headline}
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-[#bfd0e8] sm:text-base">{roleExperience.summary}</p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              {heroActions.map(action => (
+                <Link
+                  key={action.path}
+                  to={action.path}
+                  className="group rounded-[26px] border border-white/10 bg-white/5 p-4 backdrop-blur transition hover:-translate-y-0.5 hover:border-cyan-300/30 hover:bg-white/8"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-white">{action.label}</p>
+                      <p className="mt-2 text-sm leading-6 text-[#bfd0e8]">{action.description}</p>
+                    </div>
+                    <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-[#7dd3fc] transition group-hover:translate-x-0.5" />
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:w-[28rem]">
-            {heroActions.map(action => (
-              <Link key={action.path} to={action.path} className="action-tile">
+          <div className="space-y-4">
+            <div className={`rounded-[30px] border p-5 backdrop-blur ${heroStatusToneMap[heroStatusTone] || heroStatusToneMap.emerald}`}>
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">{action.label}</p>
-                  <p className="mt-1 text-sm text-slate-500">{action.description}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#dbeafe]">Owner Status</p>
+                  <h2 className="mt-3 text-xl font-semibold text-white">{heroStatusTitle}</h2>
+                  <p className="mt-2 text-sm leading-6 text-[#cfe0f6]">{heroStatusDetail}</p>
                 </div>
-                <ArrowRight className="h-4 w-4 text-slate-400" />
-              </Link>
-            ))}
+                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#dbeafe]">
+                  Owner View
+                </span>
+              </div>
+            </div>
+
+            <div className="rounded-[30px] border border-white/10 bg-white/6 p-5 backdrop-blur">
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7dd3fc]">Live Summary</p>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Quick scan for today&apos;s operations.</h2>
+                </div>
+                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#dbeafe]">
+                  Live
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {topSignalCards.map(item => {
+                  const palette = ownerCardToneMap[item.tone] || ownerCardToneMap.slate
+
+                  return (
+                    <div key={item.label} className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                      <div className="flex items-center gap-2">
+                        <span className={`h-2.5 w-2.5 rounded-full ${palette.dot}`} />
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#dbeafe]">{item.label}</p>
+                      </div>
+                      <p className="mt-3 text-2xl font-semibold tracking-tight text-white">{item.value}</p>
+                      <p className="mt-2 text-sm leading-6 text-[#bfd0e8]">{item.detail}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="panel p-6">
+      <section className="panel border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#f3f8ff_100%)] p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="section-kicker">Owner Snapshot</p>
-            <h2 className="mt-2 section-heading">See today&apos;s business health in one quick scan.</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Keep sales, expenses, cash, due follow-up, stock risk, and supplier buying visible before the day gets busy.
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#2563eb]">Business Snapshot</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#0f172a] sm:text-3xl">
+              Keep the core numbers in one clear working band.
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-[#51627d]">
+              Sales, expenses, cash, dues, stock, and buying should stay visible in one clean business view.
             </p>
           </div>
-          <div className={`rounded-2xl border px-4 py-3 text-sm ${partialLoad ? 'border-amber-200 bg-amber-50 text-amber-900' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>
+          <div className={`rounded-[20px] border px-4 py-3 text-sm ${partialLoad ? 'border-amber-200 bg-amber-50 text-amber-800' : 'border-[#dbe5f4] bg-white/80 text-[#51627d]'}`}>
             {partialLoad
-              ? 'Some owner metrics are temporarily unavailable. The cards below show the data that is ready.'
-              : 'Updated from live billing, accounting, customer, inventory, purchase, and restaurant activity.'}
+              ? 'Some live counters are still catching up. The visible cards below are safe to use.'
+              : 'Updated from live billing, accounting, customer, inventory, purchase, and service activity.'}
           </div>
         </div>
 
@@ -689,36 +905,46 @@ const Dashboard = () => {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
-        <div className="panel p-6">
+      <section className="grid gap-6 xl:grid-cols-[1.22fr,0.78fr]">
+        <div className="panel border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#f3f8ff_100%)] p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="section-kicker">Main Areas</p>
-              <h2 className="mt-2 section-heading">Keep the main work areas easy to reach.</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#2563eb]">Main Areas</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#0f172a]">
+                Keep the main work areas one click away.
+              </h2>
             </div>
-            <Link to="/apps" className="text-sm font-semibold text-slate-900">
-              Open modules
+            <Link to="/settings" className="text-sm font-semibold text-[#0f172a]">
+              Open settings
             </Link>
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {operationalCards.map(card => {
               const Icon = card.icon
+              const palette = moduleToneMap[card.tone] || moduleToneMap.slate
 
               return (
-                <Link key={card.title} to={card.path} className="group rounded-3xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-md">
+                <Link
+                  key={card.title}
+                  to={card.path}
+                  className="group relative overflow-hidden rounded-[28px] border border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#eef5ff_100%)] p-5 shadow-[0_24px_52px_-42px_rgba(15,23,42,0.16)] transition hover:-translate-y-0.5 hover:border-[#93c5fd] hover:shadow-[0_30px_60px_-40px_rgba(37,99,235,0.16)]"
+                >
+                  <div className={`absolute inset-y-5 left-0 w-1 rounded-r-full bg-gradient-to-b ${palette.rail}`} />
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm text-slate-500">{card.title}</p>
-                      <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">{card.metric}</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">{card.summary}</p>
+                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${palette.badge}`}>
+                        {card.title}
+                      </span>
+                      <p className="mt-4 text-2xl font-semibold tracking-tight text-[#0f172a]">{card.metric}</p>
+                      <p className="mt-3 text-sm leading-6 text-[#51627d]">{card.summary}</p>
                     </div>
-                    <div className={`rounded-2xl border px-3 py-3 ${card.tone}`}>
+                    <div className={`rounded-[20px] border p-3 ${palette.icon}`}>
                       <Icon className="h-5 w-5" />
                     </div>
                   </div>
 
-                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#0f172a]">
                     Work here
                     <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                   </div>
@@ -728,9 +954,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="panel p-6">
-          <p className="section-kicker">Quick Insights</p>
-          <h2 className="mt-2 section-heading">Keep the next owner decisions obvious.</h2>
+        <div className="rounded-[32px] border border-[#22385e] bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.12),transparent_36%),linear-gradient(180deg,#0a1222_0%,#12213b_100%)] p-6 shadow-[0_34px_80px_-52px_rgba(2,8,23,0.92)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7dd3fc]">Priority Watchlist</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">Keep the next work items obvious.</h2>
+          <p className="mt-3 text-sm leading-6 text-[#bfd0e8]">
+            Collections, stock, purchases, and service pressure should surface without hunting through menus.
+          </p>
 
           <div className="mt-6 grid gap-4">
             {focusItems.map((item) => (
@@ -745,14 +974,12 @@ const Dashboard = () => {
             ))}
           </div>
 
-          <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+          <div className="mt-6 rounded-[24px] border border-white/10 bg-white/5 p-5">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-500" />
+              <AlertTriangle className="mt-0.5 h-5 w-5 text-[#7dd3fc]" />
               <div>
-                <p className="text-sm font-semibold text-slate-900">Owner rule</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  If the day&apos;s sales, cash, dues, stock risk, and purchases are not obvious in one view, the dashboard is still too complicated.
-                </p>
+                <p className="text-sm font-semibold text-white">Owner rule</p>
+                <p className="mt-2 text-sm leading-6 text-[#bfd0e8]">{ownerRuleCopy}</p>
               </div>
             </div>
           </div>
@@ -761,23 +988,27 @@ const Dashboard = () => {
 
       <section className="grid gap-6 xl:grid-cols-[1.05fr,0.95fr]">
         {showFinance ? (
-          <div className="panel p-6">
+          <div className="panel border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#f3f8ff_100%)] p-6">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="section-kicker">Recent Finance</p>
-                <h2 className="mt-2 section-heading">Cash movement should stay visible while you operate.</h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#2563eb]">Daily Ledger</p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#0f172a]">
+                  Cash movement should read like a clean ledger.
+                </h2>
               </div>
-              <Link to="/accounting" className="text-sm font-semibold text-slate-900">
+              <Link to="/accounting" className="text-sm font-semibold text-[#0f172a]">
                 Open accounting
               </Link>
             </div>
 
             <div className="mt-6 space-y-3">
               {overview.transactions.length === 0 ? (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-                  <p className="text-base font-semibold text-slate-900">No finance activity yet</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">Start recording income and expenses so the command center can show live business health.</p>
-                  <Link to="/accounting" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <div className="rounded-[28px] border border-dashed border-[#bfd7f8] bg-[#f5f9ff] p-8 text-center">
+                  <p className="text-base font-semibold text-[#0f172a]">No accounting activity yet</p>
+                  <p className="mt-2 text-sm leading-6 text-[#51627d]">
+                    Start recording income and expenses so the dashboard can show live business health.
+                  </p>
+                  <Link to="/accounting" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0f172a]">
                     Add transaction
                     <ArrowRight className="h-4 w-4" />
                   </Link>
@@ -787,14 +1018,17 @@ const Dashboard = () => {
                   const isIncome = transaction.type === 'income'
 
                   return (
-                    <div key={transaction._id} className="flex items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-4">
+                    <div
+                      key={transaction._id}
+                      className="flex items-center justify-between gap-4 rounded-[26px] border border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9ff_100%)] p-4"
+                    >
                       <div className="flex items-center gap-4">
-                        <div className={`rounded-2xl p-3 ${isIncome ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
+                        <div className={`rounded-[18px] border p-3 ${isIncome ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'}`}>
                           {isIncome ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-slate-900">{transaction.description}</p>
-                          <p className="mt-1 text-sm text-slate-500">{transaction.category || 'Uncategorized'}</p>
+                          <p className="text-sm font-semibold text-[#0f172a]">{transaction.description}</p>
+                          <p className="mt-1 text-sm text-[#51627d]">{transaction.category || 'Uncategorized'}</p>
                         </div>
                       </div>
 
@@ -802,7 +1036,9 @@ const Dashboard = () => {
                         <p className={`text-base font-semibold ${isIncome ? 'text-emerald-700' : 'text-rose-700'}`}>
                           {isIncome ? '+' : '-'} {formatCurrency(transaction.amount)}
                         </p>
-                        <p className="mt-1 text-sm text-slate-500">{new Date(transaction.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                        <p className="mt-1 text-sm text-[#51627d]">
+                          {new Date(transaction.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </p>
                       </div>
                     </div>
                   )
@@ -811,77 +1047,86 @@ const Dashboard = () => {
             </div>
           </div>
         ) : (
-          <div className="panel p-6">
+          <div className="panel border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#f3f8ff_100%)] p-6">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="section-kicker">Daily Snapshot</p>
-                <h2 className="mt-2 section-heading">Keep the daily picture easy to scan.</h2>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#2563eb]">Daily Snapshot</p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#0f172a]">
+                  Keep the daily picture tight and easy to scan.
+                </h2>
               </div>
-              <Link to="/apps" className="text-sm font-semibold text-slate-900">
-                Open modules
+              <Link to="/inventory" className="text-sm font-semibold text-[#0f172a]">
+                Open inventory
               </Link>
             </div>
 
             <div className="mt-6 space-y-3">
               {snapshotRows.map(row => (
-                <Link key={row.label} to={row.path} className="block rounded-3xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm">
-                  <p className="text-sm text-slate-500">{row.label}</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">{row.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{row.detail}</p>
+                <Link
+                  key={row.label}
+                  to={row.path}
+                  className="block rounded-[26px] border border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9ff_100%)] p-5 transition hover:-translate-y-0.5 hover:border-[#93c5fd] hover:shadow-[0_24px_48px_-36px_rgba(37,99,235,0.16)]"
+                >
+                  <p className="text-sm text-[#2563eb]">{row.label}</p>
+                  <p className="mt-2 text-2xl font-semibold tracking-tight text-[#0f172a]">{row.value}</p>
+                  <p className="mt-2 text-sm leading-6 text-[#51627d]">{row.detail}</p>
                 </Link>
               ))}
             </div>
           </div>
         )}
 
-        <div className="panel p-6">
-          {isLegacyWorkspace ? (
-            <>
-              <p className="section-kicker">Legacy Workspace</p>
-              <h2 className="mt-2 section-heading">Choose the focused Nepal package that fits this business.</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600">
-                Restaurant, Cafe, and Shop keep daily work tighter than the legacy fallback workspace.
-              </p>
+        <div className="panel border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#eef5ff_100%)] p-6">
+          <div className="grid gap-6 xl:grid-cols-[1.12fr,0.88fr]">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#2563eb]">Business Setup</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#0f172a]">{businessMeta.spotlightTitle}</h2>
+              <p className="mt-3 text-sm leading-6 text-[#51627d]">{businessMeta.spotlightSummary}</p>
 
-              <div className="mt-6 space-y-4">
-                {businessModes.map(mode => (
-                  <Link key={mode.name} to={mode.path} className="group flex items-start justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-md">
+              <div className="mt-5 flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-full border border-[#dbe5f4] bg-white/85 px-3 py-1 text-sm text-[#2563eb]">
+                  {businessMeta.productName}
+                </span>
+                <span className="inline-flex items-center rounded-full border border-[#dbe5f4] bg-white/85 px-3 py-1 text-sm text-[#2563eb]">
+                  {businessMeta.statusPill}
+                </span>
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  to="/pos"
+                  className="inline-flex items-center gap-2 rounded-2xl bg-[#0f172a] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#111f38]"
+                >
+                  Open POS
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/settings"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-[#dbe5f4] px-4 py-2.5 text-sm font-semibold text-[#51627d] transition hover:bg-white/80"
+                >
+                  Open settings
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              {heroActions.slice(0, 2).map(action => (
+                <Link
+                  key={action.path}
+                  to={action.path}
+                  className="group rounded-[28px] border border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#f5f9ff_100%)] p-5 transition hover:-translate-y-0.5 hover:border-[#93c5fd] hover:shadow-[0_24px_48px_-36px_rgba(37,99,235,0.16)]"
+                >
+                  <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-base font-semibold text-slate-900">{mode.name}</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">{mode.summary}</p>
+                      <p className="text-base font-semibold text-[#0f172a]">{action.label}</p>
+                      <p className="mt-2 text-sm leading-6 text-[#51627d]">{action.description}</p>
                     </div>
-                    <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-0.5" />
-                  </Link>
-                ))}
-              </div>
-              <Link to="/settings" className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-                Choose package
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </>
-          ) : (
-            <>
-              <p className="section-kicker">Business Setup</p>
-              <h2 className="mt-2 section-heading">{businessMeta.spotlightTitle}</h2>
-
-              <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5">
-                <p className="text-sm leading-6 text-slate-600">{businessMeta.spotlightSummary}</p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <span className="status-pill">{businessMeta.productName}</span>
-                  <span className="status-pill">{businessMeta.statusPill}</span>
-                </div>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link to="/apps" className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-                    Open modules
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link to="/settings" className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                    Change package
-                  </Link>
-                </div>
-              </div>
-            </>
-          )}
+                    <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-[#2563eb] transition group-hover:translate-x-0.5" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
     </div>

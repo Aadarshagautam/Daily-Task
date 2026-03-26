@@ -16,7 +16,7 @@ export default defineConfig({
     })
   ],
   build: {
-    outDir: resolve(projectRoot, '../dist'),
+    outDir: resolve(projectRoot, '../public'),
     emptyOutDir: true,
     minify: 'esbuild',
     rollupOptions: {
@@ -33,6 +33,8 @@ export default defineConfig({
     drop: ['console', 'debugger'],
   },
   server: {
+    port: 5175,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:5001',

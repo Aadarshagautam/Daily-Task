@@ -367,7 +367,7 @@ const InvoiceFormPage = () => {
   // ----- Loading state -----
   if (loading) {
     return (
-      <div className="lg:ml-64 p-8 min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50 flex items-center justify-center">
+      <div className="page-shell flex items-center justify-center bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-lg font-medium text-gray-700">
@@ -379,7 +379,7 @@ const InvoiceFormPage = () => {
   }
 
   return (
-    <div className="lg:ml-64 p-8 min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50">
+    <div className="page-shell bg-gradient-to-br from-slate-50 via-emerald-50 to-amber-50">
       {/* ========== Header ========== */}
       <div className="mb-8">
         <button

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import { 
   Plus, 
   DollarSign, 
@@ -20,8 +20,83 @@ import {
 } from 'lucide-react'
 import api from './lib/axios'
 import toast from 'react-hot-toast'
+import { getBusinessAccountingMeta } from '../config/businessConfigs.js'
+import AppContext from '../context/app-context.js'
+import {
+  DataTableShell,
+  EmptyCard,
+  FieldLabel,
+  KpiCard,
+  PageHeader,
+  SectionCard,
+  WorkspacePage,
+} from '../components/ui/ErpPrimitives.jsx'
+import { formatDateNepal, PAYMENT_METHOD_LABELS } from '../utils/nepal.js'
+
+const formatMoney = (value) =>
+  new Intl.NumberFormat('en-NP', {
+    style: 'currency',
+    currency: 'NPR',
+    maximumFractionDigits: 0,
+  }).format(Number(value) || 0)
+
+const formatSignedMoney = (value, type = 'income') =>
+  `${type === 'income' ? '+' : '-'} ${formatMoney(value)}`
+
+const toLocalDateInputValue = (value = new Date()) => {
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+const formatPaymentMethod = (value) => {
+  const key = String(value || 'cash')
+  return PAYMENT_METHOD_LABELS[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+const formatLedgerDate = (value) => {
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return '-'
+
+  return date.toLocaleDateString('en-NP', {
+    month: 'short',
+    day: '2-digit',
+  })
+}
+
+const MANUAL_PAYMENT_METHOD_OPTIONS = [
+  { key: 'cash', hint: 'Cash counter' },
+  { key: 'esewa', hint: 'eSewa wallet' },
+  { key: 'khalti', hint: 'Khalti wallet' },
+  { key: 'bank_transfer', hint: 'Bank deposit' },
+  { key: 'card', hint: 'Card machine' },
+  { key: 'cheque', hint: 'Cheque' },
+  { key: 'other', hint: 'Manual note' },
+]
+
+const RECONCILE_METHOD_KEYS = new Set(['card', 'bank_transfer', 'esewa', 'khalti', 'cheque'])
+
+const TAB_OPTIONS = [
+  { key: 'overview', label: 'Overview', icon: Layers },
+  { key: 'journals', label: 'Entry Lanes', icon: BookOpen },
+  { key: 'reconcile', label: 'Wallet Check', icon: ShieldCheck },
+  { key: 'reports', label: 'Reports', icon: BarChart3 },
+]
+
+const ENTRY_FILTER_OPTIONS = [
+  { key: 'all', label: 'All entries' },
+  { key: 'income', label: 'Money in' },
+  { key: 'expense', label: 'Money out' },
+]
 
 const AccountingPage = () => {
+  const { orgBusinessType } = useContext(AppContext)
+  const accountingMeta = getBusinessAccountingMeta(orgBusinessType)
   const [monthlySummaries, setMonthlySummaries] = useState([])
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -41,7 +116,7 @@ const AccountingPage = () => {
     category: '',
     amount: '',
     description: '',
-    date: new Date().toISOString().split('T')[0],
+    date: toLocalDateInputValue(),
     paymentMethod: 'cash'
   })
 
@@ -70,8 +145,9 @@ const AccountingPage = () => {
         ? transactionsRes.data.data
         : []
       
-      const years = [...new Set(allTransactions.map(t => new Date(t.date).getFullYear()))]
-      setAvailableYears(years.sort((a, b) => b - a))
+      const years = [...new Set(allTransactions.map(t => new Date(t.date).getFullYear()).filter(Boolean))]
+      const sortedYears = years.sort((a, b) => b - a)
+      setAvailableYears(sortedYears.length > 0 ? sortedYears : [new Date().getFullYear()])
       
       calculateMonthlySummaries(allTransactions)
     } catch (error) {
@@ -124,7 +200,7 @@ const AccountingPage = () => {
   const getMonthName = (monthYear) => {
     const [year, month] = monthYear.split('-')
     const date = new Date(year, month - 1)
-    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    return date.toLocaleDateString('en-NP', { month: 'long', year: 'numeric' })
   }
 
   const getFilteredSummaries = () => {
@@ -207,7 +283,7 @@ const AccountingPage = () => {
       category: transaction.category,
       amount: transaction.amount.toString(),
       description: transaction.description,
-      date: new Date(transaction.date).toISOString().split('T')[0],
+      date: toLocalDateInputValue(transaction.date),
       paymentMethod: transaction.paymentMethod
     })
     setShowAddForm(true)
@@ -222,7 +298,7 @@ const AccountingPage = () => {
       category: '',
       amount: '',
       description: '',
-      date: new Date().toISOString().split('T')[0],
+      date: toLocalDateInputValue(),
       paymentMethod: 'cash'
     })
   }
@@ -241,17 +317,42 @@ const AccountingPage = () => {
     }
   }
 
+  const clearFilters = () => {
+    setSelectedMonth('all')
+    setSelectedYear(availableYears[0] || new Date().getFullYear())
+    setFilter('all')
+    setDayView('all')
+    setShowDatePicker(false)
+  }
+
+  const toggleEntryForm = () => {
+    setActiveTab('overview')
+    if (editingId) {
+      resetForm()
+      return
+    }
+
+    setShowAddForm(previous => !previous)
+  }
+
   const incomeCategories = ['Sales', 'Services', 'Investment', 'Other Income']
   const expenseCategories = ['Rent', 'Utilities', 'Supplies', 'Salary', 'Marketing', 'Transport', 'Food', 'Other']
 
   if (loading) {
     return (
-      <div className="lg:ml-64 flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-700">Loading your finances...</p>
+      <WorkspacePage className="mx-auto max-w-7xl">
+        <PageHeader
+          eyebrow={accountingMeta.eyebrow}
+          title={accountingMeta.title}
+          description={accountingMeta.description}
+          badges={accountingMeta.badges}
+        />
+        <div className="panel p-10 text-center">
+          <div className="mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+          <p className="text-lg font-medium text-slate-700">Loading accounting workspace...</p>
+          <p className="mt-2 text-sm text-slate-500">Preparing entries, payment channels, and day-close figures.</p>
         </div>
-      </div>
+      </WorkspacePage>
     )
   }
 
@@ -263,7 +364,7 @@ const AccountingPage = () => {
     : allFilteredTransactions.filter(t => t.type === filter)
 
   const dailyTotals = journalTransactions.reduce((acc, t) => {
-    const dayKey = new Date(t.date).toISOString().split('T')[0]
+    const dayKey = toLocalDateInputValue(t.date)
     if (!acc[dayKey]) {
       acc[dayKey] = { income: 0, expense: 0, transactions: [] }
     }
@@ -281,9 +382,24 @@ const AccountingPage = () => {
       balance: dailyTotals[key].income - dailyTotals[key].expense
     }))
 
+  const activePeriodLabel =
+    selectedMonth === 'all'
+      ? `All of ${selectedYear}`
+      : `${months.find(m => m.value === selectedMonth)?.label || 'Selected month'} ${selectedYear}`
+  const activeViewLabel =
+    dayView === 'all'
+      ? activePeriodLabel
+      : formatDateNepal(dayView, { day: '2-digit', month: 'short', year: 'numeric' })
+  const periodTransactions = dayView === 'all' ? journalTransactions : dailyTotals[dayView]?.transactions || []
+  const autoPostedCount = periodTransactions.filter(t => t.isSystemGenerated).length
+  const manualEntryCount = periodTransactions.filter(t => !t.isSystemGenerated).length
+
   const dayOptions = [
     { value: 'all', label: 'All Days' },
-    ...dailySummaries.map(d => ({ value: d.day, label: d.day }))
+    ...dailySummaries.map(d => ({
+      value: d.day,
+      label: formatDateNepal(d.day, { day: '2-digit', month: 'short', year: 'numeric' })
+    }))
   ]
 
   const categoryTotals = journalTransactions.reduce((acc, t) => {
@@ -296,50 +412,64 @@ const AccountingPage = () => {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6)
 
+  const todayKey = toLocalDateInputValue()
+  const todaySummary = dailyTotals[todayKey] || { income: 0, expense: 0, transactions: [] }
+  const sortedPeriodTransactions = [...periodTransactions]
+    .sort((left, right) => new Date(right.date || 0) - new Date(left.date || 0))
+  const latestTransactions = sortedPeriodTransactions.slice(0, 6)
+  const paymentMethodTotals = sortedPeriodTransactions.reduce((acc, transaction) => {
+    const method = formatPaymentMethod(transaction.paymentMethod)
+    const amount = Number(transaction.paidAmount) || Number(transaction.amount) || 0
+    acc[method] = (acc[method] || 0) + amount
+    return acc
+  }, {})
+  const topPaymentMethods = Object.entries(paymentMethodTotals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+
   const renderJournals = () => {
     const income = journalTransactions.filter(t => t.type === 'income')
     const expense = journalTransactions.filter(t => t.type === 'expense')
 
     return (
-      <div className="space-y-5">
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-slate-900">Journals</h3>
-              <p className="text-sm text-slate-500">Entry batches by type</p>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">{income.length} income</span>
-              <span className="px-3 py-1 rounded-full bg-rose-50 text-rose-700">{expense.length} expense</span>
-            </div>
+      <SectionCard
+        eyebrow="Entry lanes"
+        title="Keep money in and money out easy to scan."
+        description="Review the latest income and expense lines in separate lanes so owners and accountants can spot issues faster."
+        action={(
+          <div className="flex flex-wrap gap-2">
+            <span className="erp-chip border-emerald-200 bg-emerald-50 text-emerald-700">{income.length} money in</span>
+            <span className="erp-chip border-rose-200 bg-rose-50 text-rose-700">{expense.length} money out</span>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        )}
+      >
+        <div className="grid gap-4 md:grid-cols-2">
           {[
-            { title: 'Sales Journal', rows: income.slice(0, 5) },
-            { title: 'Purchases Journal', rows: expense.slice(0, 5) },
+            { title: 'Money in', rows: income.slice(0, 5) },
+            { title: 'Money out', rows: expense.slice(0, 5) },
           ].map((box) => (
-            <div key={box.title} className="bg-white rounded-xl border border-slate-200 shadow-sm">
-              <div className="px-4 py-3 border-b border-slate-200 flex items-center gap-2">
+            <div key={box.title} className="erp-subtle overflow-hidden p-0">
+              <div className="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
                 <BookOpen className="w-4 h-4 text-slate-600" />
                 <p className="text-sm font-semibold text-slate-900">{box.title}</p>
               </div>
-              <div className="divide-y divide-slate-200">
+              <div className="space-y-3 p-4">
                 {box.rows.length === 0 ? (
-                  <div className="p-4 text-sm text-slate-500">No entries yet</div>
+                  <div className="rounded-[22px] border border-dashed border-slate-200 bg-white/70 p-4 text-sm text-slate-500">
+                    No entries yet
+                  </div>
                 ) : (
                   box.rows.map((t) => (
-                    <div key={t._id} className="px-4 py-3 flex items-center justify-between">
+                    <div key={t._id} className="erp-list-row px-4 py-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">{t.description}</p>
                         <p className="text-xs text-slate-500">
                           {t.category}
-                          {t.sourceDocumentNo ? ` · ${t.sourceDocumentNo}` : ''}
+                          {t.sourceDocumentNo ? ` / ${t.sourceDocumentNo}` : ''}
                         </p>
                       </div>
                       <p className={`text-sm font-semibold ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
-                        {t.type === 'income' ? '+' : '-'}{'\u20B9'}{t.amount.toLocaleString()}
+                        {formatSignedMoney(t.amount, t.type)}
                       </p>
                     </div>
                   ))
@@ -348,444 +478,510 @@ const AccountingPage = () => {
             </div>
           ))}
         </div>
-      </div>
+      </SectionCard>
     )
   }
 
   const renderReconcile = () => {
     const candidates = journalTransactions
-      .filter(t => t.paymentMethod !== 'cash')
+      .filter(t => RECONCILE_METHOD_KEYS.has(t.paymentMethod))
       .slice(0, 8)
 
     return (
-      <div className="space-y-5">
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-          <h3 className="text-lg font-semibold text-slate-900">Reconciliation</h3>
-          <p className="text-sm text-slate-500">Match bank and card lines with entries.</p>
-        </div>
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-5 py-3 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-400 grid grid-cols-12">
-            <div className="col-span-4">Description</div>
-            <div className="col-span-2">Category</div>
-            <div className="col-span-2">Method</div>
-            <div className="col-span-2">Date</div>
-            <div className="col-span-2 text-right">Amount</div>
-          </div>
-          {candidates.length === 0 ? (
-            <div className="p-5 text-sm text-slate-500">No items to reconcile.</div>
-          ) : (
-            candidates.map((t) => (
-              <div key={t._id} className="px-5 py-3 grid grid-cols-12 items-center border-b border-slate-200 last:border-b-0">
-                <div className="col-span-4 text-sm font-semibold text-slate-900">{t.description}</div>
-                <div className="col-span-2 text-sm text-slate-600">{t.category}</div>
-                <div className="col-span-2 text-sm text-slate-600 capitalize">{t.paymentMethod.replace('_', ' ')}</div>
-                <div className="col-span-2 text-sm text-slate-600">
-                  {new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </div>
-                <div className={`col-span-2 text-right text-sm font-semibold ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
-                  {t.type === 'income' ? '+' : '-'}{'\u20B9'}{t.amount.toLocaleString()}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+      <SectionCard
+        eyebrow="Wallet and bank check"
+        title="Match digital channels before day close."
+        description="Review eSewa, Khalti, bank, card, and cheque lines together so mismatches are easy to catch."
+      >
+        {candidates.length === 0 ? (
+          <EmptyCard
+            icon={ShieldCheck}
+            title="No digital items to reconcile"
+            message="When wallet, bank, card, or cheque entries appear in this view, they will show here for checking."
+          />
+        ) : (
+          <DataTableShell>
+            <div className="overflow-x-auto">
+              <table className="erp-table">
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Method</th>
+                    <th>Date</th>
+                    <th className="text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {candidates.map((t) => (
+                    <tr key={t._id}>
+                      <td className="font-semibold text-slate-900">{t.description}</td>
+                      <td>{t.category}</td>
+                      <td>{formatPaymentMethod(t.paymentMethod)}</td>
+                      <td>{formatLedgerDate(t.date)}</td>
+                      <td className={`text-right font-semibold ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                        {formatSignedMoney(t.amount, t.type)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </DataTableShell>
+        )}
+      </SectionCard>
     )
   }
 
   const renderReports = () => {
     return (
-      <div className="space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-            <div className="flex items-center gap-3">
-              <Receipt className="w-5 h-5 text-slate-600" />
-              <div>
-                <p className="text-xs text-slate-500">Net Position</p>
-                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.balance.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-            <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-slate-600" />
-              <div>
-                <p className="text-xs text-slate-500">Total Income</p>
-                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.income.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-            <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-slate-600" />
-              <div>
-                <p className="text-xs text-slate-500">Total Expense</p>
-                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.expense.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          <KpiCard
+            icon={Receipt}
+            title="Working balance"
+            value={formatMoney(filteredTotals.balance)}
+            detail={`Current view: ${activeViewLabel}`}
+            tone={filteredTotals.balance >= 0 ? 'emerald' : 'rose'}
+          />
+          <KpiCard
+            icon={FileText}
+            title="Money in"
+            value={formatMoney(filteredTotals.income)}
+            detail="Income lines in the selected view"
+            tone="emerald"
+          />
+          <KpiCard
+            icon={FileText}
+            title="Money out"
+            value={formatMoney(filteredTotals.expense)}
+            detail="Expense lines in the selected view"
+            tone="rose"
+          />
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-          <div className="px-5 py-3 border-b border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-900">Top Categories</h3>
-          </div>
-          <div className="divide-y divide-slate-200">
+        <SectionCard
+          eyebrow="Top categories"
+          title="See where money is moving in the selected period."
+          description="Use this report to spot the strongest income and expense categories before editing entries."
+        >
+          <div className="space-y-3">
             {sortedCategories.length === 0 ? (
-              <div className="p-5 text-sm text-slate-500">No category data.</div>
+              <EmptyCard
+                icon={BarChart3}
+                title="No category data yet"
+                message="Once entries are available in the selected view, the biggest categories will appear here."
+              />
             ) : (
               sortedCategories.map(([category, total]) => (
-                <div key={category} className="px-5 py-3 flex items-center justify-between">
+                <div key={category} className="erp-list-row px-4 py-3">
                   <p className="text-sm font-semibold text-slate-900">{category}</p>
-                  <p className="text-sm text-slate-700">{'\u20B9'}{total.toLocaleString()}</p>
+                  <p className="text-sm text-slate-700">{formatMoney(total)}</p>
                 </div>
               ))
             )}
           </div>
-        </div>
+        </SectionCard>
       </div>
     )
   }
 
+  const renderEntryForm = () => (
+    <SectionCard
+      eyebrow={editingId ? 'Edit manual entry' : 'Add manual entry'}
+      title={editingId ? 'Update a manual accounting line.' : 'Add a clean manual accounting line.'}
+      description="Use manual entries for owner cash, one-off expenses, or adjustments that do not come from sales, invoices, or purchases."
+      action={(
+        <button type="button" onClick={resetForm} className="btn-secondary">
+          <X className="h-4 w-4" />
+          Close form
+        </button>
+      )}
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <FieldLabel>Type</FieldLabel>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setFormData({ ...formData, type: 'income', category: '' })}
+              className={`rounded-[24px] border px-4 py-4 text-left text-sm font-semibold transition ${
+                formData.type === 'income'
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800 shadow-sm'
+                  : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-200 hover:bg-emerald-50/40'
+              }`}
+            >
+              <ArrowDownCircle className={`mb-3 h-7 w-7 ${formData.type === 'income' ? 'text-emerald-600' : 'text-slate-400'}`} />
+              <p>Money In</p>
+              <p className="mt-1 text-xs font-medium text-slate-500">Sales, service income, or owner cash coming in.</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormData({ ...formData, type: 'expense', category: '' })}
+              className={`rounded-[24px] border px-4 py-4 text-left text-sm font-semibold transition ${
+                formData.type === 'expense'
+                  ? 'border-rose-200 bg-rose-50 text-rose-800 shadow-sm'
+                  : 'border-slate-200 bg-white text-slate-700 hover:border-rose-200 hover:bg-rose-50/40'
+              }`}
+            >
+              <ArrowUpCircle className={`mb-3 h-7 w-7 ${formData.type === 'expense' ? 'text-rose-600' : 'text-slate-400'}`} />
+              <p>Money Out</p>
+              <p className="mt-1 text-xs font-medium text-slate-500">Rent, salary, supplies, transport, or other expense.</p>
+            </button>
+          </div>
+        </div>
+
+        <div className="erp-form-grid">
+          <div>
+            <FieldLabel>Category</FieldLabel>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="input-primary"
+              required
+            >
+              <option value="">Choose category</option>
+              {(formData.type === 'income' ? incomeCategories : expenseCategories).map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <FieldLabel>Amount (NPR)</FieldLabel>
+            <input
+              type="number"
+              value={formData.amount}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              className="input-primary"
+              placeholder="0.00"
+              step="0.01"
+              required
+            />
+          </div>
+
+          <div>
+            <FieldLabel>Description</FieldLabel>
+            <input
+              type="text"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="input-primary"
+              placeholder="What was it for?"
+              required
+            />
+          </div>
+
+          <div>
+            <FieldLabel>Date</FieldLabel>
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              className="input-primary"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <FieldLabel optional>Payment Channel</FieldLabel>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {MANUAL_PAYMENT_METHOD_OPTIONS.map(method => (
+              <button
+                key={method.key}
+                type="button"
+                onClick={() => setFormData({ ...formData, paymentMethod: method.key })}
+                className={`rounded-[22px] border px-4 py-3 text-left text-sm font-semibold transition ${
+                  formData.paymentMethod === method.key
+                    ? 'border-slate-900 bg-slate-50 text-slate-900 shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                <p>{formatPaymentMethod(method.key)}</p>
+                <p className="mt-1 text-[11px] font-medium opacity-75">{method.hint}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3 pt-2">
+          <button type="submit" className="btn-primary">
+            <Save className="h-4 w-4" />
+            {editingId ? 'Update entry' : 'Save entry'}
+          </button>
+          <button type="button" onClick={resetForm} className="btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </SectionCard>
+  )
+
   const renderOverview = () => {
     return (
       <>
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-wrap items-center gap-3">
-          <p className="text-xs text-slate-500">Daily accounting:</p>
-          {dayOptions.slice(0, 8).map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => setDayView(opt.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                dayView === opt.value
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {opt.value === 'all' ? 'All Days' : opt.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Add/Edit Form */}
-        {(showAddForm || editingId) && (
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900">
-                {editingId ? 'Edit Transaction' : 'New Transaction'}
-              </h3>
-              <button onClick={resetForm} className="text-gray-400 hover:text-gray-600">
-                <X className="w-6 h-6" />
+        <SectionCard
+          eyebrow="Daily workboard"
+          title="Use one date when checking cash, wallets, edits, or day close."
+          description={`Current view: ${activeViewLabel}`}
+        >
+          <div className="flex flex-wrap gap-2">
+            {dayOptions.slice(0, 8).map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setDayView(opt.value)}
+                className={`erp-filter-chip text-xs ${dayView === opt.value ? 'erp-filter-chip-active' : ''}`}
+              >
+                {opt.value === 'all' ? 'All Days' : opt.label}
               </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-3">
-                  Type *
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, type: 'income', category: '' })}
-                    className={`p-4 rounded-lg border text-sm font-semibold transition-all ${
-                      formData.type === 'income'
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                        : 'border-slate-300 bg-white text-slate-700 hover:border-emerald-300'
-                    }`}
-                  >
-                    <ArrowDownCircle className={`w-7 h-7 mx-auto mb-2 ${formData.type === 'income' ? 'text-emerald-500' : 'text-slate-400'}`} />
-                    Money In
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({ ...formData, type: 'expense', category: '' })}
-                    className={`p-4 rounded-lg border text-sm font-semibold transition-all ${
-                      formData.type === 'expense'
-                        ? 'border-rose-500 bg-rose-50 text-rose-700'
-                        : 'border-slate-300 bg-white text-slate-700 hover:border-rose-300'
-                    }`}
-                  >
-                    <ArrowUpCircle className={`w-7 h-7 mx-auto mb-2 ${formData.type === 'expense' ? 'text-rose-500' : 'text-slate-400'}`} />
-                    Money Out
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Category *</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    required
-                  >
-                    <option value="">-- Choose --</option>
-                    {(formData.type === 'income' ? incomeCategories : expenseCategories).map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Amount (\u20B9) *</label>
-                  <input
-                    type="number"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    placeholder="0.00"
-                    step="0.01"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Description *</label>
-                  <input
-                    type="text"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    placeholder="What was it for?"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Date *</label>
-                  <input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    required
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Payment Method</label>
-                  <div className="grid grid-cols-4 gap-3">
-                    {['cash', 'card', 'bank_transfer', 'other'].map(method => (
-                      <button
-                        key={method}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, paymentMethod: method })}
-                        className={`py-3 px-4 rounded-lg border text-sm font-semibold capitalize transition-all ${
-                          formData.paymentMethod === method
-                            ? 'border-slate-900 bg-slate-50 text-slate-900'
-                            : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
-                        }`}
-                      >
-                        {method === 'bank_transfer' ? 'Bank' : method}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  className="flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-                >
-                  <Save className="w-5 h-5" />
-                  {editingId ? 'Update' : 'Save'}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+            ))}
           </div>
-        )}
+        </SectionCard>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-emerald-600">Money In</p>
-                <p className="text-2xl font-semibold text-slate-900 mt-1">{'\u20B9'}{filteredTotals.income.toLocaleString()}</p>
-              </div>
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <ArrowDownCircle className="w-5 h-5 text-emerald-700" />
-              </div>
-            </div>
-          </div>
+        {(showAddForm || editingId) ? renderEntryForm() : null}
 
-          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-rose-600">Money Out</p>
-                <p className="text-2xl font-semibold text-slate-900 mt-1">{'\u20B9'}{filteredTotals.expense.toLocaleString()}</p>
-              </div>
-              <div className="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center">
-                <ArrowUpCircle className="w-5 h-5 text-rose-700" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-slate-500">Balance</p>
-                <p className={`text-2xl font-semibold mt-1 ${filteredTotals.balance >= 0 ? 'text-slate-900' : 'text-rose-700'}`}>
-                  {'\u20B9'}{filteredTotals.balance.toLocaleString()}
-                </p>
-              </div>
-              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                <DollarSign className="w-5 h-5 text-slate-700" />
-              </div>
-            </div>
-          </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <KpiCard
+            icon={ArrowDownCircle}
+            title="Money In Today"
+            value={formatMoney(todaySummary.income)}
+            detail="Income posted on the current local day"
+            tone="emerald"
+          />
+          <KpiCard
+            icon={ArrowUpCircle}
+            title="Money Out Today"
+            value={formatMoney(todaySummary.expense)}
+            detail="Expenses posted on the current local day"
+            tone="rose"
+          />
+          <KpiCard
+            icon={Receipt}
+            title="Today Net"
+            value={formatMoney(todaySummary.income - todaySummary.expense)}
+            detail="Net movement for the current local day"
+            tone={(todaySummary.income - todaySummary.expense) >= 0 ? 'blue' : 'rose'}
+          />
+          <KpiCard
+            icon={DollarSign}
+            title="Working Balance"
+            value={formatMoney(filteredTotals.balance)}
+            detail={`Across ${activeViewLabel}`}
+            tone={filteredTotals.balance >= 0 ? 'teal' : 'rose'}
+          />
         </div>
 
-        {/* Monthly Records */}
-        {filteredSummaries.length === 0 ? (
-          <div className="bg-white rounded-xl p-12 text-center border border-dashed border-slate-300">
-            <DollarSign className="w-14 h-14 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 mb-1">No records for this period</h3>
-            <p className="text-slate-500 text-sm">Try selecting a different time period</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {dayView !== 'all' && (
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-900">Daily Ledger</h3>
-                    <p className="text-xs text-slate-500">{dayView}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-slate-400">Balance</p>
-                    <p className="text-sm font-semibold text-slate-900">
-                      {'\u20B9'}{(dailyTotals[dayView]?.income || 0) - (dailyTotals[dayView]?.expense || 0)}
-                    </p>
-                  </div>
-                </div>
-                <div className="divide-y divide-slate-200">
-                  {(dailyTotals[dayView]?.transactions || []).map(t => (
-                    <div key={t._id} className="px-5 py-3 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">{t.description}</p>
-                        <p className="text-xs text-slate-500">{t.category} • {t.paymentMethod.replace('_', ' ')}</p>
-                      </div>
-                      <p className={`text-sm font-semibold ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
-                        {t.type === 'income' ? '+' : '-'}{'\u20B9'}{t.amount.toLocaleString()}
+        <div className="grid gap-4 xl:grid-cols-[1.05fr,0.95fr]">
+          <SectionCard
+            eyebrow="Current view summary"
+            title="See cash, wallets, and system sync before making edits."
+            description="The quick band below keeps auto-posted lines, manual changes, and payment mix visible."
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="erp-subtle">
+                <p className="text-xs text-slate-500">System sync lines</p>
+                <p className="mt-2 text-xl font-semibold text-slate-900">{autoPostedCount}</p>
+              </div>
+              <div className="erp-subtle">
+                <p className="text-xs text-slate-500">Manual lines</p>
+                <p className="mt-2 text-xl font-semibold text-slate-900">{manualEntryCount}</p>
+              </div>
+            </div>
+
+            <div className="erp-subtle mt-5">
+              <p className="text-sm font-semibold text-slate-900">Payment mix in this view</p>
+              <p className="mt-1 text-sm text-slate-500">Use this to check cash, eSewa, Khalti, bank, card, and cheque totals quickly.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {topPaymentMethods.length === 0 ? (
+                  <span className="status-pill">No payment mix available yet</span>
+                ) : (
+                  topPaymentMethods.map(([method, total]) => (
+                    <span key={method} className="status-pill">
+                      {method}: {formatMoney(total)}
+                    </span>
+                  ))
+                )}
+              </div>
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            eyebrow="Recent entries"
+            title="Review the latest postings before making adjustments."
+            description="This list helps you catch the most recent changes without scanning the full ledger."
+            action={<span className="status-pill">{latestTransactions.length} shown</span>}
+          >
+            {latestTransactions.length === 0 ? (
+              <EmptyCard
+                icon={BookOpen}
+                title="No entries are visible"
+                message="Try another period, switch back to all entries, or wait for the next accounting sync."
+              />
+            ) : (
+              <div className="space-y-3">
+                {latestTransactions.map((transaction) => (
+                  <div key={transaction._id} className="erp-list-row px-4 py-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{transaction.description}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {transaction.category}
+                        {' / '}
+                        {transaction.isSystemGenerated ? 'Auto-posted' : 'Manual'}
+                        {transaction.sourceDocumentNo ? ` / ${transaction.sourceDocumentNo}` : ''}
                       </p>
                     </div>
-                  ))}
-                </div>
+                    <p className={`text-sm font-semibold ${transaction.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      {formatSignedMoney(transaction.amount, transaction.type)}
+                    </p>
+                  </div>
+                ))}
               </div>
             )}
-            {filteredSummaries.map((monthly) => {
-              const filteredTransactions = filter === 'all' 
-                ? monthly.transactions 
-                : monthly.transactions.filter(t => t.type === filter)
+          </SectionCard>
+        </div>
 
-              if (filteredTransactions.length === 0) return null
-
-              return (
-                <div key={monthly.monthYear} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                  <div className="px-5 py-4 border-b border-slate-200 bg-slate-50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center">
-                          <Calendar className="w-5 h-5 text-slate-700" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-slate-900">{getMonthName(monthly.monthYear)}</h3>
-                          <p className="text-xs text-slate-500">{monthly.transactions.length} transactions</p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-6 text-right">
-                        <div>
-                          <p className="text-xs text-slate-400">In</p>
-                          <p className="text-lg font-semibold text-emerald-700">{'\u20B9'}{monthly.income.toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-slate-400">Out</p>
-                          <p className="text-lg font-semibold text-rose-700">{'\u20B9'}{monthly.expense.toLocaleString()}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-slate-400">Balance</p>
-                          <p className={`text-lg font-semibold ${monthly.balance >= 0 ? 'text-slate-900' : 'text-rose-700'}`}>
-                            {'\u20B9'}{monthly.balance.toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
+        <SectionCard
+          eyebrow="Ledger"
+          title="Ledger and day-close trail."
+          description="Use this section for checking postings, edits, wallet totals, and month-end review."
+          action={(
+            <div className="flex flex-wrap gap-2">
+              <span className="status-pill">
+                {filter === 'all' ? 'All entries' : filter === 'income' ? 'Money in only' : 'Money out only'}
+              </span>
+              <span className="status-pill">{activeViewLabel}</span>
+            </div>
+          )}
+        >
+          {filteredSummaries.length === 0 ? (
+            <EmptyCard
+              icon={DollarSign}
+              title={accountingMeta.emptyTitle}
+              message="Try another period or switch back to all entries."
+            />
+          ) : (
+            <div className="space-y-5">
+              {dayView !== 'all' && (
+                <div className="erp-subtle">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Selected day ledger</p>
+                      <p className="mt-1 text-xs text-slate-500">{formatDateNepal(dayView)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-slate-400">Balance</p>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {formatMoney((dailyTotals[dayView]?.income || 0) - (dailyTotals[dayView]?.expense || 0))}
+                      </p>
                     </div>
                   </div>
-
-                  <div className="divide-y divide-slate-200">
-                    <div className="px-5 py-2 text-xs uppercase tracking-wider text-slate-400 grid grid-cols-12">
-                      <div className="col-span-4">Description</div>
-                      <div className="col-span-2">Category</div>
-                      <div className="col-span-2">Date</div>
-                      <div className="col-span-2">Method</div>
-                      <div className="col-span-2 text-right">Amount</div>
-                    </div>
-                    {filteredTransactions.map((transaction) => (
-                      <div key={transaction._id} className={`px-5 py-4 hover:bg-slate-50 ${editingId === transaction._id ? 'bg-slate-50' : ''}`}>
-                        <div className="grid grid-cols-12 items-center gap-2">
-                          <div className="col-span-4 flex items-center gap-3">
-                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                              transaction.type === 'income' ? 'bg-emerald-100' : 'bg-rose-100'
-                            }`}>
-                              {transaction.type === 'income' ? (
-                                <ArrowDownCircle className="w-5 h-5 text-emerald-600" />
-                              ) : (
-                                <ArrowUpCircle className="w-5 h-5 text-rose-600" />
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-sm font-semibold text-slate-900">{transaction.description}</p>
-                              <p className="text-xs text-slate-500">
-                                {transaction.isSystemGenerated ? 'Auto-posted' : 'Manual'}
-                                {' · '}
-                                {transaction.type === 'income' ? 'Income' : 'Expense'}
-                                {transaction.sourceDocumentNo ? ` · ${transaction.sourceDocumentNo}` : ''}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="col-span-2 text-sm text-slate-600">{transaction.category}</div>
-                          <div className="col-span-2 text-sm text-slate-600">
-                            {new Date(transaction.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                          </div>
-                          <div className="col-span-2 text-sm text-slate-600 capitalize">
-                            {transaction.paymentMethod.replace('_', ' ')}
-                          </div>
-                          <div className="col-span-2 text-right">
-                            <p className={`text-sm font-semibold ${transaction.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
-                              {transaction.type === 'income' ? '+' : '-'}{'\u20B9'}{transaction.amount.toLocaleString()}
-                            </p>
-                          </div>
-                          {!transaction.isSystemGenerated && (
-                            <div className="col-span-12 flex justify-end">
-                              <button
-                                onClick={() => startEdit(transaction)}
-                                className="text-slate-500 hover:text-slate-900 text-xs font-semibold"
-                              >
-                                Edit
-                              </button>
-                            </div>
-                          )}
+                  <div className="mt-4 space-y-3">
+                    {(dailyTotals[dayView]?.transactions || []).map(t => (
+                      <div key={t._id} className="erp-list-row px-4 py-3">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">{t.description}</p>
+                          <p className="text-xs text-slate-500">{t.category} / {formatPaymentMethod(t.paymentMethod)}</p>
                         </div>
+                        <p className={`text-sm font-semibold ${t.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                          {formatSignedMoney(t.amount, t.type)}
+                        </p>
                       </div>
                     ))}
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        )}
+              )}
+
+              {filteredSummaries.map((monthly) => {
+                const filteredTransactions = filter === 'all'
+                  ? monthly.transactions
+                  : monthly.transactions.filter(t => t.type === filter)
+
+                if (filteredTransactions.length === 0) return null
+
+                return (
+                  <div key={monthly.monthYear} className="overflow-hidden rounded-[28px] border border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(241,246,254,0.92))] shadow-[0_24px_42px_-34px_rgba(15,23,42,0.16)]">
+                    <div className="border-b border-slate-200/80 bg-[linear-gradient(180deg,rgba(248,251,255,0.96),rgba(241,246,254,0.84))] px-5 py-4">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="erp-icon-button h-10 w-10 p-0">
+                            <Calendar className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-slate-900">{getMonthName(monthly.monthYear)}</h3>
+                            <p className="text-xs text-slate-500">{monthly.transactions.length} transactions</p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-4 text-right">
+                          <div>
+                            <p className="text-xs text-slate-400">In</p>
+                            <p className="text-lg font-semibold text-emerald-700">{formatMoney(monthly.income)}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-slate-400">Out</p>
+                            <p className="text-lg font-semibold text-rose-700">{formatMoney(monthly.expense)}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-slate-400">Balance</p>
+                            <p className={`text-lg font-semibold ${monthly.balance >= 0 ? 'text-slate-900' : 'text-rose-700'}`}>
+                              {formatMoney(monthly.balance)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="erp-table">
+                        <thead>
+                          <tr>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Method</th>
+                            <th className="text-right">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredTransactions.map((transaction) => (
+                            <tr key={transaction._id} className={editingId === transaction._id ? 'bg-slate-50' : ''}>
+                              <td>
+                                <div className="min-w-[16rem]">
+                                  <p className="font-semibold text-slate-900">{transaction.description}</p>
+                                  <p className="mt-1 text-xs text-slate-500">
+                                    {transaction.isSystemGenerated ? 'Auto-posted' : 'Manual'}
+                                    {' / '}
+                                    {transaction.type === 'income' ? 'Income' : 'Expense'}
+                                    {transaction.sourceDocumentNo ? ` / ${transaction.sourceDocumentNo}` : ''}
+                                  </p>
+                                  {!transaction.isSystemGenerated ? (
+                                    <button
+                                      onClick={() => startEdit(transaction)}
+                                      className="mt-2 text-xs font-semibold text-slate-500 hover:text-slate-900"
+                                    >
+                                      Edit
+                                    </button>
+                                  ) : null}
+                                </div>
+                              </td>
+                              <td>{transaction.category}</td>
+                              <td>{formatLedgerDate(transaction.date)}</td>
+                              <td>{formatPaymentMethod(transaction.paymentMethod)}</td>
+                              <td className={`text-right font-semibold ${transaction.type === 'income' ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                {formatSignedMoney(transaction.amount, transaction.type)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </SectionCard>
       </>
     )
   }
@@ -799,153 +995,161 @@ const AccountingPage = () => {
   }
 
   return (
-    <div className="lg:ml-64 min-h-screen bg-gradient-to-b from-slate-50 via-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-slate-400">Accounting</p>
-              <h1 className="text-2xl font-semibold text-slate-900">Accounting</h1>
-              <p className="text-sm text-slate-500 mt-1">Sales, purchases, dues, and owner cash movement in one practical ledger.</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => {
-                  setShowAddForm(!showAddForm)
-                  if (editingId) resetForm()
-                }}
-                className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm"
-              >
-                <Plus className="w-4 h-4" />
-                New Entry
-              </button>
-            </div>
-          </div>
+    <WorkspacePage className="mx-auto max-w-7xl">
+      <PageHeader
+        eyebrow={accountingMeta.eyebrow}
+        title={accountingMeta.title}
+        description={accountingMeta.description}
+        badges={[...accountingMeta.badges, activeViewLabel]}
+        actions={(
+          <button onClick={toggleEntryForm} className="btn-primary">
+            <Plus className="h-4 w-4" />
+            {showAddForm || editingId ? 'Close entry form' : accountingMeta.entryLabel}
+          </button>
+        )}
+      />
 
-          {/* Top Tabs */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            {[
-              { key: 'overview', label: 'Overview', icon: Layers },
-              { key: 'journals', label: 'Journals', icon: BookOpen },
-              { key: 'reconcile', label: 'Reconciliation', icon: ShieldCheck },
-              { key: 'reports', label: 'Reports', icon: BarChart3 },
-            ].map(tab => {
-              const Icon = tab.icon
-              const active = activeTab === tab.key
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                    active
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              )
-            })}
-          </div>
+      <div className="erp-toolbar">
+        <div className="max-w-3xl">
+          <p className="section-kicker">Accounting and day close</p>
+          <h2 className="section-heading mt-2">{accountingMeta.focusTitle}</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{accountingMeta.focusSummary}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {TAB_OPTIONS.map(tab => {
+            const Icon = tab.icon
+            const active = activeTab === tab.key
+
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`erp-filter-chip ${active ? 'erp-filter-chip-active' : ''}`}
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-          {/* Left Filters */}
-          <aside className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 h-fit sticky top-28">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-900">Filters</h3>
-              <button
-                onClick={() => {
-                  setSelectedMonth('all')
-                  setSelectedYear(new Date().getFullYear())
-                  setFilter('all')
-                }}
-                className="text-xs text-slate-500 hover:text-slate-900"
-              >
-                Reset
-              </button>
-            </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          icon={DollarSign}
+          title="Working balance"
+          value={formatMoney(filteredTotals.balance)}
+          detail={`Current view: ${activeViewLabel}`}
+          tone={filteredTotals.balance >= 0 ? 'emerald' : 'rose'}
+        />
+        <KpiCard
+          icon={Layers}
+          title="Entries shown"
+          value={periodTransactions.length}
+          detail={`${filteredSummaries.length} monthly bucket${filteredSummaries.length === 1 ? '' : 's'} in this filter`}
+          tone="blue"
+        />
+        <KpiCard
+          icon={ShieldCheck}
+          title="System sync"
+          value={autoPostedCount}
+          detail="Auto-posted lines from sales, invoices, and purchases"
+          tone="amber"
+        />
+        <KpiCard
+          icon={BookOpen}
+          title="Manual lines"
+          value={manualEntryCount}
+          detail="Owner adjustments and manual expense entries in this view"
+          tone="teal"
+        />
+      </div>
 
-            <div className="mt-4 bg-slate-50 rounded-lg border border-slate-200">
+      <div className="grid gap-6 xl:grid-cols-[19rem_minmax(0,1fr)]">
+        <SectionCard
+          className="xl:sticky xl:top-24 self-start"
+          eyebrow="Working filters"
+          title="Keep one view active while you review cash, wallets, and day close."
+          description={accountingMeta.sidebarSummary}
+          action={(
+            <button onClick={clearFilters} className="btn-secondary">
+              Clear
+            </button>
+          )}
+        >
+          <div className="space-y-5">
+            <div className="erp-subtle p-0">
               <button
                 onClick={() => setShowDatePicker(!showDatePicker)}
-                className="w-full flex items-center justify-between p-3"
+                className="flex w-full items-center justify-between p-4"
               >
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-slate-600" />
+                <div className="flex items-center gap-3">
+                  <div className="erp-icon-button h-10 w-10 p-0">
+                    <Calendar className="h-4 w-4" />
+                  </div>
                   <div className="text-left">
                     <p className="text-xs text-slate-500">Period</p>
                     <p className="text-sm font-semibold text-slate-900">
-                      {selectedMonth === 'all' 
-                        ? `All of ${selectedYear}` 
+                      {selectedMonth === 'all'
+                        ? `All of ${selectedYear}`
                         : `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`}
                     </p>
                   </div>
                 </div>
                 {showDatePicker ? (
-                  <ChevronUp className="w-4 h-4 text-slate-400" />
+                  <ChevronUp className="h-4 w-4 text-slate-400" />
                 ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                  <ChevronDown className="h-4 w-4 text-slate-400" />
                 )}
               </button>
 
-              {showDatePicker && (
-                <div className="border-t border-slate-200 p-3">
-                  <div className="flex items-center justify-between mb-3">
+              {showDatePicker ? (
+                <div className="border-t border-slate-200 px-4 pb-4 pt-3">
+                  <div className="mb-3 flex items-center justify-between">
                     <button
                       onClick={previousYear}
                       disabled={selectedYear <= Math.min(...availableYears)}
-                      className="p-1 bg-white border border-slate-300 rounded disabled:opacity-30"
+                      className="erp-icon-button rounded-full disabled:opacity-30"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="h-4 w-4" />
                     </button>
                     <p className="text-sm font-semibold text-slate-900">{selectedYear}</p>
                     <button
                       onClick={nextYear}
                       disabled={selectedYear >= Math.max(...availableYears)}
-                      className="p-1 bg-white border border-slate-300 rounded disabled:opacity-30"
+                      className="erp-icon-button rounded-full disabled:opacity-30"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="h-4 w-4" />
                     </button>
                   </div>
+
                   <div className="grid grid-cols-3 gap-2">
                     {months.map(month => (
                       <button
                         key={month.value}
                         onClick={() => setSelectedMonth(month.value)}
-                        className={`py-2 rounded text-xs font-semibold ${
-                          selectedMonth === month.value
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-white border border-slate-300 text-slate-600 hover:border-emerald-300'
-                        }`}
+                        className={`erp-filter-chip w-full justify-center rounded-[18px] px-3 py-2 text-xs ${selectedMonth === month.value ? 'erp-filter-chip-active' : ''}`}
                       >
                         {month.value === 'all' ? 'All' : month.label.slice(0, 3)}
                       </button>
                     ))}
                   </div>
-                  <div className="mt-3">
-                    <p className="text-xs text-slate-500 mb-2">Day</p>
+
+                  <div className="mt-4">
+                    <FieldLabel optional>Day</FieldLabel>
                     <div className="space-y-2">
                       <input
                         type="date"
                         value={dayView === 'all' ? '' : dayView}
                         onChange={(e) => setDayView(e.target.value || 'all')}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-700 focus:ring-2 focus:ring-emerald-500"
+                        className="input-primary"
                       />
                       <div className="grid grid-cols-2 gap-2">
                         {dayOptions.slice(0, 6).map(opt => (
                           <button
                             key={opt.value}
                             onClick={() => setDayView(opt.value)}
-                            className={`py-2 rounded text-xs font-semibold ${
-                              dayView === opt.value
-                                ? 'bg-slate-900 text-white'
-                                : 'bg-white border border-slate-300 text-slate-600 hover:border-slate-400'
-                            }`}
+                            className={`erp-filter-chip w-full justify-center rounded-[18px] px-3 py-2 text-xs ${dayView === opt.value ? 'erp-filter-chip-active' : ''}`}
                           >
                             {opt.value === 'all' ? 'All Days' : opt.label}
                           </button>
@@ -954,57 +1158,52 @@ const AccountingPage = () => {
                     </div>
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
 
-            <div className="mt-4">
-              <p className="text-xs text-slate-500 mb-2">Journal</p>
-              <div className="flex flex-col gap-2">
-                {[
-                  { key: 'all', label: 'All' },
-                  { key: 'income', label: 'Money In' },
-                  { key: 'expense', label: 'Money Out' },
-                ].map(tab => (
+            <div>
+              <FieldLabel>Entry type</FieldLabel>
+              <div className="grid gap-2">
+                {ENTRY_FILTER_OPTIONS.map(option => (
                   <button
-                    key={tab.key}
-                    onClick={() => setFilter(tab.key)}
-                    className={`px-3 py-2 rounded-lg text-sm font-semibold text-left ${
-                      filter === tab.key
-                        ? 'bg-slate-900 text-white'
-                        : 'bg-white border border-slate-300 text-slate-600 hover:border-slate-400'
+                    key={option.key}
+                    onClick={() => setFilter(option.key)}
+                    className={`w-full rounded-[20px] border px-3 py-2 text-left text-sm font-semibold transition ${
+                      filter === option.key
+                        ? 'border-transparent bg-[linear-gradient(135deg,#1d4ed8_0%,#06b6d4_100%)] text-white shadow-[0_18px_30px_-24px_rgba(37,99,235,0.42)]'
+                        : 'border-slate-200 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(241,246,254,0.92))] text-slate-600 hover:border-blue-200 hover:text-slate-900'
                     }`}
                   >
-                    {tab.label}
+                    {option.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-1 gap-3">
-              <div className="bg-white border border-slate-200 rounded-lg p-3">
+            <div className="grid gap-3">
+              <div className="erp-subtle">
                 <p className="text-xs text-emerald-600">Money In</p>
-                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.income.toLocaleString()}</p>
+                <p className="mt-2 text-lg font-semibold text-slate-900">{formatMoney(filteredTotals.income)}</p>
               </div>
-              <div className="bg-white border border-slate-200 rounded-lg p-3">
+              <div className="erp-subtle">
                 <p className="text-xs text-rose-600">Money Out</p>
-                <p className="text-lg font-semibold text-slate-900">{'\u20B9'}{filteredTotals.expense.toLocaleString()}</p>
+                <p className="mt-2 text-lg font-semibold text-slate-900">{formatMoney(filteredTotals.expense)}</p>
               </div>
-              <div className="bg-white border border-slate-200 rounded-lg p-3">
+              <div className="erp-subtle">
                 <p className="text-xs text-slate-500">Balance</p>
-                <p className={`text-lg font-semibold ${filteredTotals.balance >= 0 ? 'text-slate-900' : 'text-rose-700'}`}>
-                  {'\u20B9'}{filteredTotals.balance.toLocaleString()}
+                <p className={`mt-2 text-lg font-semibold ${filteredTotals.balance >= 0 ? 'text-slate-900' : 'text-rose-700'}`}>
+                  {formatMoney(filteredTotals.balance)}
                 </p>
               </div>
             </div>
-          </aside>
+          </div>
+        </SectionCard>
 
-          {/* Main Content */}
-          <section className="space-y-6">
-            {renderMainContent()}
-          </section>
+        <div className="space-y-6">
+          {renderMainContent()}
         </div>
       </div>
-    </div>
+    </WorkspacePage>
   )
 }
 

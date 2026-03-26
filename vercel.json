@@ -1,9 +1,15 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/:path((?!api(?:/|$)).*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/html.*"
+        }
+      ],
       "destination": "/index.html"
     }
   ]

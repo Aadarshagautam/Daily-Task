@@ -23,7 +23,7 @@ const branchSchema = new mongoose.Schema(
     businessType: {
       type: String,
       enum: ["restaurant", "cafe", "shop", "general"],
-      default: "general",
+      default: "shop",
     },
     phone: {
       type: String,

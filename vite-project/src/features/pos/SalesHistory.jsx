@@ -50,7 +50,7 @@ const SalesHistory = () => {
   const pagination = data?.data?.pagination || {};
 
   return (
-    <div className="p-4 pt-20 lg:pl-[17.5rem]">
+    <div className="page-shell">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between">
           <div>

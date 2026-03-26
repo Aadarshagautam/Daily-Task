@@ -96,7 +96,7 @@ const organizationSchema = new mongoose.Schema(
     businessType: {
       type: String,
       enum: ["restaurant", "cafe", "shop", "general"],
-      default: "general",
+      default: "shop",
     },
     softwarePlan: {
       type: String,
@@ -119,15 +119,13 @@ const organizationSchema = new mongoose.Schema(
       enabledModules: {
         type: [String],
         default: [
-          "notes",
-          "todos",
           "accounting",
           "inventory",
           "customers",
           "invoices",
           "purchases",
           "reports",
-          "crm",
+          "pos",
         ],
       },
       paymentMethods: {

@@ -1,9 +1,5 @@
 // All possible permissions in the system
 export const ALL_PERMISSIONS = [
-  // Notes
-  "notes.read", "notes.create", "notes.update", "notes.delete",
-  // Todos
-  "todos.read", "todos.create", "todos.update", "todos.delete",
   // Accounting/Transactions
   "accounting.read", "accounting.create", "accounting.update", "accounting.delete",
   // Audit
@@ -18,10 +14,6 @@ export const ALL_PERMISSIONS = [
   "purchases.read", "purchases.create", "purchases.update", "purchases.delete", "purchases.return",
   // Reports
   "reports.read",
-  // CRM
-  "crm.read", "crm.create", "crm.update", "crm.delete",
-  // Leads
-  "leads.read", "leads.create", "leads.update", "leads.delete",
   // POS legacy module permissions
   "pos.read", "pos.create", "pos.update", "pos.delete",
   // POS resource and action permissions
@@ -42,16 +34,16 @@ export const ROLE_PERMISSIONS = {
   owner: ["*"],
   admin: ["*"],
   manager: [
-    "notes.*", "todos.*", "accounting.*", "inventory.*",
+    "accounting.*", "inventory.*",
     "customers.*", "invoices.*", "purchases.*", "reports.read",
-    "crm.*", "leads.*", "pos.*", "audit.read", "settings.read",
+    "pos.*", "audit.read", "settings.read",
     "users.read", "users.invite", "users.update",
   ],
   accountant: [
     "accounting.*", "customers.read", "customers.update",
     "invoices.read", "invoices.create", "invoices.update",
     "inventory.read", "purchases.*", "purchases.return",
-    "reports.read", "crm.read", "audit.read",
+    "reports.read", "audit.read",
   ],
   cashier: [
     "pos.read",
@@ -76,22 +68,18 @@ export const ROLE_PERMISSIONS = {
     "pos.kitchen.read", "pos.kitchen.update",
   ],
   member: [
-    "notes.read", "notes.create", "notes.update",
-    "todos.*",
     "accounting.read", "accounting.create",
     "inventory.read",
     "customers.read", "customers.create",
     "invoices.read", "invoices.create",
     "purchases.read",
     "reports.read",
-    "crm.read", "crm.create", "crm.update",
-    "leads.read", "leads.create", "leads.update",
     "pos.read", "pos.create",
   ],
   viewer: [
-    "notes.read", "todos.read", "accounting.read",
+    "accounting.read",
     "inventory.read", "customers.read", "invoices.read",
-    "purchases.read", "reports.read", "crm.read", "leads.read", "pos.read",
+    "purchases.read", "reports.read", "pos.read",
   ],
 };
 

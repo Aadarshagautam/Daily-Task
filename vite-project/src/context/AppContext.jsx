@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../lib/api.js";
 import AppContext from "./app-context.js";
+import { normalizeBusinessType } from "../config/businessConfigs.js";
 
 export const AppContextProvider = (props) => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
     const [isLoggedin, setIsLoggedinState] = useState(() => {
         return localStorage.getItem("isLoggedin") === "true";
     });
@@ -12,7 +12,7 @@ export const AppContextProvider = (props) => {
     const [currentOrgName, setCurrentOrgName] = useState(null);
     const [userRole, setUserRole] = useState(null);
     const [userPermissions, setUserPermissions] = useState([]);
-    const [orgBusinessType, setOrgBusinessType] = useState("general");
+    const [orgBusinessType, setOrgBusinessType] = useState("shop");
     const [orgSoftwarePlan, setOrgSoftwarePlan] = useState("single-branch");
     const [branchId, setBranchId] = useState(null);
     const [branchName, setBranchName] = useState(null);
@@ -30,7 +30,7 @@ export const AppContextProvider = (props) => {
       setCurrentOrgName(null);
       setUserRole(null);
       setUserPermissions([]);
-      setOrgBusinessType("general");
+      setOrgBusinessType("shop");
       setOrgSoftwarePlan("single-branch");
       setBranchId(null);
       setBranchName(null);
@@ -48,7 +48,7 @@ export const AppContextProvider = (props) => {
           setCurrentOrgName(user?.orgName || null);
           setUserRole(user?.role || null);
           setUserPermissions(user?.permissions || []);
-          setOrgBusinessType(user?.orgBusinessType || "general");
+          setOrgBusinessType(normalizeBusinessType(user?.orgBusinessType));
           setOrgSoftwarePlan(user?.orgSoftwarePlan || "single-branch");
           setBranchId(user?.branchId || null);
           setBranchName(user?.branchName || null);
@@ -72,7 +72,7 @@ export const AppContextProvider = (props) => {
             setIsLoggedin(true);
             setCurrentOrgId(data.data?.orgId || null);
             setCurrentOrgName(data.data?.orgName || null);
-            setOrgBusinessType(data.data?.orgBusinessType || "general");
+            setOrgBusinessType(normalizeBusinessType(data.data?.orgBusinessType));
             setOrgSoftwarePlan(data.data?.orgSoftwarePlan || "single-branch");
             setBranchId(data.data?.branchId || null);
             setBranchName(data.data?.branchName || null);
@@ -118,7 +118,6 @@ export const AppContextProvider = (props) => {
     }, [getAuthState])
 
     const value = {
-        backendUrl,
         isLoggedin,
         userData,
         setIsLoggedin,

@@ -2,22 +2,22 @@ import React from "react";
 
 const tones = {
   slate: {
-    panel: "bg-white text-slate-900",
+    panel: "bg-white/90 text-slate-950 border-slate-200",
     icon: "bg-slate-100 text-slate-700",
     body: "text-slate-600",
   },
   amber: {
-    panel: "bg-amber-50 text-amber-950 border-amber-200",
-    icon: "bg-white/80 text-amber-700",
+    panel: "bg-amber-50/90 text-amber-950 border-amber-200",
+    icon: "bg-white/85 text-amber-700",
     body: "text-amber-900/75",
   },
   teal: {
-    panel: "bg-emerald-50 text-emerald-950 border-emerald-200",
-    icon: "bg-white/85 text-emerald-700",
-    body: "text-emerald-900/75",
+    panel: "bg-cyan-50/90 text-cyan-950 border-cyan-200",
+    icon: "bg-white/85 text-cyan-700",
+    body: "text-cyan-900/75",
   },
   rose: {
-    panel: "bg-rose-50 text-rose-950 border-rose-200",
+    panel: "bg-rose-50/90 text-rose-950 border-rose-200",
     icon: "bg-white/85 text-rose-700",
     body: "text-rose-900/75",
   },

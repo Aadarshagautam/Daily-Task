@@ -29,6 +29,7 @@ import {
   isValidEmail,
   normalizeEmail,
 } from "../utils/auth.js";
+import { resolveWorkspaceContextForUser } from "../utils/workspace.js";
 
 const getAuthCookieOptions = () => ({
   httpOnly: true,
@@ -227,30 +228,14 @@ export const login = async (req, res) => {
       return sendError(res, { status: 401, message: "Invalid credentials" });
     }
 
-    if (!user.currentOrgId) {
-      const membership = await OrgMemberModel.findOne({
-        userId: user._id,
-        isActive: true,
-      }).sort({ createdAt: 1 });
+    const workspace = await resolveWorkspaceContextForUser(user, { includeBranch: false });
 
-      if (membership) {
-        user.currentOrgId = membership.orgId;
-        await user.save();
-      }
-    }
-
-    let orgName = null;
-    if (user.currentOrgId) {
-      const org = await OrganizationModel.findById(user.currentOrgId).select("name");
-      orgName = org?.name || null;
-    }
-
-    setAuthCookie(res, user._id, user.currentOrgId || null);
+    setAuthCookie(res, user._id, workspace.orgId);
     console.log("Login successful for:", normalizedEmail);
 
     return sendSuccess(res, {
       message: "Login successful",
-      data: { orgId: user.currentOrgId || null, orgName },
+      data: { orgId: workspace.orgId, orgName: workspace.orgName },
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -354,41 +339,8 @@ export const isAuthenticated = async (req, res) => {
       return sendError(res, { status: 404, message: "User not found" });
     }
 
-    if (!user.currentOrgId) {
-      const membership = await OrgMemberModel.findOne({
-        userId: user._id,
-        isActive: true,
-      }).sort({ createdAt: 1 });
-
-      if (membership) {
-        user.currentOrgId = membership.orgId;
-        await user.save();
-      }
-    }
-
-    const orgId = user.currentOrgId || null;
-    let orgName = null;
-    let orgBusinessType = "general";
-    let orgSoftwarePlan = "single-branch";
-    let branchId = null;
-    let branchName = null;
-
-    if (orgId) {
-      const [org, membership] = await Promise.all([
-        OrganizationModel.findById(orgId).select("name businessType softwarePlan"),
-        OrgMemberModel.findOne({ orgId, userId: user._id, isActive: true }).select("branchId"),
-      ]);
-
-      orgName = org?.name || null;
-      orgBusinessType = org?.businessType || "general";
-      orgSoftwarePlan = org?.softwarePlan || "single-branch";
-      branchId = membership?.branchId || null;
-
-      if (branchId) {
-        const branch = await BranchModel.findById(branchId).select("name");
-        branchName = branch?.name || null;
-      }
-    }
+    const workspace = await resolveWorkspaceContextForUser(user);
+    const orgId = workspace.orgId;
 
     const decodedOrgId = decoded.orgId ? decoded.orgId.toString() : null;
     const currentOrgId = orgId ? orgId.toString() : null;
@@ -404,11 +356,11 @@ export const isAuthenticated = async (req, res) => {
         email: user.email,
         isAccountVerified: user.isAccountVerified,
         orgId,
-        orgName,
-        orgBusinessType,
-        orgSoftwarePlan,
-        branchId,
-        branchName,
+        orgName: workspace.orgName,
+        orgBusinessType: workspace.orgBusinessType,
+        orgSoftwarePlan: workspace.orgSoftwarePlan,
+        branchId: workspace.branchId,
+        branchName: workspace.branchName,
       },
     });
   } catch (error) {

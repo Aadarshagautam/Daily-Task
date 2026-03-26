@@ -3,11 +3,9 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Bell,
   Building2,
-  LayoutGrid,
   LogOut,
   Mail,
   Menu,
-  Receipt,
   ShoppingCart,
   Table2,
   User,
@@ -17,8 +15,6 @@ import toast from 'react-hot-toast'
 import AppContext from '../context/app-context.js'
 import {
   getActiveAppForBusiness,
-  getAppsForBusiness,
-  getBusinessMeta,
   getSidebarSectionsForBusiness,
   isMenuItemActive,
 } from '../config/businessConfigs'
@@ -38,7 +34,7 @@ const getPrimaryActionForBusiness = (businessType) => {
     return { label: 'New order', path: '/pos/billing', icon: ShoppingCart }
   }
 
-  return { label: 'Open dashboard', path: '/dashboard', icon: Receipt }
+  return { label: 'New sale', path: '/pos/billing', icon: ShoppingCart }
 }
 
 const DashboardLayout = () => {
@@ -48,16 +44,20 @@ const DashboardLayout = () => {
   const activeApp = getActiveAppForBusiness(location.pathname, orgBusinessType)
 
   return (
-    <>
+    <div className="erp-app-shell">
       <Sidebar
         pathname={location.pathname}
         isOpen={sidebarOpen}
         closeSidebar={() => setSidebarOpen(false)}
         businessType={orgBusinessType}
       />
-      <TopBar activeApp={activeApp} sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(previous => !previous)} />
-      <Outlet />
-    </>
+      <div className="erp-app-main">
+        <TopBar activeApp={activeApp} sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(previous => !previous)} />
+        <main className="erp-app-content">
+          <Outlet />
+        </main>
+      </div>
+    </div>
   )
 }
 
@@ -110,17 +110,17 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
 
   return (
     <header className="erp-shell-topbar">
-      <div className="flex min-h-[4.5rem] items-center justify-between gap-4 px-4 lg:pl-[19rem] lg:pr-6">
+      <div className="erp-shell-topbar-inner">
         <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={toggleSidebar}
-            className="rounded-2xl border border-slate-200 bg-white p-2 text-slate-600 transition hover:bg-slate-50 lg:hidden"
+            className="erp-topbar-button p-2 lg:hidden"
           >
             {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <Link to="/home" className="flex items-center gap-3 lg:hidden">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-bold text-white gradient-bg">
+          <Link to="/dashboard" className="flex items-center gap-3 lg:hidden">
+            <div className="erp-sidebar-brand-mark h-10 w-10 rounded-[16px]">
               CO
             </div>
             <div>
@@ -130,8 +130,8 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
           </Link>
 
           {activeApp ? (
-            <div className="hidden min-w-0 items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-2 lg:flex">
-              <div className="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
+            <div className="erp-topbar-active-pill hidden min-w-0 lg:flex">
+              <div className="rounded-full bg-blue-50 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
                 Active
               </div>
               <div className="min-w-0">
@@ -144,10 +144,10 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
 
         <div className="flex items-center gap-2">
           {currentOrgName ? (
-            <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 xl:flex">
+            <div className="erp-topbar-pill hidden xl:flex">
               <Building2 className="h-4 w-4 text-slate-400" />
               <span className="max-w-[11rem] truncate">{currentOrgName}</span>
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-800">NPR</span>
+              <span className="rounded-full bg-cyan-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-700">NPR</span>
             </div>
           ) : null}
 
@@ -160,16 +160,7 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
                 {primaryAction.label}
               </button>
 
-              <Link
-                to="/apps"
-                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-                title="Open more tools"
-              >
-                <LayoutGrid className="h-5 w-5" />
-                <span className="hidden md:inline">More tools</span>
-              </Link>
-
-              <button className="relative rounded-2xl border border-slate-200 bg-white p-2 text-slate-600 transition hover:bg-slate-50">
+              <button className="erp-topbar-button relative p-2">
                 <Bell className="h-5 w-5" />
                 {userData && !userData.isAccountVerified ? <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-rose-500" /> : null}
               </button>
@@ -177,24 +168,24 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
               <div ref={profileRef} className="relative">
                 <button
                   onClick={() => setProfileOpen((open) => !open)}
-                  className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-2 py-1.5 transition hover:bg-slate-50"
+                  className="erp-profile-trigger"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-2xl text-sm font-semibold text-white gradient-bg">
+                  <div className="erp-avatar-shell h-9 w-9 rounded-[16px]">
                     {userData?.username?.[0]?.toUpperCase() || 'U'}
                   </div>
                   <div className="hidden min-w-0 text-left md:block">
                     <p className="max-w-[8rem] truncate text-sm font-medium text-slate-900">{userData?.username || 'User'}</p>
                     <p className="max-w-[8rem] truncate text-xs text-slate-500">
-                      {roleMeta.label} · {currentOrgName || 'Business'}
+                      {roleMeta.label} / {currentOrgName || 'Business'}
                     </p>
                   </div>
                 </button>
 
-                <div className={`absolute right-0 mt-2 w-72 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-2xl transition-all duration-150 ${profileOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+                <div className={`erp-menu-surface absolute right-0 mt-2 w-72 overflow-hidden transition-all duration-150 ${profileOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
                   <div className="border-b border-slate-100 px-4 py-4">
                     <p className="truncate text-sm font-semibold text-slate-900">{userData?.username || 'User'}</p>
                     <p className="truncate text-xs text-slate-500">{userData?.email}</p>
-                    <p className="mt-2 inline-flex rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                    <p className="mt-2 inline-flex rounded-full bg-blue-50 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
                       {roleMeta.label}
                     </p>
                     <p className="mt-2 text-xs leading-5 text-slate-500">{roleMeta.summary}</p>
@@ -205,9 +196,9 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
                     {userData && !userData.isAccountVerified ? (
                       <button
                         onClick={sendVerificationOtp}
-                        className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm text-slate-700 transition hover:bg-amber-50"
+                        className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm text-slate-700 transition hover:bg-blue-50"
                       >
-                        <Mail className="h-4 w-4 text-amber-500" />
+                        <Mail className="h-4 w-4 text-blue-500" />
                         Verify email
                       </button>
                     ) : null}
@@ -250,17 +241,8 @@ const TopBar = ({ activeApp, sidebarOpen, toggleSidebar }) => {
 
 const Sidebar = ({ pathname, isOpen, closeSidebar, businessType }) => {
   const navigate = useNavigate()
-  const { hasPermission, userRole } = useContext(AppContext)
-  const apps = getAppsForBusiness(businessType)
-  const businessMeta = getBusinessMeta(businessType)
+  const { hasPermission } = useContext(AppContext)
   const sidebarSections = getSidebarSectionsForBusiness(businessType)
-  const roleMeta = getRoleMeta(userRole)
-  const primaryAction = getPrimaryActionForBusiness(businessType)
-  const PrimaryActionIcon = primaryAction.icon
-
-  const settingsApp = apps.find(app => app.id === 'settings')
-  const SettingsIcon = settingsApp?.icon
-  const showSettings = settingsApp && (!settingsApp.permission || hasPermission(settingsApp.permission))
   const visibleSections = sidebarSections
     .map(section => ({
       ...section,
@@ -280,95 +262,50 @@ const Sidebar = ({ pathname, isOpen, closeSidebar, businessType }) => {
       <aside
         className={`erp-shell-sidebar ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
-        <div className="border-b border-white/10 px-4 py-4">
-          <Link to="/home" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-sm font-bold text-white gradient-bg">
-              CO
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-white">CommerceOS</p>
-              <p className="truncate text-xs text-white/55">Nepal business software</p>
-            </div>
-          </Link>
-        </div>
-
-        <div className="px-4 pt-4">
-          <div className="erp-sidebar-card">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200/80">{businessMeta.shortLabel}</p>
-            <h2 className="mt-2 text-sm font-semibold text-white">{businessMeta.productName}</h2>
-            <p className="mt-2 text-xs leading-5 text-white/62">{businessMeta.workspaceSummary}</p>
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/6 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/55">Signed in as</p>
-              <p className="mt-1 text-sm font-semibold text-white">{roleMeta.label}</p>
-              <p className="mt-1 text-xs leading-5 text-white/60">{roleMeta.summary}</p>
-            </div>
-            <button
-              onClick={() => handleMenuClick(primaryAction.path)}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
-            >
-              <PrimaryActionIcon className="h-4 w-4" />
-              {primaryAction.label}
-            </button>
+        <div className="erp-sidebar-surface">
+          <div className="erp-sidebar-brand-row">
+            <Link to="/dashboard" className="flex items-center gap-3">
+              <div className="erp-sidebar-brand-mark">
+                CO
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-white">CommerceOS</p>
+                <p className="truncate text-xs text-slate-300">Nepal business software</p>
+              </div>
+            </Link>
           </div>
-        </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {visibleSections.map(section => (
-            <div key={section.title} className="mb-5">
-              <div className="erp-sidebar-section">{section.title}</div>
-              <div className="mt-3 space-y-1.5">
-                {section.items.map(item => {
-                  const ItemIcon = item.icon
-                  const isActive = isMenuItemActive(item, pathname)
+          <nav className="flex-1 overflow-y-auto px-4 py-5">
+            {visibleSections.map(section => (
+              <div key={section.title} className="mb-6">
+                <div className="erp-sidebar-section">{section.title}</div>
+                <div className="mt-3 space-y-2">
+                  {section.items.map(item => {
+                    const ItemIcon = item.icon
+                    const isActive = isMenuItemActive(item, pathname)
 
-                  return (
-                    <button
-                      key={item.path}
-                      onClick={() => handleMenuClick(item.path)}
-                      className={`erp-sidebar-item ${isActive ? 'erp-sidebar-item-active border-white/10 bg-white/10' : ''}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
-                            isActive ? 'bg-white text-slate-900' : 'bg-white/8 text-white/80'
-                          }`}
-                        >
-                          <ItemIcon className="h-5 w-5" />
+                    return (
+                      <button
+                        key={item.path}
+                        onClick={() => handleMenuClick(item.path)}
+                        className={`erp-sidebar-item ${isActive ? 'erp-sidebar-item-active' : ''}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="erp-sidebar-icon-shell">
+                            <ItemIcon className="h-5 w-5" />
+                          </div>
+                          <span className="erp-sidebar-item-label">
+                            {item.label}
+                          </span>
                         </div>
-                        <span className={`truncate text-sm font-semibold ${isActive ? 'text-white' : 'text-white/88'}`}>
-                          {item.label}
-                        </span>
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        {showSettings ? (
-          <div className="border-t border-white/10 px-3 py-3">
-            <button
-              onClick={() => handleMenuClick(settingsApp.basePath)}
-              className={`erp-sidebar-item ${pathname.startsWith('/settings') ? 'erp-sidebar-item-active border-white/10 bg-white/10' : ''}`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-2xl ${
-                    pathname.startsWith('/settings') ? 'bg-white text-slate-900' : 'bg-white/8 text-white/80'
-                  }`}
-                >
-                  {SettingsIcon ? <SettingsIcon className="h-5 w-5" /> : null}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">Settings</p>
-                  <p className="text-xs text-white/55">Business settings and staff access</p>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
-            </button>
-          </div>
-        ) : null}
+            ))}
+          </nav>
+        </div>
       </aside>
     </>
   )

@@ -43,10 +43,10 @@ export const softwareCatalog = [
     title: "Restaurant Software",
     icon: UtensilsCrossed,
     audience: "For dine-in restaurants, food courts, and busy service floors",
-    hero: "Focused restaurant software for reservations, tables, kitchen flow, billing, stock, and shift close.",
+    hero: "Focused restaurant dashboard, POS, stock, and accounting for reservations, tables, kitchen flow, billing, and shift close.",
     summary:
-      "Run reservations, table service, kitchen tickets, fast billing, and prep stock without shop finance screens getting in the way.",
-    badge: "Focused restaurant software",
+      "Run reservations, table service, kitchen tickets, fast billing, prep stock, and daily accounting without generic back-office clutter getting in the way.",
+    badge: "Restaurant dashboard + POS",
     gradient: "from-orange-500 to-red-500",
     surface: "bg-orange-50",
     soft: "bg-orange-100 text-orange-700",
@@ -56,16 +56,16 @@ export const softwareCatalog = [
     downloadFile: "/downloads/restaurant-software-guide.txt",
     launchPath: "/pos",
     advantages: [
-      "Reservations, tables, kitchen display, and billing stay in one operator workflow.",
-      "Keeps stock, shift close, and daily reporting nearby without extra back-office noise.",
+      "Reservations, tables, kitchen display, billing, and owner dashboard stay in one operator workflow.",
+      "Keeps stock, shift close, and daily accounting nearby without extra back-office noise.",
       "Ready for one branch or multiple branches with role-based access.",
     ],
     modules: [
-      { icon: Table2, title: "Dining floor", description: "Manage reservations, tables, and occupancy." },
+      { icon: Table2, title: "Restaurant dashboard", description: "See service pace, tables, and key owner numbers in one place." },
       { icon: ChefHat, title: "Kitchen display", description: "Send live tickets to the kitchen and track progress." },
       { icon: ShoppingCart, title: "Fast billing", description: "Close dine-in, takeaway, and delivery orders quickly." },
       { icon: Package, title: "Prep stock", description: "Track ingredients, low stock, and buying needs." },
-      { icon: Clock, title: "Shift close", description: "Open and close service with better cashier control." },
+      { icon: Clock, title: "Accounting and day close", description: "Review cash, expenses, and closing totals before sign-off." },
     ],
     roleHighlights: {
       manager: [
@@ -117,10 +117,10 @@ export const softwareCatalog = [
     title: "Cafe Software",
     icon: Coffee,
     audience: "For cafes, bakeries, coffee bars, and quick counter service",
-    hero: "Focused cafe software for quick checkout, regulars, stock, and shift close.",
+    hero: "Focused cafe dashboard, counter POS, stock, and accounting for quick checkout, regulars, and shift close.",
     summary:
-      "Keep counter billing fast and simple. Show only the screens a cafe needs: menu, regulars, stock, and daily closing.",
-    badge: "Focused cafe software",
+      "Keep counter billing fast and simple. Show only the screens a cafe needs: dashboard, menu, regulars, stock, and daily accounting.",
+    badge: "Cafe dashboard + POS",
     gradient: "from-teal-500 to-cyan-500",
     surface: "bg-teal-50",
     soft: "bg-teal-100 text-teal-700",
@@ -130,16 +130,16 @@ export const softwareCatalog = [
     downloadFile: "/downloads/cafe-software-guide.txt",
     launchPath: "/pos",
     advantages: [
-      "Counter-first design keeps checkout quick during rush hours.",
+      "Counter-first design keeps checkout quick during rush hours while the owner dashboard stays easy to read.",
       "Regular customer tracking stays simple instead of turning into a sales pipeline tool.",
-      "Daily stock and supplier buying stay nearby without restaurant-only screens.",
+      "Daily stock, supplier buying, and accounting stay nearby without restaurant-only screens.",
     ],
     modules: [
-      { icon: ShoppingCart, title: "Counter POS", description: "Take orders, collect payment, and print receipts fast." },
+      { icon: ShoppingCart, title: "Counter dashboard", description: "See sales pace, rush periods, and owner totals in one place." },
       { icon: Users, title: "Regulars", description: "Track repeat guests and simple loyalty balances." },
       { icon: FileText, title: "Menu setup", description: "Manage drinks, snacks, combos, and prices." },
       { icon: Package, title: "Daily stock", description: "Watch ingredients and consumables with low-stock alerts." },
-      { icon: Clock, title: "Shift close", description: "Handle cashier opening, closing, and handover." },
+      { icon: Clock, title: "Accounting and shift close", description: "Handle cashier opening, closing, expenses, and handover." },
     ],
     roleHighlights: {
       manager: [
@@ -187,14 +187,14 @@ export const softwareCatalog = [
   },
   {
     slug: "shop",
-    shortName: "Shop",
-    title: "Shop Software",
+    shortName: "Retail",
+    title: "Retail Shop Software",
     icon: Store,
-    audience: "For shops, mini marts, wholesalers, and general stores",
-    hero: "Focused shop software for billing, stock, invoices, and customer dues.",
+    audience: "For retail shops, mini marts, wholesalers, and general stores",
+    hero: "Focused retail dashboard, POS, stock, invoices, and accounting for growing stores.",
     summary:
-      "Handle barcode-ready billing, product stock, invoices, and customer balances without kitchen, table, or service-floor tools.",
-    badge: "Focused shop software",
+      "Handle barcode-ready checkout, stock, invoices, customer balances, and day-to-day accounting in one retail control center.",
+    badge: "Retail dashboard + POS",
     gradient: "from-indigo-500 to-blue-500",
     surface: "bg-indigo-50",
     soft: "bg-indigo-100 text-indigo-700",
@@ -204,16 +204,16 @@ export const softwareCatalog = [
     downloadFile: "/downloads/shop-software-guide.txt",
     launchPath: "/pos",
     advantages: [
-      "Built around products, stock, invoices, and repeat customers.",
-      "Keeps invoices, supplier buying, and stock in one flow built for shop teams.",
+      "Built around products, stock, invoices, customer balances, and a clear owner dashboard.",
+      "Keeps supplier buying, accounting, and stock in one flow built for retail teams.",
       "Supports branch stores with clean cashier, manager, and accountant access.",
     ],
     modules: [
-      { icon: ShoppingCart, title: "Shop billing", description: "Bill products fast and keep checkout simple." },
+      { icon: ShoppingCart, title: "Retail dashboard", description: "See sales pace, collections, and stock signals in one place." },
       { icon: Package, title: "Product catalog", description: "Manage items, prices, and barcode-ready products." },
       { icon: BarChart2, title: "Stock counts", description: "Track stock movement, low stock, and replenishment." },
       { icon: Receipt, title: "Invoices and dues", description: "Issue invoices and follow unpaid customer balances." },
-      { icon: TrendingUp, title: "Sales reporting", description: "Review top products, branch sales, and daily totals." },
+      { icon: TrendingUp, title: "Accounting and day close", description: "Review purchases, cash flow, customer due, and daily totals." },
     ],
     roleHighlights: {
       manager: [
@@ -241,8 +241,8 @@ export const softwareCatalog = [
       {
         planKey: "single-branch",
         name: "Starter Store",
-        note: "One branch shop",
-        points: ["Shop billing", "Products and stock", "Customer accounts"],
+        note: "One branch retail shop",
+        points: ["Retail checkout", "Products and stock", "Customer accounts"],
       },
       {
         planKey: "growth",

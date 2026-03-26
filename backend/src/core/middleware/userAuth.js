@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import UserModel from "../models/User.js";
+import { resolveWorkspaceContextForUser } from "../utils/workspace.js";
 
 const userAuth = async (req, res, next) => {
   try {
@@ -35,11 +36,17 @@ const userAuth = async (req, res, next) => {
     }
 
     const user = await UserModel.findById(decoded.id).select("currentOrgId");
-    const dbOrgId = user?.currentOrgId ? user.currentOrgId.toString() : null;
+    const workspace = user
+      ? await resolveWorkspaceContextForUser(user, {
+          includeOrganization: false,
+          includeBranch: false,
+        })
+      : null;
+    const dbOrgId = workspace?.orgId ? workspace.orgId.toString() : null;
     const tokenOrgId = decoded.orgId ? decoded.orgId.toString() : null;
 
     req.userId = decoded.id;
-    req.orgId = dbOrgId || tokenOrgId || null;
+    req.orgId = dbOrgId || null;
 
     if (cookieToken && dbOrgId !== tokenOrgId) {
       const refreshedToken = jwt.sign(

@@ -17,7 +17,7 @@ export const EMAIL_VERIFY_TEMPLATE = `
                     <tr>
                         <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
                             <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700;">ThinkBoard</h1>
-                            <p style="margin: 10px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">Organize Your Thoughts</p>
+                            <p style="margin: 10px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">Run Your Business</p>
                         </td>
                     </tr>
                     
@@ -29,7 +29,7 @@ export const EMAIL_VERIFY_TEMPLATE = `
                                 Hi there! 👋
                             </p>
                             <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                                Thanks for signing up for ThinkBoard! To complete your registration and start organizing your notes, please verify your email address by entering the verification code below:
+                                Thanks for signing up for ThinkBoard. To complete your registration and start setting up your business workspace, please verify your email address by entering the verification code below.
                             </p>
                             
                             <!-- OTP Box -->
@@ -184,16 +184,16 @@ export const WELCOME_EMAIL_TEMPLATE = `
                                 Hi <strong>{{username}}</strong>! 👋
                             </p>
                             <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                                We're thrilled to have you join ThinkBoard! Your account has been successfully created and you're all set to start organizing your thoughts and ideas.
+                                We're thrilled to have you join ThinkBoard. Your account has been successfully created, and you're all set to start running your business workspace.
                             </p>
                             
                             <!-- Features -->
                             <h3 style="margin: 30px 0 15px; color: #1f2937; font-size: 20px; font-weight: 600;">What you can do with ThinkBoard:</h3>
                             <ul style="margin: 0 0 20px; padding-left: 20px; color: #4b5563; font-size: 16px; line-height: 1.8;">
-                                <li>Create and organize unlimited notes</li>
-                                <li>Access your notes from anywhere</li>
-                                <li>Keep your important information secure</li>
-                                <li>Search and find notes quickly</li>
+                                <li>Track sales, stock, and accounting in one place</li>
+                                <li>Run daily operations with a cleaner workflow</li>
+                                <li>Keep your business information secure</li>
+                                <li>Give each staff member the right access</li>
                             </ul>
                             
                             <!-- CTA Button -->

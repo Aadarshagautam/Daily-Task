@@ -26,7 +26,7 @@ import {
   WorkspacePage,
 } from '../components/ui/ErpPrimitives.jsx'
 import AppContext from '../context/app-context.js'
-import { getBusinessMeta } from '../config/businessConfigs.js'
+import { getBusinessMeta, normalizeBusinessType } from '../config/businessConfigs.js'
 import {
   ASSIGNABLE_ROLE_OPTIONS,
   getRoleHighlights,
@@ -163,7 +163,7 @@ const STAFF_STATUS_OPTIONS = [
   { value: 'inactive', label: 'Inactive only' },
 ]
 
-const createEmptyOrgForm = (businessType = 'general') => ({
+const createEmptyOrgForm = (businessType = 'shop') => ({
   name: '',
   phone: '',
   email: '',
@@ -171,12 +171,12 @@ const createEmptyOrgForm = (businessType = 'general') => ({
   currency: 'NPR',
   financialYearStart: 4,
   invoicePrefix: 'INV',
-  businessType: businessType || 'general',
+  businessType: normalizeBusinessType(businessType),
   address: { street: '', city: '', state: '', pincode: '', country: 'Nepal' },
 })
 
-const buildSoftwareOptions = (includeGeneral = false) =>
-  ['restaurant', 'cafe', 'shop', ...(includeGeneral ? ['general'] : [])].map(value => ({
+const buildSoftwareOptions = () =>
+  ['restaurant', 'cafe', 'shop'].map(value => ({
     value,
     label: getBusinessMeta(value).label,
     description: getBusinessMeta(value).settingsDescription,
@@ -199,7 +199,7 @@ const mapOrganizationToForm = organization => ({
   currency: organization.currency || 'NPR',
   financialYearStart: Number(organization.financialYearStart) || 4,
   invoicePrefix: organization.invoicePrefix || 'INV',
-  businessType: organization.businessType || 'general',
+  businessType: normalizeBusinessType(organization.businessType),
   address: normalizeAddress(organization.address),
 })
 
@@ -354,8 +354,8 @@ const SettingsPage = () => {
   const [paymentMethods, setPaymentMethods] = useState(() => createDefaultPaymentMethodSettings())
   const [initialPaymentMethods, setInitialPaymentMethods] = useState(() => createDefaultPaymentMethodSettings())
   const [activePaymentMethodKey, setActivePaymentMethodKey] = useState('cash')
-  const [orgForm, setOrgForm] = useState(createEmptyOrgForm(orgBusinessType || 'general'))
-  const [initialOrgForm, setInitialOrgForm] = useState(createEmptyOrgForm(orgBusinessType || 'general'))
+  const [orgForm, setOrgForm] = useState(createEmptyOrgForm(orgBusinessType || 'shop'))
+  const [initialOrgForm, setInitialOrgForm] = useState(createEmptyOrgForm(orgBusinessType || 'shop'))
   const [lastSavedAt, setLastSavedAt] = useState('')
   const [saving, setSaving] = useState(false)
   const [savingPaymentMethods, setSavingPaymentMethods] = useState(false)
@@ -388,7 +388,7 @@ const SettingsPage = () => {
   const [newBranch, setNewBranch] = useState({ name: '', code: '', email: '', phone: '' })
   const [addingBranch, setAddingBranch] = useState(false)
 
-  const softwareOptions = buildSoftwareOptions(orgForm.businessType === 'general' || orgBusinessType === 'general')
+  const softwareOptions = buildSoftwareOptions()
   const selectedSoftware = softwareOptions.find(option => option.value === orgForm.businessType) || softwareOptions[0]
   const planLabel = getPlanLabel(organizationMeta.softwarePlan)
   const lastSavedLabel = getSavedLabel(lastSavedAt)
@@ -827,7 +827,7 @@ const SettingsPage = () => {
           eyebrow="Business Profile"
           title="Keep your business identity clean and bill-ready."
           description="These are the everyday details owners and admins usually need most. They also feed into receipts, billing, and branch setup."
-          action={<StatusBadge tone={selectedSoftware.value === 'general' ? 'slate' : 'blue'}>{selectedSoftware.label}</StatusBadge>}
+          action={<StatusBadge tone="blue">{selectedSoftware.label}</StatusBadge>}
         >
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_320px]">
             <div className="grid gap-4 sm:grid-cols-2">

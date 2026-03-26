@@ -14,7 +14,6 @@ export const CUSTOMER_SOURCE_VALUES = [
   "shared",
   "backoffice",
   "pos",
-  "crm",
   "legacy_customer",
   "legacy_pos",
 ];

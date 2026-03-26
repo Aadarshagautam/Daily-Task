@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,21 +6,27 @@
 
 @layer base {
   :root {
-    --surface: #f4f7f4;
+    --erp-sidebar-width: 18.75rem;
+    --erp-sidebar-gap: 0.875rem;
+    --surface: #f3f7fc;
     --surface-strong: #ffffff;
-    --surface-soft: #edf3ef;
-    --surface-muted: #e7eeea;
-    --surface-sidebar: #16241e;
-    --surface-sidebar-soft: #1f3129;
-    --ink: #15211c;
-    --ink-soft: #5f6e67;
-    --brand-deep: #153b31;
-    --brand: #1e6a56;
-    --brand-soft: #dfeee8;
-    --accent: #d08a37;
-    --danger: #bf3f36;
-    --line: rgba(21, 33, 28, 0.08);
-    --line-strong: rgba(21, 33, 28, 0.14);
+    --surface-soft: #e9f0f9;
+    --surface-muted: #d7e1ef;
+    --surface-card: rgba(255, 255, 255, 0.86);
+    --surface-sidebar: #0b1424;
+    --surface-sidebar-soft: #152238;
+    --ink: #0f172a;
+    --ink-soft: #5f6f87;
+    --brand-deep: #1d4ed8;
+    --brand: #2563eb;
+    --brand-soft: #dbeafe;
+    --accent: #06b6d4;
+    --accent-soft: #cffafe;
+    --danger: #dc2626;
+    --line: rgba(15, 23, 42, 0.09);
+    --line-strong: rgba(15, 23, 42, 0.16);
+    --shadow-soft: 0 28px 64px -42px rgba(15, 23, 42, 0.22);
+    --shadow-strong: 0 40px 88px -46px rgba(15, 23, 42, 0.28);
   }
 
   html {
@@ -30,14 +36,15 @@
   body {
     min-height: 100vh;
     color: var(--ink);
-    font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Manrope', 'Noto Sans Devanagari', 'Segoe UI', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--surface);
     background:
-      radial-gradient(circle at top right, rgba(30, 106, 86, 0.12), transparent 26%),
-      radial-gradient(circle at top left, rgba(208, 138, 55, 0.1), transparent 22%),
-      linear-gradient(180deg, #fbfdfb 0%, #f4f7f4 48%, #edf3ef 100%);
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 24%),
+      radial-gradient(circle at top right, rgba(6, 182, 212, 0.14), transparent 24%),
+      radial-gradient(circle at 50% 120%, rgba(59, 130, 246, 0.1), transparent 36%),
+      linear-gradient(180deg, #f8fbff 0%, #f3f7fc 48%, #eaf1f9 100%);
   }
 
   h1,
@@ -46,13 +53,13 @@
   h4,
   h5,
   h6 {
-    font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Sora', 'Noto Sans Devanagari', 'Manrope', 'Segoe UI', system-ui, sans-serif;
     letter-spacing: -0.02em;
   }
 
   ::selection {
-    background: rgba(30, 106, 86, 0.18);
-    color: var(--brand-deep);
+    background: rgba(37, 99, 235, 0.18);
+    color: #0b1324;
   }
 
   ::-webkit-scrollbar {
@@ -61,68 +68,135 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(225, 232, 227, 0.8);
+    background: rgba(220, 229, 240, 0.75);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(95, 110, 103, 0.35);
+    background: rgba(71, 85, 105, 0.3);
     border-radius: 999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(95, 110, 103, 0.5);
+    background: rgba(37, 99, 235, 0.42);
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold text-white transition active:scale-[0.99];
-    background: linear-gradient(135deg, #153b31 0%, #1e6a56 100%);
-    box-shadow: 0 16px 32px -20px rgba(21, 59, 49, 0.58);
+    @apply inline-flex items-center justify-center gap-2 rounded-[20px] px-5 py-3 text-sm font-semibold text-white transition active:scale-[0.99];
+    background: linear-gradient(135deg, #1d4ed8 0%, #0f9bd7 100%);
+    box-shadow: 0 22px 36px -20px rgba(29, 78, 216, 0.42);
   }
 
   .btn-primary:hover {
-    box-shadow: 0 18px 36px -20px rgba(21, 59, 49, 0.62);
-    transform: translateY(-1px);
+    box-shadow: 0 26px 44px -20px rgba(29, 78, 216, 0.48);
+    transform: translateY(-1.5px);
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl border bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-[0.99];
+    @apply inline-flex items-center justify-center gap-2 rounded-[20px] border px-5 py-3 text-sm font-semibold text-slate-700 transition active:scale-[0.99];
     border-color: var(--line);
-    box-shadow: 0 12px 24px -22px rgba(21, 59, 49, 0.3);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(244, 248, 254, 0.9));
+    box-shadow: 0 18px 30px -24px rgba(15, 23, 42, 0.16);
+  }
+
+  .btn-secondary:hover {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(238, 245, 255, 0.96));
+    border-color: rgba(37, 99, 235, 0.18);
+    transform: translateY(-1px);
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold text-white transition active:scale-[0.99];
-    background: linear-gradient(135deg, #a62f28 0%, #cf4a3f 100%);
-    box-shadow: 0 16px 32px -20px rgba(166, 47, 40, 0.46);
+    @apply inline-flex items-center justify-center gap-2 rounded-[20px] px-5 py-3 text-sm font-semibold text-white transition active:scale-[0.99];
+    background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
+    box-shadow: 0 20px 34px -20px rgba(220, 38, 38, 0.36);
   }
 
   .input-primary {
-    @apply w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400;
+    @apply w-full rounded-[20px] border px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400;
     border-color: var(--line);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 248, 253, 0.94));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.75),
+      0 14px 24px -24px rgba(15, 23, 42, 0.2);
   }
 
   .input-primary:focus {
-    border-color: rgba(30, 106, 86, 0.42);
+    border-color: rgba(37, 99, 235, 0.36);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.75),
-      0 0 0 4px rgba(30, 106, 86, 0.12);
+      0 0 0 4px rgba(37, 99, 235, 0.12);
   }
 
   .page-shell {
-    @apply min-h-screen space-y-6 px-4 pb-12 pt-24 sm:px-6 lg:ml-[17.5rem] lg:px-8;
+    @apply min-h-screen space-y-6 px-4 pb-12 pt-24 sm:px-6 lg:px-8;
+  }
+
+  @media (min-width: 1024px) {
+    .page-shell {
+      padding-top: 1.5rem;
+      padding-bottom: 2.5rem;
+    }
+  }
+
+  .erp-app-shell {
+    min-height: 100vh;
+  }
+
+  .erp-app-main {
+    min-width: 0;
+    min-height: 100vh;
+  }
+
+  .erp-app-content {
+    min-width: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .erp-app-shell {
+      display: grid;
+      grid-template-columns: var(--erp-sidebar-width) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .erp-app-main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
   }
 
   .panel {
-    @apply rounded-[28px] border backdrop-blur-sm;
+    @apply relative rounded-[30px] border backdrop-blur-sm;
     border-color: var(--line);
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 252, 250, 0.94));
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(243, 247, 253, 0.88));
     box-shadow:
-      0 24px 58px -42px rgba(21, 59, 49, 0.32),
-      0 2px 10px -8px rgba(21, 33, 28, 0.12);
+      var(--shadow-soft),
+      0 2px 14px -10px rgba(15, 23, 42, 0.1);
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 92px;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(37, 99, 235, 0.14), transparent 34%),
+      radial-gradient(circle at 88% 12%, rgba(6, 182, 212, 0.12), transparent 32%);
+    pointer-events: none;
+  }
+
+  .display-title {
+    font-family: 'Sora', 'Noto Sans Devanagari', 'Manrope', sans-serif;
+    letter-spacing: -0.045em;
+    line-height: 1.04;
+  }
+
+  .display-heading {
+    font-family: 'Sora', 'Noto Sans Devanagari', 'Manrope', sans-serif;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
   }
 
   .section-kicker {
@@ -131,28 +205,30 @@
   }
 
   .section-heading {
-    @apply text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl;
+    @apply text-xl font-semibold text-slate-900 sm:text-2xl;
+    font-family: 'Sora', 'Noto Sans Devanagari', 'Manrope', sans-serif;
+    letter-spacing: -0.03em;
   }
 
   .status-pill {
-    @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium;
-    border-color: rgba(21, 33, 28, 0.08);
-    background: rgba(255, 255, 255, 0.88);
-    color: var(--ink-soft);
+    @apply inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold;
+    border-color: rgba(37, 99, 235, 0.12);
+    background: rgba(255, 255, 255, 0.8);
+    color: #4f5f79;
   }
 
   .action-tile {
     @apply flex items-start justify-between gap-4 rounded-[26px] border p-5 transition;
     border-color: var(--line);
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 247, 244, 0.92));
-    box-shadow: 0 18px 34px -30px rgba(21, 59, 49, 0.24);
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(238, 245, 255, 0.9));
+    box-shadow: 0 18px 34px -30px rgba(15, 23, 42, 0.18);
   }
 
   .action-tile:hover {
-    border-color: rgba(30, 106, 86, 0.18);
+    border-color: rgba(37, 99, 235, 0.18);
     transform: translateY(-1px);
-    box-shadow: 0 22px 38px -28px rgba(21, 59, 49, 0.28);
+    box-shadow: 0 24px 40px -28px rgba(37, 99, 235, 0.16);
   }
 
   .erp-page-header {
@@ -164,40 +240,124 @@
   }
 
   .erp-kpi-card {
-    @apply rounded-[26px] border bg-white p-5 transition;
+    @apply relative rounded-[28px] border p-5 transition;
     border-color: var(--line);
-    box-shadow: 0 20px 34px -32px rgba(21, 59, 49, 0.28);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(240, 246, 255, 0.95));
+    box-shadow: 0 24px 42px -34px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
+  }
+
+  .erp-kpi-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 120px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--brand), rgba(6, 182, 212, 0.72));
+    border-radius: 999px;
   }
 
   .erp-kpi-card:hover {
-    border-color: rgba(30, 106, 86, 0.18);
-    transform: translateY(-1px);
-    box-shadow: 0 24px 42px -30px rgba(21, 59, 49, 0.3);
+    border-color: rgba(37, 99, 235, 0.16);
+    transform: translateY(-2px);
+    box-shadow: 0 30px 50px -32px rgba(37, 99, 235, 0.16);
   }
 
   .erp-toolbar {
-    @apply flex flex-col gap-4 rounded-[26px] border bg-white p-4 md:flex-row md:items-center md:justify-between;
+    @apply flex flex-col gap-4 rounded-[26px] border p-4 md:flex-row md:items-center md:justify-between;
     border-color: var(--line);
-    box-shadow: 0 16px 30px -28px rgba(21, 59, 49, 0.22);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 246, 253, 0.92));
+    box-shadow: 0 18px 32px -28px rgba(15, 23, 42, 0.12);
   }
 
   .erp-chip {
-    @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold;
-    border-color: rgba(21, 33, 28, 0.08);
-    background-color: rgba(255, 255, 255, 0.86);
-    color: var(--ink-soft);
+    @apply inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold;
+    border-color: rgba(37, 99, 235, 0.1);
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #51627d;
+  }
+
+  .erp-filter-chip {
+    @apply inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 246, 254, 0.9));
+    color: #55657d;
+    box-shadow: 0 12px 24px -24px rgba(15, 23, 42, 0.16);
+  }
+
+  .erp-filter-chip:hover {
+    border-color: rgba(37, 99, 235, 0.18);
+    color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  .erp-filter-chip-active {
+    border-color: transparent;
+    background: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%);
+    color: #ffffff;
+    box-shadow: 0 20px 34px -24px rgba(37, 99, 235, 0.42);
   }
 
   .erp-subtle {
-    @apply rounded-[24px] border p-4;
-    border-color: rgba(21, 33, 28, 0.08);
-    background: linear-gradient(180deg, rgba(239, 244, 240, 0.95), rgba(255, 255, 255, 0.82));
+    @apply rounded-[26px] border p-4;
+    border-color: rgba(37, 99, 235, 0.08);
+    background:
+      linear-gradient(180deg, rgba(237, 244, 252, 0.94), rgba(255, 255, 255, 0.84));
+  }
+
+  .erp-soft-panel {
+    @apply rounded-[28px] border p-4;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 246, 254, 0.92));
+    box-shadow: 0 18px 34px -30px rgba(15, 23, 42, 0.14);
+  }
+
+  .erp-soft-panel-cyan {
+    border-color: rgba(6, 182, 212, 0.18);
+    background: linear-gradient(180deg, rgba(236, 254, 255, 0.96), rgba(255, 255, 255, 0.92));
+  }
+
+  .erp-soft-panel-amber {
+    border-color: rgba(245, 158, 11, 0.22);
+    background: linear-gradient(180deg, rgba(255, 251, 235, 0.96), rgba(255, 255, 255, 0.92));
+  }
+
+  .erp-inline-message {
+    @apply rounded-[24px] border px-4 py-3 text-sm;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+
+  .erp-inline-message-muted {
+    border-color: rgba(148, 163, 184, 0.16);
+    background: linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(241, 246, 254, 0.9));
+    color: #64748b;
+  }
+
+  .erp-inline-message-amber {
+    border-color: rgba(245, 158, 11, 0.22);
+    background: linear-gradient(180deg, rgba(255, 251, 235, 0.98), rgba(254, 243, 199, 0.42));
+    color: #a16207;
+  }
+
+  .erp-icon-button {
+    @apply inline-flex items-center justify-center rounded-2xl border p-2 transition;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 246, 254, 0.92));
+    color: #5b6980;
+    box-shadow: 0 12px 24px -24px rgba(15, 23, 42, 0.18);
+  }
+
+  .erp-icon-button:hover {
+    border-color: rgba(37, 99, 235, 0.18);
+    color: var(--ink);
+    transform: translateY(-1px);
   }
 
   .erp-table-shell {
     @apply overflow-hidden rounded-[26px] border bg-white;
     border-color: var(--line);
-    box-shadow: 0 18px 36px -32px rgba(21, 59, 49, 0.24);
+    box-shadow: 0 18px 36px -32px rgba(15, 23, 42, 0.14);
   }
 
   .erp-table {
@@ -206,7 +366,7 @@
 
   .erp-table thead {
     background:
-      linear-gradient(180deg, rgba(239, 244, 240, 0.95), rgba(250, 252, 250, 0.95));
+      linear-gradient(180deg, rgba(237, 243, 252, 0.95), rgba(249, 252, 255, 0.98));
   }
 
   .erp-table th {
@@ -215,7 +375,7 @@
 
   .erp-table td {
     @apply px-4 py-4 align-top text-sm text-slate-700;
-    border-top: 1px solid rgba(21, 33, 28, 0.06);
+    border-top: 1px solid rgba(15, 23, 42, 0.06);
   }
 
   .erp-form-grid {
@@ -228,78 +388,234 @@
 
   .erp-empty-state {
     @apply rounded-[28px] border border-dashed p-10 text-center;
-    border-color: rgba(21, 33, 28, 0.14);
-    background: rgba(255, 255, 255, 0.86);
+    border-color: rgba(37, 99, 235, 0.18);
+    background: rgba(255, 255, 255, 0.82);
   }
 
   .erp-list-row {
-    @apply flex items-center justify-between gap-4 rounded-[24px] border bg-white px-4 py-4 transition;
+    @apply flex items-center justify-between gap-4 rounded-[26px] border px-4 py-4 transition;
     border-color: var(--line);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(242, 247, 254, 0.92));
   }
 
   .erp-list-row:hover {
-    border-color: rgba(30, 106, 86, 0.14);
-    box-shadow: 0 18px 28px -30px rgba(21, 59, 49, 0.2);
+    border-color: rgba(37, 99, 235, 0.14);
+    transform: translateY(-1px);
+    box-shadow: 0 20px 30px -30px rgba(37, 99, 235, 0.14);
   }
 
   .erp-note-card {
     @apply rounded-[26px] border p-5;
-    border-color: rgba(208, 138, 55, 0.24);
-    background: linear-gradient(180deg, rgba(255, 249, 240, 0.96), rgba(255, 255, 255, 0.92));
+    border-color: rgba(56, 189, 248, 0.18);
+    background: linear-gradient(180deg, rgba(239, 248, 255, 0.96), rgba(255, 255, 255, 0.92));
+  }
+
+  .card {
+    @apply rounded-[28px] border;
+    border-color: var(--line);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 246, 254, 0.92));
+    box-shadow: 0 18px 38px -34px rgba(15, 23, 42, 0.16);
   }
 
   .erp-shell-topbar {
     @apply fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl;
-    border-color: rgba(21, 33, 28, 0.08);
-    background: rgba(255, 255, 255, 0.84);
+    border-color: rgba(148, 163, 184, 0.18);
+    background: linear-gradient(180deg, rgba(249, 252, 255, 0.86), rgba(255, 255, 255, 0.76));
+    box-shadow: 0 18px 42px -34px rgba(15, 23, 42, 0.16);
+  }
+
+  @media (min-width: 1024px) {
+    .erp-shell-topbar {
+      position: sticky;
+      inset: auto;
+      top: 0;
+      width: 100%;
+      z-index: 30;
+      border-left: 1px solid rgba(148, 163, 184, 0.14);
+      border-top-right-radius: 34px;
+      background:
+        linear-gradient(180deg, rgba(248, 251, 255, 0.96), rgba(243, 248, 255, 0.88)),
+        radial-gradient(circle at left center, rgba(37, 99, 235, 0.1), transparent 22%);
+      box-shadow: 0 20px 40px -34px rgba(15, 23, 42, 0.18);
+    }
+
+    .erp-shell-topbar::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 56px;
+      pointer-events: none;
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.18), rgba(15, 23, 42, 0));
+      opacity: 0.5;
+    }
+  }
+
+  .erp-shell-topbar-inner {
+    @apply flex min-h-[4.75rem] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8;
+  }
+
+  @media (min-width: 1024px) {
+    .erp-shell-topbar-inner {
+      padding-left: 2rem;
+    }
   }
 
   .erp-shell-sidebar {
-    @apply fixed left-0 top-0 z-40 flex h-screen w-[17.5rem] flex-col border-r transition-transform duration-200;
-    border-color: rgba(255, 255, 255, 0.08);
+    @apply fixed left-0 top-0 z-40 flex h-screen flex-col p-3 transition-transform duration-200;
+    width: min(calc(100vw - 0.75rem), calc(var(--erp-sidebar-width) + var(--erp-sidebar-gap)));
+  }
+
+  .erp-sidebar-surface {
+    @apply flex min-h-0 flex-1 flex-col overflow-hidden rounded-[32px] border backdrop-blur-xl;
+    border-color: rgba(37, 99, 235, 0.12);
     background:
-      radial-gradient(circle at top left, rgba(208, 138, 55, 0.16), transparent 24%),
-      linear-gradient(180deg, #182821 0%, #142019 100%);
-    box-shadow: 18px 0 44px -28px rgba(11, 18, 14, 0.65);
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.24), transparent 28%),
+      radial-gradient(circle at top right, rgba(6, 182, 212, 0.18), transparent 26%),
+      linear-gradient(180deg, rgba(11, 20, 36, 0.98), rgba(18, 30, 52, 0.98));
+    box-shadow:
+      0 34px 80px -34px rgba(2, 8, 23, 0.54),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  @media (min-width: 1024px) {
+    .erp-shell-sidebar {
+      position: sticky;
+      top: 0;
+      width: var(--erp-sidebar-width);
+      height: 100vh;
+      padding: 0;
+      transform: translateX(0);
+    }
+
+    .erp-sidebar-surface {
+      min-height: 100vh;
+      border-left: 0;
+      border-radius: 0 0 34px 0;
+      box-shadow:
+        inset -1px 0 0 rgba(255, 255, 255, 0.04),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  .erp-sidebar-brand-row {
+    @apply flex min-h-[4.75rem] items-center border-b px-6;
+    border-color: rgba(148, 163, 184, 0.14);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
   }
 
   .erp-sidebar-card {
-    @apply rounded-[26px] border p-4;
-    border-color: rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.06);
+    @apply rounded-[30px] border p-5;
+    border-color: rgba(148, 163, 184, 0.1);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(148, 163, 184, 0.08));
+    box-shadow:
+      0 22px 40px -30px rgba(2, 8, 23, 0.48),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
   .erp-sidebar-section {
-    @apply px-2 text-[11px] font-semibold uppercase tracking-[0.2em];
-    color: rgba(255, 255, 255, 0.45);
+    @apply px-3 text-[10px] font-semibold uppercase tracking-[0.24em];
+    color: rgba(186, 200, 221, 0.72);
   }
 
   .erp-sidebar-item {
-    @apply w-full rounded-[24px] border px-3 py-3 text-left transition;
-    border-color: transparent;
-    background: rgba(255, 255, 255, 0);
-    color: rgba(255, 255, 255, 0.9);
+    @apply relative isolate w-full overflow-hidden rounded-[26px] border px-3.5 py-3.5 text-left transition;
+    border-color: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+    color: #d8e3f2;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 10px 20px -18px rgba(2, 8, 23, 0.42);
+  }
+
+  .erp-sidebar-item::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0.7rem;
+    bottom: 0.7rem;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(96, 165, 250, 0.92), rgba(34, 211, 238, 0.86));
+    opacity: 0;
+    transform: scaleY(0.72);
+    transform-origin: center;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .erp-sidebar-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at left center, rgba(96, 165, 250, 0.12), transparent 34%);
+    opacity: 0;
+    transition: opacity 180ms ease;
+    pointer-events: none;
   }
 
   .erp-sidebar-item:hover {
-    border-color: rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(125, 211, 252, 0.18);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+    transform: translateX(2px);
+    box-shadow: 0 20px 36px -30px rgba(2, 8, 23, 0.58);
+  }
+
+  .erp-sidebar-item:hover::after {
+    opacity: 1;
   }
 
   .erp-sidebar-item-active {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.11);
+    border-color: rgba(96, 165, 250, 0.24);
+    background: linear-gradient(180deg, rgba(37, 99, 235, 0.24), rgba(6, 182, 212, 0.15));
+    transform: translateX(4px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 22px 38px -28px rgba(37, 99, 235, 0.28);
+  }
+
+  .erp-sidebar-item-active::before,
+  .erp-sidebar-item-active::after {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+
+  .erp-sidebar-icon-shell {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-[18px] border transition;
+    border-color: rgba(148, 163, 184, 0.15);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(148, 163, 184, 0.06));
+    color: #aac0df;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .erp-sidebar-item:hover .erp-sidebar-icon-shell {
+    border-color: rgba(125, 211, 252, 0.18);
+    color: #dff3ff;
+  }
+
+  .erp-sidebar-item-active .erp-sidebar-icon-shell {
+    border-color: transparent;
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+    color: #ffffff;
+    box-shadow: 0 18px 30px -20px rgba(37, 99, 235, 0.46);
+  }
+
+  .erp-sidebar-item-label {
+    @apply truncate text-[0.95rem] font-semibold;
+    color: #dfe9f8;
+  }
+
+  .erp-sidebar-item-active .erp-sidebar-item-label {
+    color: #ffffff;
   }
 
   .erp-sidebar-subitem {
     @apply flex w-full items-center gap-3 rounded-2xl border px-3 py-2 text-left text-sm transition;
     border-color: transparent;
-    color: rgba(226, 235, 230, 0.76);
+    color: rgba(203, 213, 225, 0.82);
   }
 
   .erp-sidebar-subitem:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.06);
     color: rgba(255, 255, 255, 0.96);
   }
 
@@ -310,31 +626,106 @@
   }
 
   .erp-module-card {
-    @apply rounded-[28px] border bg-white p-5 transition;
+    @apply rounded-[30px] border p-5 transition;
     border-color: var(--line);
-    box-shadow: 0 18px 38px -34px rgba(21, 59, 49, 0.28);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(239, 245, 254, 0.92));
+    box-shadow: 0 20px 44px -34px rgba(15, 23, 42, 0.16);
   }
 
   .erp-module-card:hover {
-    border-color: rgba(30, 106, 86, 0.18);
-    transform: translateY(-1px);
-    box-shadow: 0 26px 46px -34px rgba(21, 59, 49, 0.3);
+    border-color: rgba(37, 99, 235, 0.16);
+    transform: translateY(-2px);
+    box-shadow: 0 28px 50px -34px rgba(37, 99, 235, 0.14);
   }
 
   .erp-state-panel {
     @apply rounded-[28px] border p-8 shadow-sm;
     border-color: var(--line);
   }
+
+  .erp-topbar-button {
+    @apply inline-flex items-center gap-2 rounded-[20px] border px-3.5 py-2.5 text-sm font-medium transition;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 246, 254, 0.9));
+    color: #5b6980;
+    box-shadow: 0 12px 24px -24px rgba(15, 23, 42, 0.16);
+  }
+
+  .erp-topbar-button:hover {
+    border-color: rgba(37, 99, 235, 0.16);
+    color: var(--ink);
+    transform: translateY(-1px);
+  }
+
+  .erp-topbar-pill {
+    @apply flex items-center gap-2 rounded-full border px-3 py-2 text-sm;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: rgba(255, 255, 255, 0.76);
+    color: #5b6980;
+    box-shadow: 0 14px 28px -28px rgba(15, 23, 42, 0.16);
+  }
+
+  .erp-topbar-active-pill {
+    @apply flex items-center gap-3 rounded-full border px-3 py-2;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 246, 254, 0.92));
+    box-shadow: 0 16px 30px -28px rgba(15, 23, 42, 0.14);
+  }
+
+  .erp-avatar-shell {
+    @apply flex h-10 w-10 items-center justify-center rounded-[18px] text-sm font-semibold text-white;
+    background: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%);
+    box-shadow: 0 18px 32px -22px rgba(29, 78, 216, 0.34);
+  }
+
+  .erp-profile-trigger {
+    @apply flex items-center gap-3 rounded-[22px] border px-2.5 py-2 transition;
+    border-color: rgba(148, 163, 184, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 246, 254, 0.92));
+    box-shadow: 0 16px 30px -28px rgba(15, 23, 42, 0.14);
+  }
+
+  .erp-profile-trigger:hover {
+    border-color: rgba(37, 99, 235, 0.16);
+    transform: translateY(-1px);
+  }
+
+  .erp-menu-surface {
+    @apply rounded-[30px] border shadow-2xl;
+    border-color: rgba(148, 163, 184, 0.18);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(242, 247, 254, 0.96));
+    box-shadow: 0 30px 64px -36px rgba(15, 23, 42, 0.22);
+  }
+
+  .erp-sidebar-brand-mark {
+    @apply flex h-11 w-11 items-center justify-center rounded-[18px] text-sm font-bold text-white;
+    background: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 18px 34px -22px rgba(2, 8, 23, 0.5);
+  }
+
+  .erp-sidebar-primary {
+    @apply mt-5 flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-3.5 text-sm font-semibold transition;
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+    color: #ffffff;
+    box-shadow: 0 20px 32px -24px rgba(37, 99, 235, 0.52);
+  }
+
+  .erp-sidebar-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 24px 36px -22px rgba(37, 99, 235, 0.58);
+  }
 }
 
 @layer utilities {
   .gradient-bg {
-    background: linear-gradient(135deg, #153b31 0%, #1e6a56 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%);
   }
 
   .gradient-text {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #153b31 0%, #d08a37 100%);
+    background-image: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%);
   }
 
   .animate-fade-in {
@@ -351,8 +742,8 @@
 
   .subtle-grid {
     background-image:
-      linear-gradient(rgba(30, 106, 86, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(208, 138, 55, 0.06) 1px, transparent 1px);
+      linear-gradient(rgba(37, 99, 235, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.06) 1px, transparent 1px);
     background-size: 28px 28px;
   }
 }

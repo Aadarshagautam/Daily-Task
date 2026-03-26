@@ -67,20 +67,29 @@ const PAYMENT_METHOD_ICONS = {
 };
 
 const PILL_TONES = {
-  slate: "border-slate-200 bg-slate-50 text-slate-700",
-  teal: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  slate: "border-slate-200 bg-white/90 text-slate-700",
+  teal: "border-cyan-200 bg-cyan-50 text-cyan-700",
   amber: "border-amber-200 bg-amber-50 text-amber-700",
   rose: "border-rose-200 bg-rose-50 text-rose-700",
-  blue: "border-sky-200 bg-sky-50 text-sky-700",
+  blue: "border-blue-200 bg-blue-50 text-blue-700",
 };
 
 const PAYMENT_TONES = {
-  cash: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  card: "border-sky-200 bg-sky-50 text-sky-700",
+  cash: "border-cyan-200 bg-cyan-50 text-cyan-700",
+  card: "border-blue-200 bg-blue-50 text-blue-700",
   bank_transfer: "border-indigo-200 bg-indigo-50 text-indigo-700",
-  esewa: "border-lime-200 bg-lime-50 text-lime-700",
+  esewa: "border-teal-200 bg-teal-50 text-teal-700",
   khalti: "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700",
   credit: "border-amber-200 bg-amber-50 text-amber-700",
+};
+
+const PAYMENT_METHOD_HELPERS = {
+  cash: "Cash counter",
+  card: "Card machine",
+  bank_transfer: "Bank deposit",
+  esewa: "eSewa wallet",
+  khalti: "Khalti wallet",
+  credit: "Customer due",
 };
 
 const buildQuickCustomerSeed = (value = "") => {
@@ -119,7 +128,7 @@ function ProductListRow({ product, onClick }) {
       disabled={!sellable}
       className={`flex w-full items-center justify-between gap-4 rounded-3xl border p-4 text-left transition ${
         sellable
-          ? "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+          ? "border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(241,246,254,0.92))] shadow-[0_18px_32px_-28px_rgba(15,23,42,0.14)] hover:border-blue-200 hover:-translate-y-0.5 hover:shadow-[0_22px_38px_-28px_rgba(37,99,235,0.18)]"
           : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-400 opacity-60"
       }`}
     >
@@ -136,7 +145,7 @@ function ProductListRow({ product, onClick }) {
             </p>
           </div>
           {product.modifiers?.length > 0 ? (
-            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-700">
+            <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] font-semibold text-blue-700">
               <Star className="h-3 w-3 fill-current" />
               Options
             </span>
@@ -161,12 +170,12 @@ function ProductTile({ product, onClick }) {
       disabled={!sellable}
       className={`relative rounded-3xl border p-4 text-left transition ${
         sellable
-          ? "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 active:scale-[0.99]"
+          ? "border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(241,246,254,0.92))] shadow-[0_18px_32px_-28px_rgba(15,23,42,0.14)] hover:border-blue-200 hover:-translate-y-0.5 hover:shadow-[0_22px_38px_-28px_rgba(37,99,235,0.18)] active:scale-[0.99]"
           : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-400 opacity-60"
       }`}
     >
       {product.modifiers?.length > 0 ? (
-        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-700">
+        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-semibold text-blue-700">
           <Star className="h-3 w-3 fill-current" />
           Custom
         </span>
@@ -186,7 +195,7 @@ function ProductTile({ product, onClick }) {
 
 function HeldBillCard({ bill, onResume, onRemove }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="erp-soft-panel">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-slate-900">{bill.summary?.customerName || "Walk-in Customer"}</p>
@@ -195,7 +204,7 @@ function HeldBillCard({ bill, onResume, onRemove }) {
           </p>
           <p className="mt-1 text-[11px] text-slate-400">Held {bill.heldAt ? formatDateTimeNepal(bill.heldAt) : "recently"}</p>
         </div>
-        <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+        <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-700">
           {ORDER_TYPES[bill.orderType]?.label || bill.orderType || "Bill"}
         </span>
       </div>
@@ -236,7 +245,7 @@ function CartLine({ item, onDecrease, onIncrease, onQtyChange, onDiscountChange,
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <button type="button" onClick={onDecrease} className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50">
+          <button type="button" onClick={onDecrease} className="erp-icon-button h-10 w-10 p-0">
             <Minus className="h-4 w-4" />
           </button>
           <input
@@ -244,9 +253,9 @@ function CartLine({ item, onDecrease, onIncrease, onQtyChange, onDiscountChange,
             min="1"
             value={item.qty}
             onChange={(event) => onQtyChange(event.target.value)}
-            className="h-10 w-16 rounded-2xl border border-slate-200 bg-slate-50 px-2 text-center text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="h-10 w-16 rounded-2xl border border-slate-200 bg-[linear-gradient(180deg,rgba(248,251,255,0.96),rgba(241,246,254,0.9))] px-2 text-center text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
-          <button type="button" onClick={onIncrease} className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50">
+          <button type="button" onClick={onIncrease} className="erp-icon-button h-10 w-10 p-0">
             <Plus className="h-4 w-4" />
           </button>
         </div>
@@ -258,7 +267,7 @@ function CartLine({ item, onDecrease, onIncrease, onQtyChange, onDiscountChange,
               min="0"
               value={item.discount}
               onChange={(event) => onDiscountChange(event.target.value)}
-              className="ml-2 h-10 w-24 rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="ml-2 h-10 w-24 rounded-2xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
           </label>
           <button type="button" onClick={onRemove} className="flex h-10 w-10 items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 text-rose-600 transition hover:bg-rose-100">
@@ -273,22 +282,25 @@ function CartLine({ item, onDecrease, onIncrease, onQtyChange, onDiscountChange,
 function PaymentMethodButton({ method, active, onClick }) {
   const Icon = PAYMENT_METHOD_ICONS[method.key] || CreditCard;
   const toneClass = PAYMENT_TONES[method.key] || PILL_TONES.slate;
+  const helperText = PAYMENT_METHOD_HELPERS[method.key] || (method.key === "credit" ? "Save as due" : "Take payment");
 
   return (
     <button
       type="button"
       onClick={onClick}
       className={`rounded-3xl border px-3 py-3 text-left transition ${
-        active ? toneClass : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+        active
+          ? "border-transparent bg-[linear-gradient(135deg,#1d4ed8_0%,#06b6d4_100%)] text-white shadow-[0_22px_36px_-24px_rgba(37,99,235,0.42)]"
+          : "border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(241,246,254,0.92))] text-slate-700 hover:border-blue-200 hover:-translate-y-0.5 hover:shadow-[0_18px_32px_-26px_rgba(37,99,235,0.16)]"
       }`}
     >
       <div className="flex items-center gap-3">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${active ? "bg-white/80" : "bg-slate-100"}`}>
+        <div className={`flex h-10 w-10 items-center justify-center rounded-2xl border ${active ? "border-white/15 bg-white/15 text-white" : toneClass}`}>
           <Icon className="h-5 w-5" />
         </div>
         <div>
           <p className="text-sm font-semibold">{method.label}</p>
-          <p className="text-[11px] opacity-75">{method.key === "credit" ? "Save as due" : "Take payment"}</p>
+          <p className="text-[11px] opacity-75">{helperText}</p>
         </div>
       </div>
     </button>
@@ -338,7 +350,7 @@ function ModifierModal({ product, onConfirm, onClose }) {
             <h3 className="font-semibold text-slate-900">{product.name}</h3>
             <p className="text-sm text-slate-500">{formatShortCurrencyNpr(product.sellingPrice + extraPrice)}</p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-2xl p-2 text-slate-400 transition hover:bg-slate-100">
+          <button type="button" onClick={onClose} className="erp-icon-button p-2 text-slate-400">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -347,11 +359,11 @@ function ModifierModal({ product, onConfirm, onClose }) {
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">Quantity</label>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={() => setQty(Math.max(1, qty - 1))} className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 transition hover:bg-slate-200">
+              <button type="button" onClick={() => setQty(Math.max(1, qty - 1))} className="erp-icon-button h-10 w-10 p-0">
                 <Minus className="h-4 w-4" />
               </button>
               <span className="w-10 text-center text-xl font-bold text-slate-900">{qty}</span>
-              <button type="button" onClick={() => setQty(qty + 1)} className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 transition hover:bg-slate-200">
+              <button type="button" onClick={() => setQty(qty + 1)} className="erp-icon-button h-10 w-10 p-0">
                 <Plus className="h-4 w-4" />
               </button>
             </div>
@@ -372,11 +384,7 @@ function ModifierModal({ product, onConfirm, onClose }) {
                       key={option.label}
                       type="button"
                       onClick={() => toggleOption(modifier.name, option, modifier.multiSelect)}
-                      className={`rounded-2xl border px-3 py-2 text-sm transition ${
-                        selected
-                          ? "border-emerald-300 bg-emerald-50 font-medium text-emerald-700"
-                          : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                      }`}
+                      className={`erp-filter-chip rounded-2xl px-3 py-2 text-sm ${selected ? "erp-filter-chip-active" : ""}`}
                     >
                       {option.label}
                       {option.price > 0 ? <span className="ml-1 text-xs opacity-75">+{option.price}</span> : null}
@@ -736,6 +744,13 @@ export default function BillingScreen() {
     ...(!hasOpenShift && !isLoadingShift ? ["Open a cashier shift before checkout."] : []),
   ];
   const quickTenderValues = buildQuickTenderValues(totals.grandTotal);
+  const paymentMethodLabel = PAYMENT_METHOD_LABELS[paymentMethod] || "Payment";
+  const receivedAmountLabel =
+    paymentMethod === "credit"
+      ? "Amount to collect later"
+      : paymentMethod === "cash"
+        ? "Cash received"
+        : `${paymentMethodLabel} amount`;
 
   const handleCheckout = (intent = "pay") => {
     if (checkoutIssues.length > 0) {
@@ -882,13 +897,13 @@ export default function BillingScreen() {
               />
 
               {hasProductSearchError ? (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                <div className="erp-inline-message erp-inline-message-amber">
                   Product search is unavailable right now. You can still use the product list below.
                 </div>
               ) : null}
 
               {search.trim() && isSearchingProducts ? (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                <div className="erp-inline-message erp-inline-message-muted">
                   Looking for matching items...
                 </div>
               ) : null}
@@ -926,11 +941,7 @@ export default function BillingScreen() {
                   setOrderType(key);
                   if (key !== "dine-in") setSelectedTable(null);
                 }}
-                className={`flex min-h-12 items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-                  activeOrderType === key
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                }`}
+                className={`erp-filter-chip min-h-12 ${activeOrderType === key ? "erp-filter-chip-active" : ""}`}
               >
                 <Icon className="h-4 w-4" />
                 {label}
@@ -983,11 +994,7 @@ export default function BillingScreen() {
                       key={category}
                       type="button"
                       onClick={() => setActiveMenuCategory(category)}
-                      className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition ${
-                        activeMenuCategory === category
-                          ? "bg-slate-900 text-white"
-                          : "border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                      }`}
+                      className={`erp-filter-chip whitespace-nowrap ${activeMenuCategory === category ? "erp-filter-chip-active" : ""}`}
                     >
                       {category}
                     </button>
@@ -998,11 +1005,11 @@ export default function BillingScreen() {
               <div className="mt-4">
                 {search.trim() ? (
                   hasProductSearchError ? (
-                    <div className="rounded-3xl border border-amber-200 bg-amber-50 px-4 py-6 text-sm text-amber-800">Product search could not be loaded.</div>
+                    <div className="erp-inline-message erp-inline-message-amber rounded-3xl px-4 py-6">Product search could not be loaded.</div>
                   ) : isSearchingProducts ? (
-                    <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">Looking for matching products...</div>
+                    <div className="erp-inline-message erp-inline-message-muted rounded-3xl px-4 py-6">Looking for matching products...</div>
                   ) : searchResults.length === 0 ? (
-                    <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-sm text-slate-500">
+                    <div className="rounded-3xl border border-dashed border-slate-200 bg-[linear-gradient(180deg,rgba(248,251,255,0.96),rgba(241,246,254,0.92))] px-4 py-8 text-sm text-slate-500">
                       No matching product found. Try a barcode, SKU, or shorter item name.
                     </div>
                   ) : (
@@ -1011,11 +1018,11 @@ export default function BillingScreen() {
                     </div>
                   )
                 ) : hasCatalogError ? (
-                  <div className="rounded-3xl border border-amber-200 bg-amber-50 px-4 py-6 text-sm text-amber-800">Product catalog could not be loaded.</div>
+                  <div className="erp-inline-message erp-inline-message-amber rounded-3xl px-4 py-6">Product catalog could not be loaded.</div>
                 ) : isLoadingCatalog ? (
-                  <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">Loading product list...</div>
+                  <div className="erp-inline-message erp-inline-message-muted rounded-3xl px-4 py-6">Loading product list...</div>
                 ) : gridProducts.length === 0 ? (
-                  <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-sm text-slate-500">No items found in this category.</div>
+                  <div className="rounded-3xl border border-dashed border-slate-200 bg-[linear-gradient(180deg,rgba(248,251,255,0.96),rgba(241,246,254,0.92))] px-4 py-8 text-sm text-slate-500">No items found in this category.</div>
                 ) : (
                   <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                     {gridProducts.map((product) => <ProductTile key={product._id} product={product} onClick={handleProductClick} />)}
@@ -1027,7 +1034,7 @@ export default function BillingScreen() {
 
           <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
             <section className="panel overflow-hidden p-0">
-              <div className="border-b border-slate-100 bg-slate-50 px-4 py-4">
+              <div className="border-b border-slate-200/70 bg-[linear-gradient(180deg,rgba(248,251,255,0.96),rgba(241,246,254,0.88))] px-4 py-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-slate-900">Current bill</p>
@@ -1071,16 +1078,16 @@ export default function BillingScreen() {
                     </div>
 
                     {selectedTable ? (
-                      <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-4">
+                      <div className="erp-soft-panel erp-soft-panel-cyan">
                         <div className="flex items-start justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-emerald-900">Table {selectedTable.number}</p>
-                            <p className="mt-1 text-xs text-emerald-700">{selectedTable.section} / {selectedTable.capacity} seats</p>
+                            <p className="text-sm font-semibold text-cyan-900">Table {selectedTable.number}</p>
+                            <p className="mt-1 text-xs text-cyan-700">{selectedTable.section} / {selectedTable.capacity} seats</p>
                             {selectedTable.reservation?.customerName ? (
                               <p className="mt-2 text-[11px] font-medium text-amber-700">Reserved for {selectedTable.reservation.customerName}</p>
                             ) : null}
                           </div>
-                          <button type="button" onClick={() => setSelectedTable(null)} className="rounded-2xl p-2 text-emerald-700 transition hover:bg-white/60">
+                          <button type="button" onClick={() => setSelectedTable(null)} className="erp-icon-button p-2 text-cyan-700 hover:text-cyan-800">
                             <X className="h-4 w-4" />
                           </button>
                         </div>
@@ -1088,7 +1095,7 @@ export default function BillingScreen() {
                     ) : (
                       <div className="grid grid-cols-4 gap-2">
                         {availableTables.length === 0 ? (
-                          <div className="col-span-4 rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+                          <div className="col-span-4 rounded-3xl border border-dashed border-slate-200 bg-[linear-gradient(180deg,rgba(248,251,255,0.96),rgba(241,246,254,0.92))] px-4 py-6 text-center text-sm text-slate-500">
                             No tables available right now.
                           </div>
                         ) : (
@@ -1101,8 +1108,8 @@ export default function BillingScreen() {
                                 onClick={() => setSelectedTable(table)}
                                 className={`rounded-3xl border p-3 text-center transition ${
                                   reserved
-                                    ? "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
-                                    : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                                    ? "border-amber-200 bg-[linear-gradient(180deg,rgba(255,251,235,0.98),rgba(254,243,199,0.42))] text-amber-700 hover:-translate-y-0.5"
+                                    : "border-cyan-200 bg-[linear-gradient(180deg,rgba(236,254,255,0.98),rgba(207,250,254,0.46))] text-cyan-700 hover:-translate-y-0.5"
                                 }`}
                               >
                                 <p className="text-lg font-bold">{table.number}</p>
@@ -1147,7 +1154,7 @@ export default function BillingScreen() {
                           setShowQuickCustomerForm(false);
                           setLoyaltyRedeem(0);
                         }}
-                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-100"
+                        className="erp-filter-chip text-xs"
                       >
                         Walk-in
                       </button>
@@ -1157,7 +1164,7 @@ export default function BillingScreen() {
                           setShowQuickCustomerForm((current) => !current);
                           setQuickCustomer(buildQuickCustomerSeed(customerSearch));
                         }}
-                        className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100"
+                        className="erp-filter-chip text-xs"
                       >
                         Quick add
                       </button>
@@ -1165,16 +1172,16 @@ export default function BillingScreen() {
                   </div>
 
                   {activeCustomer ? (
-                    <div className={`rounded-3xl border p-4 ${isWalkInSelection ? "border-slate-200 bg-slate-50" : "border-indigo-200 bg-indigo-50"}`}>
+                    <div className={`${isWalkInSelection ? "erp-soft-panel" : "erp-soft-panel erp-soft-panel-cyan"}`}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-slate-900">{activeCustomer.name || "Walk-in Customer"}</p>
                           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-                            <span className={`rounded-full px-2 py-1 font-semibold uppercase tracking-[0.12em] ${isWalkInSelection ? "bg-white text-slate-600" : "bg-white/80 text-indigo-700"}`}>
+                            <span className={`rounded-full px-2 py-1 font-semibold uppercase tracking-[0.12em] ${isWalkInSelection ? "bg-white text-slate-600" : "bg-white/80 text-cyan-700"}`}>
                               {isWalkInSelection ? "Walk-in" : String(activeCustomer.customerType || "regular").replace(/_/g, " ")}
                             </span>
                             {activeCustomer.phone ? <span className="text-slate-600">{activeCustomer.phone}</span> : null}
-                            {hasSelectedCustomerAccount ? <span className="text-indigo-700">{activeCustomer.loyaltyPoints || 0} pts</span> : null}
+                            {hasSelectedCustomerAccount ? <span className="text-cyan-700">{activeCustomer.loyaltyPoints || 0} pts</span> : null}
                           </div>
                         </div>
                         {!isWalkInSelection ? (
@@ -1184,7 +1191,7 @@ export default function BillingScreen() {
                               setSelectedCustomer(null);
                               setLoyaltyRedeem(0);
                             }}
-                            className="rounded-2xl p-2 text-slate-500 transition hover:bg-white/70"
+                            className="erp-icon-button p-2"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -1219,7 +1226,7 @@ export default function BillingScreen() {
                     />
 
                     {showCustomerDropdown && customerSearch.trim() ? (
-                      <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
+                      <div className="absolute left-0 right-0 top-full z-20 mt-2 overflow-hidden rounded-3xl border border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(241,246,254,0.94))] shadow-[0_30px_60px_-34px_rgba(15,23,42,0.28)]">
                         {hasCustomerSearchError ? (
                           <div className="px-4 py-3 text-xs text-amber-700">Customer search could not be loaded right now.</div>
                         ) : isSearchingCustomers ? (
@@ -1256,7 +1263,7 @@ export default function BillingScreen() {
                                 setShowQuickCustomerForm(true);
                                 setQuickCustomer(buildQuickCustomerSeed(customerSearch));
                               }}
-                              className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+                              className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-cyan-700 hover:bg-cyan-50"
                             >
                               <span>Create quick customer</span>
                               <Plus className="h-4 w-4" />
@@ -1268,7 +1275,7 @@ export default function BillingScreen() {
                   </div>
 
                   {showQuickCustomerForm ? (
-                    <div className="mt-3 rounded-3xl border border-dashed border-emerald-200 bg-emerald-50/60 p-4">
+                    <div className="erp-soft-panel erp-soft-panel-cyan mt-3 border-dashed">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <input
                           type="text"
@@ -1302,7 +1309,7 @@ export default function BillingScreen() {
                   ) : null}
 
                   {hasSelectedCustomerAccount && (activeCustomer?.loyaltyPoints || 0) > 0 ? (
-                    <div className="mt-3 rounded-3xl border border-amber-200 bg-amber-50 p-4">
+                    <div className="erp-soft-panel erp-soft-panel-amber mt-3">
                       <p className="text-sm font-semibold text-amber-900">Redeem loyalty points</p>
                       <div className="mt-3 flex flex-wrap items-center gap-3">
                         <input
@@ -1311,7 +1318,7 @@ export default function BillingScreen() {
                           max={activeCustomer.loyaltyPoints || 0}
                           value={loyaltyRedeem}
                           onChange={(event) => setLoyaltyRedeem(Math.min(Number(event.target.value), activeCustomer.loyaltyPoints || 0))}
-                          className="h-11 w-28 rounded-2xl border border-amber-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          className="h-11 w-28 rounded-2xl border border-amber-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
                         />
                         <span className="text-xs font-medium text-amber-800">{loyaltyRedeem} pts = {formatShortCurrencyNpr(loyaltyRedeem * 0.5)} off</span>
                       </div>
@@ -1334,13 +1341,13 @@ export default function BillingScreen() {
 
             <section className="panel p-4 lg:p-5">
               <div className="space-y-4">
-                <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-4">
+                <div className="erp-soft-panel">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold text-slate-900">Bill total</p>
                       <p className="text-xs text-slate-500">Keep the final number large and easy to confirm.</p>
                     </div>
-                    {hasSelectedCustomerAccount ? <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-700">Earn {totals.pointsEarned} pts</span> : null}
+                    {hasSelectedCustomerAccount ? <span className="rounded-full border border-cyan-200 bg-cyan-50 px-2 py-1 text-[11px] font-semibold text-cyan-700">Earn {totals.pointsEarned} pts</span> : null}
                   </div>
 
                   <div className="mt-4 space-y-2">
@@ -1361,7 +1368,7 @@ export default function BillingScreen() {
                         min="0"
                         value={overallDiscount}
                         onChange={(event) => setOverallDiscount(Math.max(0, Number(event.target.value) || 0))}
-                        className="h-10 w-28 rounded-2xl border border-slate-200 bg-white px-3 text-right text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        className="h-10 w-28 rounded-2xl border border-slate-200 bg-white px-3 text-right text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
                       />
                     </div>
                     {totals.loyaltyDiscount > 0 ? (
@@ -1384,7 +1391,7 @@ export default function BillingScreen() {
 
                 <div>
                   <p className="text-sm font-semibold text-slate-900">Payment method</p>
-                  <p className="mt-1 text-xs text-slate-500">Choose how the customer is paying. Use Due only for unpaid balances.</p>
+                  <p className="mt-1 text-xs text-slate-500">Keep cash, eSewa, Khalti, bank, and due choices obvious for the cashier.</p>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     {paymentOptions.map((method) => (
                       <PaymentMethodButton key={method.key} method={method} active={paymentMethod === method.key} onClick={() => setPaymentMethod(method.key)} />
@@ -1393,9 +1400,9 @@ export default function BillingScreen() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-900">Amount received</label>
+                  <label className="mb-2 block text-sm font-semibold text-slate-900">{receivedAmountLabel}</label>
                   {paymentMethod === "credit" ? (
-                    <div className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <div className="erp-inline-message erp-inline-message-amber mb-3">
                       This bill will stay on the customer account as due. Pick a named customer before saving.
                     </div>
                   ) : null}
@@ -1403,7 +1410,7 @@ export default function BillingScreen() {
                     type="number"
                     min="0"
                     step="0.01"
-                    placeholder={paymentMethod === "credit" ? "Due bill" : totals.grandTotal.toFixed(2)}
+                    placeholder={paymentMethod === "credit" ? "Saved as customer due" : totals.grandTotal.toFixed(2)}
                     value={paymentMethod === "credit" ? "" : paidAmount}
                     onChange={(event) => setPaidAmount(event.target.value)}
                     disabled={paymentMethod === "credit"}
@@ -1416,7 +1423,7 @@ export default function BillingScreen() {
                           key={value}
                           type="button"
                           onClick={() => setPaidAmount(String(value))}
-                          className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-100"
+                          className="erp-filter-chip text-xs"
                         >
                           Rs. {value.toFixed(0)}
                         </button>
@@ -1431,15 +1438,15 @@ export default function BillingScreen() {
                 </div>
 
                 {!hasOpenShift && !isLoadingShift ? (
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">Open a cashier shift before taking payment.</div>
+                  <div className="erp-inline-message erp-inline-message-amber">Open a cashier shift before taking payment.</div>
                 ) : null}
 
                 {hasShiftError ? (
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">Shift status could not be checked. Open the shift page if payment looks blocked.</div>
+                  <div className="erp-inline-message erp-inline-message-amber">Shift status could not be checked. Open the shift page if payment looks blocked.</div>
                 ) : null}
 
                 {checkoutIssues.length > 0 ? (
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                  <div className="erp-inline-message erp-inline-message-amber p-4">
                     <div className="flex items-start gap-2">
                       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                       <div className="space-y-1">
@@ -1457,7 +1464,7 @@ export default function BillingScreen() {
                     className="btn-secondary justify-center disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <PauseCircle className="h-4 w-4" />
-                    Hold bill
+                    Hold for later
                   </button>
                   <button
                     type="button"
@@ -1466,7 +1473,7 @@ export default function BillingScreen() {
                     className="btn-secondary justify-center disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Printer className="h-4 w-4" />
-                    Pay and print
+                    Save and print
                   </button>
                 </div>
 
@@ -1484,8 +1491,8 @@ export default function BillingScreen() {
                   {saleMutation.isPending
                     ? "Saving bill..."
                     : paymentMethod === "credit"
-                      ? `Save due bill ${formatShortCurrencyNpr(totals.grandTotal)}`
-                      : `Pay now ${formatShortCurrencyNpr(totals.grandTotal)}`}
+                      ? `Save customer due ${formatShortCurrencyNpr(totals.grandTotal)}`
+                      : `Complete payment ${formatShortCurrencyNpr(totals.grandTotal)}`}
                 </button>
               </div>
             </section>

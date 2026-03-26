@@ -1,17 +1,14 @@
-export const BUSINESS_TYPES = ["restaurant", "cafe", "shop", "general"];
+export const BUSINESS_TYPES = ["restaurant", "cafe", "shop"];
 
 export const SOFTWARE_PLANS = ["single-branch", "growth", "multi-branch"];
 
 const DEFAULT_MODULES = [
-  "notes",
-  "todos",
   "accounting",
   "inventory",
   "customers",
   "invoices",
   "purchases",
   "reports",
-  "crm",
   "pos",
 ];
 
@@ -19,7 +16,6 @@ const MODULES_BY_BUSINESS = {
   restaurant: ["pos", "inventory", "customers", "purchases", "reports"],
   cafe: ["pos", "customers", "inventory", "reports"],
   shop: ["pos", "inventory", "customers", "invoices", "accounting", "purchases", "reports"],
-  general: DEFAULT_MODULES,
 };
 
 const BRANCH_LIMITS = {
@@ -29,7 +25,7 @@ const BRANCH_LIMITS = {
 };
 
 export function normalizeBusinessType(value) {
-  return BUSINESS_TYPES.includes(value) ? value : "general";
+  return BUSINESS_TYPES.includes(value) ? value : "shop";
 }
 
 export function normalizeSoftwarePlan(value) {

@@ -4,8 +4,8 @@ import { ArrowRight, Search } from 'lucide-react'
 
 const toneClasses = {
   amber: 'border-amber-200 bg-amber-50 text-amber-800',
-  teal: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-  blue: 'border-sky-200 bg-sky-50 text-sky-800',
+  teal: 'border-cyan-200 bg-cyan-50 text-cyan-800',
+  blue: 'border-blue-200 bg-blue-50 text-blue-800',
   rose: 'border-rose-200 bg-rose-50 text-rose-800',
   orange: 'border-orange-200 bg-orange-50 text-orange-800',
   emerald: 'border-emerald-200 bg-emerald-50 text-emerald-800',
@@ -14,8 +14,8 @@ const toneClasses = {
 
 const iconToneClasses = {
   amber: 'bg-amber-100 text-amber-700',
-  teal: 'bg-emerald-100 text-emerald-700',
-  blue: 'bg-sky-100 text-sky-700',
+  teal: 'bg-cyan-100 text-cyan-700',
+  blue: 'bg-blue-100 text-blue-700',
   rose: 'bg-rose-100 text-rose-700',
   orange: 'bg-orange-100 text-orange-700',
   emerald: 'bg-emerald-100 text-emerald-700',
@@ -35,11 +35,12 @@ export const PageHeader = ({
   className = '',
 }) => (
   <section className={`panel relative overflow-hidden p-6 sm:p-8 ${className}`}>
-    <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-r from-emerald-50/80 via-white/0 to-amber-50/70" />
+    <div className="absolute left-[-4rem] top-[-3rem] h-28 w-28 rounded-full bg-blue-200/30 blur-3xl" />
+    <div className="absolute right-[-3rem] top-[-2rem] h-24 w-24 rounded-full bg-cyan-200/30 blur-3xl" />
     <div className="relative erp-page-header">
       <div className="max-w-3xl">
         {eyebrow ? <p className="section-kicker">{eyebrow}</p> : null}
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">{title}</h1>
+        <h1 className="display-title mt-3 text-4xl font-semibold text-slate-950 sm:text-5xl">{title}</h1>
         {description ? (
           <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">{description}</p>
         ) : null}
@@ -105,13 +106,13 @@ export const KpiCard = ({
     <div className="erp-kpi-card">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">{value}</p>
-          {detail ? <p className="mt-2 text-sm leading-6 text-slate-600">{detail}</p> : null}
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">{title}</p>
+          <p className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-[2rem]">{value}</p>
+          {detail ? <p className="mt-3 text-sm leading-6 text-slate-600">{detail}</p> : null}
         </div>
         {Icon ? (
-          <div className={`rounded-2xl border px-3 py-3 ${toneClass}`}>
-            <div className={`flex h-5 w-5 items-center justify-center rounded-xl ${iconTone}`}>
+          <div className={`rounded-[22px] border px-3 py-3 shadow-sm ${toneClass}`}>
+            <div className={`flex h-5 w-5 items-center justify-center rounded-[14px] ${iconTone}`}>
               <Icon className="h-4 w-4" />
             </div>
           </div>
@@ -176,11 +177,11 @@ export const FieldLabel = ({ children, optional = false }) => (
 export const EmptyCard = ({ title, message, action = null, icon: Icon = null }) => (
   <div className="erp-empty-state">
     {Icon ? (
-      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-[18px] border border-blue-100 bg-blue-50 text-blue-700">
         <Icon className="h-6 w-6" />
       </div>
     ) : null}
-    <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+    <h3 className="text-lg font-semibold text-slate-950">{title}</h3>
     <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">{message}</p>
     {action ? <div className="mt-5">{action}</div> : null}
   </div>

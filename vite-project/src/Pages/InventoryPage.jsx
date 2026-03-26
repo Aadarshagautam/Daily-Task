@@ -67,7 +67,7 @@ const stockFilterLabels = {
 }
 
 const businessDescriptions = {
-  shop: 'See shelf stock, catch low items early, and update products without technical clutter.',
+  shop: 'See shelf stock, barcode items, and low-stock lines without extra office clutter.',
   restaurant: 'Keep ingredients, packaged items, and kitchen stock easy for owners and staff to follow.',
   cafe: 'Watch counter stock and ingredient levels before the rush creates shortages.',
   general: 'Simple stock control for Nepal retail, cafe, and restaurant teams.',
@@ -207,7 +207,7 @@ const InventoryItemModal = ({
         <button
           type="button"
           onClick={onClose}
-          className="rounded-2xl border border-slate-200 bg-white p-2 text-slate-500 transition hover:bg-slate-50"
+          className="erp-icon-button"
         >
           <X className="h-5 w-5" />
         </button>
@@ -393,13 +393,13 @@ const StockAdjustmentModal = ({
               Use a positive number to add stock and a negative number to reduce it.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-2xl border border-slate-200 bg-white p-2 text-slate-500 transition hover:bg-slate-50"
-          >
-            <X className="h-5 w-5" />
-          </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="erp-icon-button"
+        >
+          <X className="h-5 w-5" />
+        </button>
         </div>
 
         <form onSubmit={onSubmit} className="px-6 py-6">
@@ -872,6 +872,18 @@ const InventoryPage = () => {
   }
 
   const displayedMovements = Array.isArray(movements) ? movements.slice(0, 10) : []
+  const priorityStockItems = safeInventory
+    .filter((item) => ['low', 'out'].includes(getStockStatus(item)))
+    .sort((left, right) => {
+      const statusOrder = { out: 0, low: 1 }
+      const statusDifference = statusOrder[getStockStatus(left)] - statusOrder[getStockStatus(right)]
+
+      if (statusDifference !== 0) return statusDifference
+
+      return new Date(right.updatedAt || 0) - new Date(left.updatedAt || 0)
+    })
+    .slice(0, 5)
+  const recentMovementPreview = displayedMovements.slice(0, 4)
 
   if (loading) {
     return (
@@ -917,21 +929,21 @@ const InventoryPage = () => {
     <WorkspacePage className="mx-auto max-w-7xl">
       <PageHeader
         eyebrow="Inventory workspace"
-        title="Simple stock control"
+        title="Stock workspace"
         description={pageDescription}
-        badges={['Search by SKU or barcode', 'Low stock first', 'Recent stock history']}
+        badges={['Search by product, SKU, or barcode', 'Low-stock queue', 'Stock in / out history']}
         actions={(
           <>
             {stats.lowStock > 0 ? (
               <button type="button" onClick={focusLowStock} className="btn-secondary">
                 <AlertTriangle className="h-4 w-4" />
-                Review low stock
+                Open low-stock list
               </button>
             ) : null}
             {canCreateInventory ? (
               <button type="button" onClick={openCreateForm} className="btn-primary">
                 <Plus className="h-4 w-4" />
-                Add Product
+                Add stock item
               </button>
             ) : null}
           </>
@@ -941,39 +953,139 @@ const InventoryPage = () => {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <KpiCard
           icon={Package}
-          title="Total Products"
+          title="Tracked Items"
           value={stats.totalProducts}
           detail={`${categories.length} categories currently tracked`}
           tone="blue"
         />
         <KpiCard
           icon={AlertTriangle}
-          title="Low Stock Items"
+          title="Need Reorder"
           value={stats.lowStock}
           detail={stats.lowStock > 0 ? 'At or below the reorder level' : 'Nothing needs restock soon'}
           tone="amber"
         />
         <KpiCard
           icon={TrendingDown}
-          title="Out of Stock Items"
+          title="Out Right Now"
           value={stats.outOfStock}
           detail={stats.outOfStock > 0 ? 'Refill before the next rush or sale' : 'No item is fully out'}
           tone="rose"
         />
         <KpiCard
           icon={DollarSign}
-          title="Stock Value Estimate"
+          title="Stock Value (Cost)"
           value={formatCurrencyNpr(stats.stockValueEstimate)}
           detail="Based on current cost price"
           tone="teal"
         />
       </div>
 
+      <div className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
+        <SectionCard
+          eyebrow="Restock Queue"
+          title="See what needs buying or refill first."
+          description="Review these items before the next sale, kitchen prep, or supplier call."
+          action={stats.lowStock > 0 ? (
+            <button type="button" onClick={focusLowStock} className="btn-secondary">
+              <AlertTriangle className="h-4 w-4" />
+              Open low-stock list
+            </button>
+          ) : null}
+        >
+          {priorityStockItems.length === 0 ? (
+            <EmptyCard
+              title="No buying pressure right now"
+              message="Everything is above the reorder level today."
+              icon={Package}
+            />
+          ) : (
+            <div className="space-y-3">
+              {priorityStockItems.map((item) => {
+                const statusMeta = getStockStatusMeta(item)
+
+                return (
+                  <div key={item._id} className="erp-list-row">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{item.productName}</p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {item.category || 'Uncategorized'}
+                        {' / '}
+                        {item.supplier || 'Supplier not added'}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <StatusBadge tone={statusMeta.tone}>{statusMeta.label}</StatusBadge>
+                      <p className="mt-2 text-sm font-semibold text-slate-900">
+                        {formatQuantity(item.quantity)} in stock
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Reorder at {Number(item.lowStockAlert) > 0 ? formatQuantity(item.lowStockAlert) : 'not set'}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </SectionCard>
+
+        <SectionCard
+          eyebrow="Recent stock history"
+          title="Watch stock in, stock out, and corrections."
+          description="Use this board to review purchase receipts, wastage, damages, returns, and physical count updates quickly."
+          action={recentMovementPreview.length > 0 ? (
+            <button type="button" onClick={scrollToHistory} className="btn-secondary">
+              <History className="h-4 w-4" />
+              Open history
+            </button>
+          ) : null}
+        >
+          {recentMovementPreview.length === 0 ? (
+            <EmptyCard
+              title="No stock movement yet"
+              message="New purchase receipts, adjustments, wastage, and returns will show here."
+              icon={History}
+            />
+          ) : (
+            <div className="space-y-3">
+              {recentMovementPreview.map((movement) => {
+                const movementMeta = getMovementMeta(movement)
+                const MovementIcon = movementMeta.icon
+
+                return (
+                  <div key={movement._id} className="erp-list-row">
+                    <div className="flex items-start gap-3">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${movementMeta.iconClass}`}>
+                        <MovementIcon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {movement.inventoryItemId?.productName || 'Inventory item'}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">{movement.reason || 'Stock update'}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className={`text-sm font-semibold ${movementMeta.amountClass}`}>
+                        {movementMeta.sign}
+                        {formatQuantity(movement.qty)}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">{formatDateTimeNepal(movement.createdAt)}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </SectionCard>
+      </div>
+
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(20rem,0.95fr)]">
         <div ref={inventorySectionRef}>
           <SectionCard
-            title="Inventory list"
-            description="Search by product, SKU, barcode, or supplier. Use the filters to focus on what needs attention now."
+            title="Stock list"
+            description="Search by product, SKU, barcode, or supplier. Use the filters to find low, out, or healthy items fast."
             action={hasActiveFilters ? (
               <button type="button" onClick={clearFilters} className="btn-secondary">
                 <X className="h-4 w-4" />
@@ -1008,7 +1120,7 @@ const InventoryPage = () => {
 
                 <div className="text-sm text-slate-500">
                   Showing <span className="font-semibold text-slate-900">{filteredInventory.length}</span> of{' '}
-                  <span className="font-semibold text-slate-900">{safeInventory.length}</span> items
+                  <span className="font-semibold text-slate-900">{safeInventory.length}</span> stock items
                 </div>
               </div>
 
@@ -1024,14 +1136,10 @@ const InventoryPage = () => {
                       key={value}
                       type="button"
                       onClick={() => setStockFilter(value)}
-                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                        stockFilter === value
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                      }`}
+                      className={`erp-filter-chip ${stockFilter === value ? 'erp-filter-chip-active' : ''}`}
                     >
                       <span>{label}</span>
-                      <span className="rounded-full bg-white/80 px-2 py-0.5 text-xs text-slate-500">
+                      <span className={`rounded-full px-2 py-0.5 text-xs ${stockFilter === value ? 'bg-white/20 text-white' : 'bg-white/80 text-slate-500'}`}>
                         {count}
                       </span>
                     </button>
@@ -1041,13 +1149,13 @@ const InventoryPage = () => {
 
               {safeInventory.length === 0 ? (
                 <EmptyCard
-                  title="No inventory items yet"
-                  message="Start with the products your team checks every day. Once items are added, low stock and recent changes will show here."
+                  title="No stock items yet"
+                  message="Start with the items your team buys, sells, or counts every day. Once added, low stock and recent changes will show here."
                   icon={Package}
                   action={canCreateInventory ? (
                     <button type="button" onClick={openCreateForm} className="btn-primary">
                       <Plus className="h-4 w-4" />
-                      Add first product
+                      Add first stock item
                     </button>
                   ) : null}
                 />
@@ -1139,7 +1247,7 @@ const InventoryPage = () => {
                                         <button
                                           type="button"
                                           onClick={() => openEditForm(item)}
-                                          className="rounded-2xl border border-slate-200 bg-white p-2 text-slate-500 transition hover:bg-slate-50 hover:text-emerald-700"
+                                          className="erp-icon-button hover:text-blue-700"
                                           title="Edit product"
                                         >
                                           <Edit className="h-4 w-4" />
@@ -1149,7 +1257,7 @@ const InventoryPage = () => {
                                         <button
                                           type="button"
                                           onClick={() => handleDeleteItem(item._id)}
-                                          className="rounded-2xl border border-slate-200 bg-white p-2 text-slate-500 transition hover:bg-rose-50 hover:text-rose-700"
+                                          className="erp-icon-button hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
                                           title="Delete product"
                                         >
                                           <Trash2 className="h-4 w-4" />
@@ -1184,11 +1292,11 @@ const InventoryPage = () => {
                           </div>
 
                           <div className="mt-4 grid grid-cols-2 gap-3">
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <div className="erp-soft-panel p-3">
                               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Current stock</p>
                               <p className="mt-2 text-xl font-semibold text-slate-900">{formatQuantity(item.quantity)}</p>
                             </div>
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                            <div className="erp-soft-panel p-3">
                               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Reorder level</p>
                               <p className="mt-2 text-xl font-semibold text-slate-900">
                                 {Number(item.lowStockAlert) > 0 ? formatQuantity(item.lowStockAlert) : 'Not set'}
@@ -1227,7 +1335,7 @@ const InventoryPage = () => {
                               <button
                                 type="button"
                                 onClick={() => openEditForm(item)}
-                                className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                                className="erp-filter-chip text-xs"
                               >
                                 <Edit className="h-4 w-4" />
                                 Edit
@@ -1237,7 +1345,7 @@ const InventoryPage = () => {
                               <button
                                 type="button"
                                 onClick={() => handleDeleteItem(item._id)}
-                                className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
+                                className="erp-filter-chip border-rose-200 text-xs text-rose-700 hover:border-rose-300 hover:text-rose-700"
                               >
                                 <Trash2 className="h-4 w-4" />
                                 Delete
@@ -1311,7 +1419,7 @@ const InventoryPage = () => {
                   return (
                     <div
                       key={movement._id}
-                      className="rounded-[24px] border border-slate-200 bg-white px-4 py-4"
+                      className="erp-soft-panel rounded-[24px] px-4 py-4"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex min-w-0 gap-3">

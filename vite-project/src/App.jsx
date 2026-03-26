@@ -11,11 +11,7 @@ import StatePanel from './components/StatePanel.jsx'
 const Login = lazy(() => import('./Pages/Auth/Login.jsx'))
 const EmailVerifty = lazy(() => import('./Pages/Auth/EmailVerifty.jsx'))
 const ResetPassword = lazy(() => import('./Pages/Auth/ResetPassword.jsx'))
-const CreatePages = lazy(() => import('./Pages/CreatePages.jsx'))
-const NoteDetailPage = lazy(() => import('./Pages/NoteDetailPage.jsx'))
 const Dashboard = lazy(() => import('./Pages/Dashboard.jsx'))
-const HomePages = lazy(() => import('./Pages/HomePages.jsx'))
-const TodoPage = lazy(() => import('./Pages/TodoPage.jsx'))
 const AccountingPage = lazy(() => import('./Pages/AccountingPage.jsx'))
 const InventoryPage = lazy(() => import('./Pages/InventoryPage.jsx'))
 const ReportsPage = lazy(() => import('./Pages/ReportsPage.jsx'))
@@ -24,15 +20,9 @@ const CustomersPage = lazy(() => import('./Pages/CustomersPage.jsx'))
 const InvoicesPage = lazy(() => import('./Pages/InvoicesPage.jsx'))
 const InvoiceFormPage = lazy(() => import('./Pages/InvoiceFormPage.jsx'))
 const InvoiceDetailPage = lazy(() => import('./Pages/InvoiceDetailPage.jsx'))
-const CRMPage = lazy(() => import('./Pages/CRMPage.jsx'))
-const AppSwitcher = lazy(() => import('./components/AppSwitcher.jsx'))
 const SettingsPage = lazy(() => import('./Pages/SettingsPage.jsx'))
-const SuiteHomePage = lazy(() => import('./Pages/SuiteHomePage.jsx'))
-const LandingPage = lazy(() => import('./Pages/LandingPage.jsx'))
-const SoftwareProductPage = lazy(() => import('./Pages/SoftwareProductPage.jsx'))
 const POSDashboard = lazy(() => import('./features/pos/POSDashboard.jsx'))
 const ProductManagement = lazy(() => import('./features/pos/ProductManagement.jsx'))
-const CustomerManagement = lazy(() => import('./features/pos/CustomerManagement.jsx'))
 const BillingScreen = lazy(() => import('./features/pos/BillingScreen.jsx'))
 const SalesHistory = lazy(() => import('./features/pos/SalesHistory.jsx'))
 const PosInvoiceDetail = lazy(() => import('./features/pos/InvoiceDetail.jsx'))
@@ -63,19 +53,7 @@ const App = () => {
       <Routes>
         <Route
           path="/"
-          element={
-            <LazyScreen>
-              <LandingPage />
-            </LazyScreen>
-          }
-        />
-        <Route
-          path="/software/:slug"
-          element={
-            <LazyScreen>
-              <SoftwareProductPage />
-            </LazyScreen>
-          }
+          element={<Navigate to="/dashboard" replace />}
         />
 
         <Route
@@ -104,27 +82,6 @@ const App = () => {
         />
 
         <Route
-          path="/create"
-          element={
-            <ProtectedRoute>
-              <LazyScreen>
-                <CreatePages />
-              </LazyScreen>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notes/:id"
-          element={
-            <ProtectedRoute>
-              <LazyScreen>
-                <NoteDetailPage />
-              </LazyScreen>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
           element={
             <ProtectedRoute>
               <PackageRoute>
@@ -133,16 +90,7 @@ const App = () => {
             </ProtectedRoute>
           }
         >
-          <Route path="/home" element={<LazyScreen><SuiteHomePage /></LazyScreen>} />
           <Route path="/dashboard" element={<LazyScreen><Dashboard /></LazyScreen>} />
-          <Route
-            path="/notes"
-            element={<PermissionRoute permission="notes.read" title="Notes access is restricted"><LazyScreen><HomePages /></LazyScreen></PermissionRoute>}
-          />
-          <Route
-            path="/todos"
-            element={<PermissionRoute permission="todos.read" title="Tasks access is restricted"><LazyScreen><TodoPage /></LazyScreen></PermissionRoute>}
-          />
           <Route
             path="/accounting"
             element={<PermissionRoute permission="accounting.read" title="Finance access is restricted"><LazyScreen><AccountingPage /></LazyScreen></PermissionRoute>}
@@ -161,7 +109,7 @@ const App = () => {
           />
           <Route
             path="/customers"
-            element={<PermissionRoute permission="customers.read" title="Customer access is restricted"><LazyScreen><CustomersPage /></LazyScreen></PermissionRoute>}
+            element={<PermissionRoute permission="customers.read" title="Customer access is restricted"><LazyScreen><CustomersPage scope="standard" /></LazyScreen></PermissionRoute>}
           />
           <Route
             path="/invoices"
@@ -212,14 +160,6 @@ const App = () => {
             )}
           />
           <Route
-            path="/crm"
-            element={<PermissionRoute permission="crm.read" title="CRM access is restricted"><LazyScreen><CRMPage /></LazyScreen></PermissionRoute>}
-          />
-          <Route path="/crm/leads" element={<Navigate to="/crm" replace />} />
-          <Route path="/crm/leads/new" element={<Navigate to="/crm" replace />} />
-          <Route path="/crm/leads/:id/edit" element={<Navigate to="/crm" replace />} />
-          <Route path="/crm/pipeline" element={<Navigate to="/crm" replace />} />
-          <Route
             path="/pos"
             element={<PermissionRoute permission="pos.read" title="POS access is restricted"><LazyScreen><POSDashboard /></LazyScreen></PermissionRoute>}
           />
@@ -229,7 +169,7 @@ const App = () => {
           />
           <Route
             path="/pos/customers"
-            element={<PermissionRoute permission="pos.customers.read" title="Guest access is restricted"><LazyScreen><CustomerManagement /></LazyScreen></PermissionRoute>}
+            element={<PermissionRoute permission="pos.customers.read" title="Guest access is restricted"><LazyScreen><CustomersPage scope="pos" /></LazyScreen></PermissionRoute>}
           />
           <Route
             path="/pos/billing"
@@ -255,7 +195,6 @@ const App = () => {
             path="/pos/shifts"
             element={<PermissionRoute permission="pos.shifts.read" title="Shift access is restricted"><LazyScreen><ShiftManagement /></LazyScreen></PermissionRoute>}
           />
-          <Route path="/apps" element={<LazyScreen><AppSwitcher /></LazyScreen>} />
           <Route
             path="/settings"
             element={<PermissionRoute permission="settings.read" title="Settings access is restricted"><LazyScreen><SettingsPage /></LazyScreen></PermissionRoute>}

@@ -124,7 +124,7 @@ export default function KitchenDisplay() {
 
   if (!posMeta.allowKitchen) {
     return (
-      <div className="p-4 lg:pl-[17.5rem] pt-20 min-h-screen bg-gray-50/50">
+      <div className="min-h-screen bg-gray-50/50 px-4 pb-8 pt-24 sm:px-6 lg:px-8 lg:pt-6">
         <div className="max-w-3xl mx-auto rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
           <h1 className="text-2xl font-bold text-slate-900">Kitchen display is not part of this package</h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -139,7 +139,7 @@ export default function KitchenDisplay() {
   }
 
   return (
-    <div className="p-4 lg:pl-[17.5rem] pt-20 min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 px-4 pb-8 pt-24 sm:px-6 lg:px-8 lg:pt-6">
       <div className="max-w-7xl mx-auto space-y-4">
 
         {/* Header */}

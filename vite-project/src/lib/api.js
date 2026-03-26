@@ -5,8 +5,10 @@ import {
   reportBrowserEvent,
 } from "./monitoring.js";
 
+const backendBaseUrl = (import.meta.env?.VITE_BACKEND_URL || "").replace(/\/+$/, "");
+
 const api = axios.create({
-  baseURL: `${import.meta.env?.VITE_BACKEND_URL || "http://localhost:5001"}/api`,
+  baseURL: backendBaseUrl ? `${backendBaseUrl}/api` : "/api",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

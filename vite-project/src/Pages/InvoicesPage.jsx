@@ -214,7 +214,7 @@ const InvoicesPage = () => {
 
   if (loading) {
     return (
-      <div className="lg:ml-64 flex items-center justify-center h-screen bg-gray-50">
+      <div className="page-shell flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-lg font-medium text-gray-700">Loading invoices...</p>
@@ -224,7 +224,7 @@ const InvoicesPage = () => {
   }
 
   return (
-    <div className="lg:ml-64 p-8 bg-gray-50 min-h-screen">
+    <div className="page-shell bg-gray-50">
       {/* Header */}
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
